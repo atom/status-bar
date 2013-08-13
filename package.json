@@ -1,4 +1,19 @@
 {
+  "name": "status-bar",
+  "version": "0.0.0",
   "main": "./lib/status-bar-view",
-  "description": "Display information about the current editor such as cursor position, file path, grammar, current branch, and line diff count."
+  "description": "Display information about the current editor such as cursor position, file path, grammar, current branch, and line diff count.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/atom/status-bar.git"
+  },
+  "bugs": {
+    "url": "https://github.com/atom/status-bar/issues"
+  },
+  "engines": {
+    "atom": "*"
+  },
+  "publishConfig": {
+    "registry": "https://atom.iriscouch.com/registry/_design/app/_rewrite"
+  }
 }
