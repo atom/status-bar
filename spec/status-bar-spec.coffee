@@ -197,13 +197,21 @@ describe "StatusBar", ->
     it "displays the name of the current grammar", ->
       expect(statusBar.find('.grammar-name').text()).toBe 'JavaScript'
 
-    it "hides the label when the current grammar is the null grammar", ->
+    it "displays Plain Text when the current grammar is the null grammar", ->
       rootView.attachToDom()
       editor.activeEditSession.setGrammar(syntax.nullGrammar)
-      expect(statusBar.find('.grammar-name')).toBeHidden()
+      expect(statusBar.find('.grammar-name')).toBeVisible()
+      expect(statusBar.find('.grammar-name').text()).toBe 'Plain Text'
       editor.reloadGrammar()
       expect(statusBar.find('.grammar-name')).toBeVisible()
       expect(statusBar.find('.grammar-name').text()).toBe 'JavaScript'
+
+    it "hides the label when the current grammar is null", ->
+      rootView.attachToDom()
+      spyOn(editor, 'getGrammar').andReturn null
+      editor.activeEditSession.setGrammar(syntax.nullGrammar)
+
+      expect(statusBar.find('.grammar-name')).toBeHidden()
 
     describe "when the editor's grammar changes", ->
       it "displays the new grammar of the editor", ->

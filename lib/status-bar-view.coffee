@@ -71,10 +71,14 @@ class StatusBarView extends View
 
   updateGrammarText: ->
     grammar = @pane.activeView.getGrammar?()
-    if not grammar? or grammar is syntax.nullGrammar
-      @grammarName.hide()
+    if grammar?
+      if grammar is syntax.nullGrammar
+        grammarName = 'Plain Text'
+      else
+        grammarName = grammar.name
+      @grammarName.text(grammarName).show()
     else
-      @grammarName.text(grammar.name).show()
+      @grammarName.hide()
 
   updateBufferHasModifiedText: (isModified) =>
     if isModified
