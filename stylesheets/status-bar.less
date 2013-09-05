@@ -2,7 +2,7 @@
 @import "octicon-mixins";
 
 .status-bar {
-  padding: 5px 10px;
+  padding: @component-padding/2 @component-padding;
   font-size: 11px;
   line-height: 14px;
   position: relative;
@@ -11,17 +11,6 @@
   overflow: hidden;
   white-space: nowrap;
   min-width: -webkit-min-content;
-
-  .cursor-position,
-  .grammar-name {
-    margin-left: 10px;
-  }
-
-  .grammar-name {
-    cursor: pointer;
-    border: 1px solid transparent;
-    padding: 1px 2px;
-  }
 
   // All icons are smaller than normal (normal is 16px)
   .icon:before {
