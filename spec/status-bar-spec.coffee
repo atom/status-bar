@@ -152,7 +152,7 @@ describe "StatusBar", ->
       fsUtils.writeSync(filePath, "i've changed for the worse")
       project.getRepo().getPathStatus(filePath)
       rootView.open(filePath)
-      expect(statusBar.gitStatusIcon).toHaveClass('modified-status-icon')
+      expect(statusBar.gitStatusIcon).toHaveClass('icon-diff-modified')
 
     it "doesn't display the modified icon for an unchanged file", ->
       rootView.open(filePath)
@@ -160,26 +160,26 @@ describe "StatusBar", ->
 
     it "displays the new icon for a new file", ->
       rootView.open(newPath)
-      expect(statusBar.gitStatusIcon).toHaveClass('new-status-icon')
+      expect(statusBar.gitStatusIcon).toHaveClass('icon-diff-added')
 
     it "displays the ignored icon for an ignored file", ->
       rootView.open(ignoredPath)
-      expect(statusBar.gitStatusIcon).toHaveClass('ignored-status-icon')
+      expect(statusBar.gitStatusIcon).toHaveClass('icon-diff-ignored')
 
     it "updates when a status-changed event occurs", ->
       fsUtils.writeSync(filePath, "i've changed for the worse")
       project.getRepo().getPathStatus(filePath)
       rootView.open(filePath)
-      expect(statusBar.gitStatusIcon).toHaveClass('modified-status-icon')
+      expect(statusBar.gitStatusIcon).toHaveClass('icon-diff-modified')
       fsUtils.writeSync(filePath, originalPathText)
       project.getRepo().getPathStatus(filePath)
-      expect(statusBar.gitStatusIcon).not.toHaveClass('modified-status-icon')
+      expect(statusBar.gitStatusIcon).not.toHaveClass('icon-diff-modified')
 
     it "displays the diff stat for modified files", ->
       fsUtils.writeSync(filePath, "i've changed for the worse")
       project.getRepo().getPathStatus(filePath)
       rootView.open(filePath)
-      expect(statusBar.gitStatusIcon).toHaveText('+1,-1')
+      expect(statusBar.gitStatusIcon).toHaveText('+1, -1')
 
     it "displays the diff stat for new files", ->
       rootView.open(newPath)
