@@ -14,18 +14,18 @@ class StatusBarView extends View
         @div class: 'git-branch inline-block', outlet: 'branchArea', =>
           @span class: 'icon icon-git-branch'
           @span class: 'branch-label', outlet: 'branchLabel'
-        @div class: 'git-commits inline-block', outlet: 'branchArea', =>
+        @div class: 'git-commits inline-block', outlet: 'commitsArea', =>
           @span class: 'icon icon-arrow-up commits-ahead-label', outlet: 'commitsAhead'
           @span class: 'icon icon-arrow-down commits-behind-label', outlet: 'commitsBehind'
         @div class: 'git-status inline-block', outlet: 'gitStatus', =>
           @span outlet: 'gitStatusIcon'
 
       @div class: 'status-bar-left', =>
-        @span class: 'file-info', =>
+        @div class: 'file-info inline-block', =>
           @span class: 'current-path', outlet: 'currentPath'
           @span class: 'buffer-modified', outlet: 'bufferModified'
-        @span class: 'cursor-position', outlet: 'cursorPosition'
-        @span class: 'grammar-name', outlet: 'grammarName'
+        @div class: 'cursor-position inline-block', outlet: 'cursorPosition'
+        @a href: '#', class: 'grammar-name inline-block', outlet: 'grammarName'
 
   initialize: (rootView, @pane) ->
     @updatePathText()
@@ -36,7 +36,7 @@ class StatusBarView extends View
       @updatePathText()
 
     @subscribe @pane, 'cursor:moved', => @updateCursorPositionText()
-    @subscribe @grammarName, 'click', => @pane.activeView.trigger 'grammar-selector:show'
+    @subscribe @grammarName, 'click', => @pane.activeView.trigger('grammar-selector:show'); false
     @subscribe @pane, 'editor:grammar-changed', => @updateGrammarText()
 
     repo = project.getRepo()
