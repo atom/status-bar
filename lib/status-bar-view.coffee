@@ -9,7 +9,7 @@ class StatusBarView extends View
       pane.append(new StatusBarView(rootView, pane))
 
   @content: ->
-    @div class: 'status-bar', =>
+    @div class: 'status-bar tool-panel panel-bottom', =>
       @span class: 'git-branch', outlet: 'branchArea', =>
         @span class: 'octicons branch-icon'
         @span class: 'branch-label', outlet: 'branchLabel'
