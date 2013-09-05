@@ -1,5 +1,5 @@
-@import "octicon-utf-codes.less";
-@import "octicon-mixins.less";
+@import "ui-variables";
+@import "octicon-mixins";
 
 .status-bar {
   padding: 5px 10px;
@@ -11,67 +11,27 @@
   overflow: hidden;
   white-space: nowrap;
   min-width: -webkit-min-content;
-}
 
-.status-bar .git-branch {
-  margin-left: 10px;
-  float: right;
-}
+  .cursor-position,
+  .grammar-name {
+    margin-left: 10px;
+  }
 
-.status-bar .cursor-position,
-.status-bar .grammar-name {
-  margin-left: 10px;
-}
+  .grammar-name {
+    cursor: pointer;
+    border: 1px solid transparent;
+    padding: 1px 2px;
+  }
 
-.status-bar .grammar-name {
-  cursor: pointer;
-  border: 1px solid transparent;
-  padding: 1px 2px;
-}
+  // All icons are smaller than normal (normal is 16px)
+  .icon:before {
+    .icon-size(14px);
+    margin-right: 0px;
+  }
 
-.status-bar .branch-label {
-  vertical-align: baseline;
-}
-
-.status-bar .git-status.octicons {
-  display: none;
-  padding-left: 10px;
-  margin-top: -2px;
-}
-
-.status-bar .octicons:before {
-  .icon(14px);
-  vertical-align: middle;
-  margin-right: 5px;
-}
-
-.status-bar .branch-icon:before {
-  content: @git-branch;
-}
-
-.status-bar .modified-status-icon:before {
-  content: @diff-modified;
-}
-
-.status-bar .new-status-icon:before {
-  content: @diff-added;
-}
-
-.status-bar .ignored-status-icon:before {
-  content: @diff-ignored;
-  margin-right: 0;
-}
-
-.status-bar .commits-behind-label:before {
-  margin-top: -3px;
-  margin-left: 3px;
-  margin-right: 1px;
-  content: @arrow-down;
-}
-
-.status-bar .commits-ahead-label:before {
-  margin-top: -3px;
-  margin-left: 3px;
-  margin-right: 1px;
-  content: @arrow-up;
+  .icon-diff-ignored:before,
+  .commits-ahead-label:before,
+  .commits-behind-label:before {
+    margin-right: -1px;
+  }
 }

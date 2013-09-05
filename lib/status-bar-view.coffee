@@ -10,17 +10,22 @@ class StatusBarView extends View
 
   @content: ->
     @div class: 'status-bar tool-panel panel-bottom', =>
-      @span class: 'git-branch', outlet: 'branchArea', =>
-        @span class: 'octicons branch-icon'
-        @span class: 'branch-label', outlet: 'branchLabel'
-        @span class: 'octicons commits-ahead-label', outlet: 'commitsAhead'
-        @span class: 'octicons commits-behind-label', outlet: 'commitsBehind'
-        @span class: 'git-status', outlet: 'gitStatusIcon'
-      @span class: 'file-info', =>
-        @span class: 'current-path', outlet: 'currentPath'
-        @span class: 'buffer-modified', outlet: 'bufferModified'
-      @span class: 'cursor-position', outlet: 'cursorPosition'
-      @span class: 'grammar-name', outlet: 'grammarName'
+      @div class: 'status-bar-right pull-right', =>
+        @div class: 'git-branch inline-block', outlet: 'branchArea', =>
+          @span class: 'icon icon-git-branch'
+          @span class: 'branch-label', outlet: 'branchLabel'
+        @div class: 'git-commits inline-block', outlet: 'branchArea', =>
+          @span class: 'icon icon-arrow-up commits-ahead-label', outlet: 'commitsAhead'
+          @span class: 'icon icon-arrow-down commits-behind-label', outlet: 'commitsBehind'
+        @div class: 'git-status inline-block', outlet: 'gitStatus', =>
+          @span outlet: 'gitStatusIcon'
+
+      @div class: 'status-bar-left', =>
+        @span class: 'file-info', =>
+          @span class: 'current-path', outlet: 'currentPath'
+          @span class: 'buffer-modified', outlet: 'bufferModified'
+        @span class: 'cursor-position', outlet: 'cursorPosition'
+        @span class: 'grammar-name', outlet: 'grammarName'
 
   initialize: (rootView, @pane) ->
     @updatePathText()
@@ -101,7 +106,6 @@ class StatusBarView extends View
     @gitStatusIcon.removeClass()
     return unless project.contains(itemPath)
 
-    @gitStatusIcon.addClass('git-status octicons')
     repo = project.getRepo()
     return unless repo?
 
@@ -117,10 +121,10 @@ class StatusBarView extends View
 
     status = repo.statuses[itemPath]
     if repo.isStatusModified(status)
-      @gitStatusIcon.addClass('modified-status-icon')
+      @gitStatusIcon.addClass('icon icon-diff-modified status-modified')
       stats = repo.getDiffStats(itemPath)
       if stats.added and stats.deleted
-        @gitStatusIcon.text("+#{stats.added},-#{stats.deleted}")
+        @gitStatusIcon.text("+#{stats.added}, -#{stats.deleted}")
       else if stats.added
         @gitStatusIcon.text("+#{stats.added}")
       else if stats.deleted
@@ -128,14 +132,16 @@ class StatusBarView extends View
       else
         @gitStatusIcon.text('')
     else if repo.isStatusNew(status)
-      @gitStatusIcon.addClass('new-status-icon')
+      @gitStatusIcon.addClass('icon icon-diff-added status-added')
       if @buffer?
         @gitStatusIcon.text("+#{@buffer.getLineCount()}")
       else
         @gitStatusIcon.text('')
     else if repo.isPathIgnored(itemPath)
-      @gitStatusIcon.addClass('ignored-status-icon')
+      @gitStatusIcon.addClass('icon icon-diff-ignored status-ignored')
       @gitStatusIcon.text('')
+
+    if @gitStatusIcon.attr('class') then @gitStatus.show() else @gitStatus.hide()
 
   updatePathText: ->
     if path = @getActiveItemPath()
