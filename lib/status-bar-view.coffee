@@ -119,6 +119,8 @@ class StatusBarView extends View
     else
       @commitsBehind.hide()
 
+    if repo.upstream.ahead > 0 or repo.upstream.behind > 0 then @commitsArea.show() else @commitsArea.hide()
+
     status = repo.statuses[itemPath]
     if repo.isStatusModified(status)
       @gitStatusIcon.addClass('icon icon-diff-modified status-modified')
