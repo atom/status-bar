@@ -28,6 +28,7 @@ class StatusBarView extends View
         @a href: '#', class: 'grammar-name inline-block', outlet: 'grammarName'
 
   initialize: (rootView, @pane) ->
+    @commitsArea.hide()
     @updatePathText()
     @subscribe @pane, 'pane:active-item-changed', =>
       @subscribeToBuffer()
