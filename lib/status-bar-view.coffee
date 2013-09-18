@@ -1,6 +1,4 @@
-_ = require 'underscore'
-{View, $$} = require 'space-pen'
-$ = require 'jquery'
+{_, $, $$, View} = require 'atom-api'
 
 module.exports =
 class StatusBarView extends View
