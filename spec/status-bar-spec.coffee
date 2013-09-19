@@ -1,4 +1,4 @@
-{_, $, $$, fs, RootView} = require 'atom-api'
+{_, $, $$, fs, RootView} = require 'atom'
 StatusBar = require '../lib/status-bar-view'
 path = require 'path'
 
