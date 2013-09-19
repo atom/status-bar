@@ -41,7 +41,7 @@ describe "StatusBar", ->
 
   describe "when the associated editor's path changes", ->
     it "updates the path in the status bar", ->
-      rootView.open(require.resolve 'fixtures/sample.txt')
+      rootView.open('sample.txt')
       expect(statusBar.currentPath.text()).toBe 'sample.txt'
 
   describe "when the associated editor's buffer's content changes", ->
@@ -85,7 +85,7 @@ describe "StatusBar", ->
   describe "when the buffer changes", ->
     it "updates the buffer modified indicator for the new buffer", ->
       expect(statusBar.bufferModified.text()).toBe ''
-      rootView.open(require.resolve('fixtures/sample.txt'))
+      rootView.open('sample.txt')
       editor.insertText("\n")
       advanceClock(buffer.stoppedChangingDelay)
       expect(statusBar.bufferModified.text()).toBe '*'
@@ -93,7 +93,7 @@ describe "StatusBar", ->
     it "doesn't update the buffer modified indicator for the old buffer", ->
       oldBuffer = editor.getBuffer()
       expect(statusBar.bufferModified.text()).toBe ''
-      rootView.open(require.resolve('fixtures/sample.txt'))
+      rootView.open('sample.txt')
       oldBuffer.setText("new text")
       advanceClock(buffer.stoppedChangingDelay)
       expect(statusBar.bufferModified.text()).toBe ''
@@ -111,8 +111,8 @@ describe "StatusBar", ->
       rootView.attachToDom()
 
     it "displays the current branch for files in repositories", ->
-      project.setPath(fs.resolveOnLoadPath('fixtures/git/master.git'))
-      rootView.open(require.resolve('fixtures/git/master.git/HEAD'))
+      project.setPath(project.resolve('git/master.git'))
+      rootView.open('HEAD')
       expect(statusBar.branchArea).toBeVisible()
       expect(statusBar.branchLabel.text()).toBe 'master'
 
@@ -129,10 +129,10 @@ describe "StatusBar", ->
     [repo, filePath, originalPathText, newPath, ignoredPath] = []
 
     beforeEach ->
-      filePath = require.resolve('fixtures/git/working-dir/file.txt')
-      newPath = path.join(fs.resolveOnLoadPath('fixtures/git/working-dir'), 'new.txt')
+      filePath = project.resolve('git/working-dir/file.txt')
+      newPath = path.join(project.resolve('git'), 'working-dir', 'new.txt')
       fs.writeSync(newPath, "I'm new here")
-      ignoredPath = path.join(fs.resolveOnLoadPath('fixtures/git/working-dir'), 'ignored.txt')
+      ignoredPath = path.join(project.resolve('git'), 'working-dir', 'ignored.txt')
       fs.writeSync(ignoredPath, 'ignored.txt')
       project.getRepo().getPathStatus(filePath)
       project.getRepo().getPathStatus(newPath)
