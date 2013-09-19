@@ -1,10 +1,6 @@
-$ = require 'jquery'
-_ = require 'underscore'
-RootView = require 'root-view'
+{_, $, $$, fs, RootView} = require 'atom'
 StatusBar = require '../lib/status-bar-view'
-fsUtils = require 'fs-utils'
 path = require 'path'
-{$$} = require 'space-pen'
 
 describe "StatusBar", ->
   [editor, statusBar, buffer] = []
@@ -45,7 +41,7 @@ describe "StatusBar", ->
 
   describe "when the associated editor's path changes", ->
     it "updates the path in the status bar", ->
-      rootView.open(require.resolve 'fixtures/sample.txt')
+      rootView.open('sample.txt')
       expect(statusBar.currentPath.text()).toBe 'sample.txt'
 
   describe "when the associated editor's buffer's content changes", ->
@@ -59,7 +55,7 @@ describe "StatusBar", ->
   describe "when the buffer content has changed from the content on disk", ->
     it "disables the buffer modified indicator on save", ->
       filePath = "/tmp/atom-whitespace.txt"
-      fsUtils.writeSync(filePath, "")
+      fs.writeSync(filePath, "")
       rootView.open(filePath)
       expect(statusBar.bufferModified.text()).toBe ''
       editor.insertText("\n")
@@ -89,7 +85,7 @@ describe "StatusBar", ->
   describe "when the buffer changes", ->
     it "updates the buffer modified indicator for the new buffer", ->
       expect(statusBar.bufferModified.text()).toBe ''
-      rootView.open(require.resolve('fixtures/sample.txt'))
+      rootView.open('sample.txt')
       editor.insertText("\n")
       advanceClock(buffer.stoppedChangingDelay)
       expect(statusBar.bufferModified.text()).toBe '*'
@@ -97,7 +93,7 @@ describe "StatusBar", ->
     it "doesn't update the buffer modified indicator for the old buffer", ->
       oldBuffer = editor.getBuffer()
       expect(statusBar.bufferModified.text()).toBe ''
-      rootView.open(require.resolve('fixtures/sample.txt'))
+      rootView.open('sample.txt')
       oldBuffer.setText("new text")
       advanceClock(buffer.stoppedChangingDelay)
       expect(statusBar.bufferModified.text()).toBe ''
@@ -111,12 +107,12 @@ describe "StatusBar", ->
 
   describe "git branch label", ->
     beforeEach ->
-      fsUtils.remove('/tmp/.git') if fsUtils.isDirectorySync('/tmp/.git')
+      fs.remove('/tmp/.git') if fs.isDirectorySync('/tmp/.git')
       rootView.attachToDom()
 
     it "displays the current branch for files in repositories", ->
-      project.setPath(fsUtils.resolveOnLoadPath('fixtures/git/master.git'))
-      rootView.open(require.resolve('fixtures/git/master.git/HEAD'))
+      project.setPath(project.resolve('git/master.git'))
+      rootView.open('HEAD')
       expect(statusBar.branchArea).toBeVisible()
       expect(statusBar.branchLabel.text()).toBe 'master'
 
@@ -133,23 +129,23 @@ describe "StatusBar", ->
     [repo, filePath, originalPathText, newPath, ignoredPath] = []
 
     beforeEach ->
-      filePath = require.resolve('fixtures/git/working-dir/file.txt')
-      newPath = path.join(fsUtils.resolveOnLoadPath('fixtures/git/working-dir'), 'new.txt')
-      fsUtils.writeSync(newPath, "I'm new here")
-      ignoredPath = path.join(fsUtils.resolveOnLoadPath('fixtures/git/working-dir'), 'ignored.txt')
-      fsUtils.writeSync(ignoredPath, 'ignored.txt')
+      filePath = project.resolve('git/working-dir/file.txt')
+      newPath = path.join(project.resolve('git'), 'working-dir', 'new.txt')
+      fs.writeSync(newPath, "I'm new here")
+      ignoredPath = path.join(project.resolve('git'), 'working-dir', 'ignored.txt')
+      fs.writeSync(ignoredPath, 'ignored.txt')
       project.getRepo().getPathStatus(filePath)
       project.getRepo().getPathStatus(newPath)
-      originalPathText = fsUtils.read(filePath)
+      originalPathText = fs.read(filePath)
       rootView.attachToDom()
 
     afterEach ->
-      fsUtils.writeSync(filePath, originalPathText)
-      fsUtils.remove(newPath) if fsUtils.exists(newPath)
-      fsUtils.remove(ignoredPath) if fsUtils.exists(ignoredPath)
+      fs.writeSync(filePath, originalPathText)
+      fs.remove(newPath) if fs.exists(newPath)
+      fs.remove(ignoredPath) if fs.exists(ignoredPath)
 
     it "displays the modified icon for a changed file", ->
-      fsUtils.writeSync(filePath, "i've changed for the worse")
+      fs.writeSync(filePath, "i've changed for the worse")
       project.getRepo().getPathStatus(filePath)
       rootView.open(filePath)
       expect(statusBar.gitStatusIcon).toHaveClass('icon-diff-modified')
@@ -167,16 +163,16 @@ describe "StatusBar", ->
       expect(statusBar.gitStatusIcon).toHaveClass('icon-diff-ignored')
 
     it "updates when a status-changed event occurs", ->
-      fsUtils.writeSync(filePath, "i've changed for the worse")
+      fs.writeSync(filePath, "i've changed for the worse")
       project.getRepo().getPathStatus(filePath)
       rootView.open(filePath)
       expect(statusBar.gitStatusIcon).toHaveClass('icon-diff-modified')
-      fsUtils.writeSync(filePath, originalPathText)
+      fs.writeSync(filePath, originalPathText)
       project.getRepo().getPathStatus(filePath)
       expect(statusBar.gitStatusIcon).not.toHaveClass('icon-diff-modified')
 
     it "displays the diff stat for modified files", ->
-      fsUtils.writeSync(filePath, "i've changed for the worse")
+      fs.writeSync(filePath, "i've changed for the worse")
       project.getRepo().getPathStatus(filePath)
       rootView.open(filePath)
       expect(statusBar.gitStatusIcon).toHaveText('+1, -1')
