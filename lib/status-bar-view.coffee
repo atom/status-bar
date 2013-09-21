@@ -103,6 +103,7 @@ class StatusBarView extends View
   updateStatusText: ->
     itemPath = @getActiveItemPath()
     @gitStatusIcon.removeClass()
+    @commitsArea.hide()
     return unless project.contains(itemPath)
 
     repo = project.getRepo()
@@ -118,7 +119,7 @@ class StatusBarView extends View
     else
       @commitsBehind.hide()
 
-    if repo.upstream.ahead > 0 or repo.upstream.behind > 0 then @commitsArea.show() else @commitsArea.hide()
+    @commitsArea.show() if repo.upstream.ahead > 0 or repo.upstream.behind > 0
 
     status = repo.statuses[itemPath]
     if repo.isStatusModified(status)
