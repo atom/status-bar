@@ -102,7 +102,7 @@ class StatusBarView extends View
 
   updateStatusText: ->
     itemPath = @getActiveItemPath()
-    @gitStatusIcon.removeClass()
+    @gitStatus.hide()
     @commitsArea.hide()
     return unless project.contains(itemPath)
 
@@ -122,6 +122,7 @@ class StatusBarView extends View
     @commitsArea.show() if repo.upstream.ahead > 0 or repo.upstream.behind > 0
 
     status = repo.statuses[itemPath]
+    @gitStatusIcon.removeClass()
     if repo.isStatusModified(status)
       @gitStatusIcon.addClass('icon icon-diff-modified status-modified')
       stats = repo.getDiffStats(itemPath)
