@@ -57,6 +57,7 @@ describe "StatusBar", ->
       filePath = "/tmp/atom-whitespace.txt"
       fs.writeSync(filePath, "")
       rootView.open(filePath)
+      editor = rootView.getActiveView()
       expect(statusBar.bufferModified.text()).toBe ''
       editor.insertText("\n")
       advanceClock(buffer.stoppedChangingDelay)
@@ -86,6 +87,7 @@ describe "StatusBar", ->
     it "updates the buffer modified indicator for the new buffer", ->
       expect(statusBar.bufferModified.text()).toBe ''
       rootView.open('sample.txt')
+      editor = rootView.getActiveView()
       editor.insertText("\n")
       advanceClock(buffer.stoppedChangingDelay)
       expect(statusBar.bufferModified.text()).toBe '*'
