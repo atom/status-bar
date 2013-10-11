@@ -128,7 +128,7 @@ describe "StatusBar", ->
       expect(statusBar.branchArea).toBeHidden()
 
   describe "git status label", ->
-    [repo, filePath, originalPathText, newPath, ignoredPath, projectPath] = []
+    [repo, filePath, originalPathText, newPath, ignorePath, ignoredPath, projectPath] = []
 
     beforeEach ->
       projectPath = project.resolve('git/working-dir')
@@ -137,8 +137,10 @@ describe "StatusBar", ->
       filePath = project.resolve('a.txt')
       newPath = project.resolve('new.txt')
       fs.writeSync(newPath, "I'm new here")
+      ignorePath = path.join(projectPath, '.gitignore')
+      fs.writeSync(ignorePath, 'ignored.txt')
       ignoredPath = path.join(projectPath, 'ignored.txt')
-      fs.writeSync(ignoredPath, 'ignored.txt')
+      fs.writeSync(ignoredPath, '')
       project.getRepo().getPathStatus(filePath)
       project.getRepo().getPathStatus(newPath)
       originalPathText = fs.read(filePath)
@@ -146,8 +148,9 @@ describe "StatusBar", ->
 
     afterEach ->
       fs.writeSync(filePath, originalPathText)
-      fs.remove(newPath) if fs.exists(newPath)
-      fs.remove(ignoredPath) if fs.exists(ignoredPath)
+      fs.remove(newPath)
+      fs.remove(ignorePath)
+      fs.remove(ignoredPath)
       fs.move(path.join(projectPath, '.git'), path.join(projectPath, 'git.git'))
 
     it "displays the modified icon for a changed file", ->
