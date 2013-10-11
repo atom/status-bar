@@ -128,13 +128,16 @@ describe "StatusBar", ->
       expect(statusBar.branchArea).toBeHidden()
 
   describe "git status label", ->
-    [repo, filePath, originalPathText, newPath, ignoredPath] = []
+    [repo, filePath, originalPathText, newPath, ignoredPath, projectPath] = []
 
     beforeEach ->
-      filePath = project.resolve('git/working-dir/file.txt')
-      newPath = path.join(project.resolve('git'), 'working-dir', 'new.txt')
+      projectPath = project.resolve('git/working-dir')
+      fs.move(path.join(projectPath, 'git.git'), path.join(projectPath, '.git'))
+      project.setPath(projectPath)
+      filePath = project.resolve('a.txt')
+      newPath = project.resolve('new.txt')
       fs.writeSync(newPath, "I'm new here")
-      ignoredPath = path.join(project.resolve('git'), 'working-dir', 'ignored.txt')
+      ignoredPath = path.join(projectPath, 'ignored.txt')
       fs.writeSync(ignoredPath, 'ignored.txt')
       project.getRepo().getPathStatus(filePath)
       project.getRepo().getPathStatus(newPath)
@@ -145,6 +148,7 @@ describe "StatusBar", ->
       fs.writeSync(filePath, originalPathText)
       fs.remove(newPath) if fs.exists(newPath)
       fs.remove(ignoredPath) if fs.exists(ignoredPath)
+      fs.move(path.join(projectPath, '.git'), path.join(projectPath, 'git.git'))
 
     it "displays the modified icon for a changed file", ->
       fs.writeSync(filePath, "i've changed for the worse")
@@ -177,7 +181,7 @@ describe "StatusBar", ->
       fs.writeSync(filePath, "i've changed for the worse")
       project.getRepo().getPathStatus(filePath)
       rootView.open(filePath)
-      expect(statusBar.gitStatusIcon).toHaveText('+1, -1')
+      expect(statusBar.gitStatusIcon).toHaveText('+1')
 
     it "displays the diff stat for new files", ->
       rootView.open(newPath)

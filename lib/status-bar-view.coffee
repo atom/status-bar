@@ -37,13 +37,9 @@ class StatusBarView extends View
     @subscribe @pane, 'cursor:moved', => @updateCursorPositionText()
     @subscribe @grammarName, 'click', => @pane.activeView.trigger('grammar-selector:show'); false
     @subscribe @pane, 'editor:grammar-changed', => @updateGrammarText()
+    @subscribe project, 'path-changed', => @subscribeToRepo()
 
-    repo = project.getRepo()
-    if repo?
-      @subscribe repo, 'status-changed', (path, status) =>
-        @updateStatusBar() if path is @getActiveItemPath()
-      @subscribe repo, 'statuses-changed', @updateStatusBar
-
+    @subscribeToRepo()
     @subscribeToBuffer()
 
   beforeRemove: ->
@@ -57,6 +53,14 @@ class StatusBarView extends View
       @buffer.off 'modified-status-changed', @updateBufferHasModifiedText
       @buffer.off 'saved', @updateStatusBar
       @buffer = null
+
+  subscribeToRepo: ->
+    @unsubscribe(@repo) if @repo?
+    if repo = project.getRepo()
+      @repo = repo
+      @subscribe repo, 'status-changed', (path, status) =>
+        @updateStatusBar() if path is @getActiveItemPath()
+      @subscribe repo, 'statuses-changed', @updateStatusBar
 
   subscribeToBuffer: ->
     @unsubscribeFromBuffer()
