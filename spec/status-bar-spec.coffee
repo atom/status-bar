@@ -7,7 +7,7 @@ describe "StatusBar", ->
 
   beforeEach ->
     window.rootView = new RootView
-    rootView.open('sample.js')
+    rootView.openSync('sample.js')
     rootView.simulateDomAttachment()
     StatusBar.activate()
     editor = rootView.getActiveView()
@@ -32,7 +32,7 @@ describe "StatusBar", ->
       it "displays 'untitled' instead of the buffer's path, but still displays the buffer position", ->
         rootView.remove()
         window.rootView = new RootView
-        rootView.open()
+        rootView.openSync()
         rootView.simulateDomAttachment()
         StatusBar.activate()
         statusBar = rootView.find('.status-bar').view()
@@ -41,7 +41,7 @@ describe "StatusBar", ->
 
   describe "when the associated editor's path changes", ->
     it "updates the path in the status bar", ->
-      rootView.open('sample.txt')
+      rootView.openSync('sample.txt')
       expect(statusBar.currentPath.text()).toBe 'sample.txt'
 
   describe "when the associated editor's buffer's content changes", ->
@@ -56,7 +56,7 @@ describe "StatusBar", ->
     it "disables the buffer modified indicator on save", ->
       filePath = "/tmp/atom-whitespace.txt"
       fs.writeSync(filePath, "")
-      rootView.open(filePath)
+      rootView.openSync(filePath)
       editor = rootView.getActiveView()
       expect(statusBar.bufferModified.text()).toBe ''
       editor.insertText("\n")
@@ -86,7 +86,7 @@ describe "StatusBar", ->
   describe "when the buffer changes", ->
     it "updates the buffer modified indicator for the new buffer", ->
       expect(statusBar.bufferModified.text()).toBe ''
-      rootView.open('sample.txt')
+      rootView.openSync('sample.txt')
       editor = rootView.getActiveView()
       editor.insertText("\n")
       advanceClock(buffer.stoppedChangingDelay)
@@ -95,7 +95,7 @@ describe "StatusBar", ->
     it "doesn't update the buffer modified indicator for the old buffer", ->
       oldBuffer = editor.getBuffer()
       expect(statusBar.bufferModified.text()).toBe ''
-      rootView.open('sample.txt')
+      rootView.openSync('sample.txt')
       oldBuffer.setText("new text")
       advanceClock(buffer.stoppedChangingDelay)
       expect(statusBar.bufferModified.text()).toBe ''
@@ -114,17 +114,17 @@ describe "StatusBar", ->
 
     it "displays the current branch for files in repositories", ->
       project.setPath(project.resolve('git/master.git'))
-      rootView.open('HEAD')
+      rootView.openSync('HEAD')
       expect(statusBar.branchArea).toBeVisible()
       expect(statusBar.branchLabel.text()).toBe 'master'
 
     it "doesn't display the current branch for a file not in a repository", ->
       project.setPath('/tmp')
-      rootView.open('/tmp/temp.txt')
+      rootView.openSync('/tmp/temp.txt')
       expect(statusBar.branchArea).toBeHidden()
 
     it "doesn't display the current branch for a file outside the current project", ->
-      rootView.open('/tmp/atom-specs/not-in-project.txt')
+      rootView.openSync('/tmp/atom-specs/not-in-project.txt')
       expect(statusBar.branchArea).toBeHidden()
 
   describe "git status label", ->
@@ -156,25 +156,25 @@ describe "StatusBar", ->
     it "displays the modified icon for a changed file", ->
       fs.writeSync(filePath, "i've changed for the worse")
       project.getRepo().getPathStatus(filePath)
-      rootView.open(filePath)
+      rootView.openSync(filePath)
       expect(statusBar.gitStatusIcon).toHaveClass('icon-diff-modified')
 
     it "doesn't display the modified icon for an unchanged file", ->
-      rootView.open(filePath)
+      rootView.openSync(filePath)
       expect(statusBar.gitStatusIcon).toHaveText('')
 
     it "displays the new icon for a new file", ->
-      rootView.open(newPath)
+      rootView.openSync(newPath)
       expect(statusBar.gitStatusIcon).toHaveClass('icon-diff-added')
 
     it "displays the ignored icon for an ignored file", ->
-      rootView.open(ignoredPath)
+      rootView.openSync(ignoredPath)
       expect(statusBar.gitStatusIcon).toHaveClass('icon-diff-ignored')
 
     it "updates when a status-changed event occurs", ->
       fs.writeSync(filePath, "i've changed for the worse")
       project.getRepo().getPathStatus(filePath)
-      rootView.open(filePath)
+      rootView.openSync(filePath)
       expect(statusBar.gitStatusIcon).toHaveClass('icon-diff-modified')
       fs.writeSync(filePath, originalPathText)
       project.getRepo().getPathStatus(filePath)
@@ -183,15 +183,15 @@ describe "StatusBar", ->
     it "displays the diff stat for modified files", ->
       fs.writeSync(filePath, "i've changed for the worse")
       project.getRepo().getPathStatus(filePath)
-      rootView.open(filePath)
+      rootView.openSync(filePath)
       expect(statusBar.gitStatusIcon).toHaveText('+1')
 
     it "displays the diff stat for new files", ->
-      rootView.open(newPath)
+      rootView.openSync(newPath)
       expect(statusBar.gitStatusIcon).toHaveText('+1')
 
     it "does not display for files not in the current project", ->
-      rootView.open('/tmp/atom-specs/not-in-project.txt')
+      rootView.openSync('/tmp/atom-specs/not-in-project.txt')
       expect(statusBar.gitStatusIcon).toBeHidden()
 
   describe "grammar label", ->
