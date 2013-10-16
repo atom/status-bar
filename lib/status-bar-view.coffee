@@ -26,10 +26,9 @@ class StatusBarView extends View
         @a href: '#', class: 'grammar-name inline-block', outlet: 'grammarName'
 
   initialize: (rootView, @pane) ->
-    @commitsArea.hide()
-    @updatePathText()
     @subscribe @pane, 'pane:active-item-changed', =>
       @subscribeToBuffer()
+      @updateStatusBar()
       @updatePathText()
     @subscribe @pane, 'pane:active-item-title-changed', =>
       @updatePathText()
@@ -41,6 +40,11 @@ class StatusBarView extends View
 
     @subscribeToRepo()
     @subscribeToBuffer()
+
+  afterAttach: ->
+    @commitsArea.hide()
+    @updatePathText()
+    @updateStatusBar()
 
   beforeRemove: ->
     @unsubscribeFromBuffer()
@@ -67,8 +71,6 @@ class StatusBarView extends View
     if @buffer = @pane.activeItem.getBuffer?()
       @buffer.on 'modified-status-changed', @updateBufferHasModifiedText
       @buffer.on 'saved', @updateStatusBar
-
-    @updateStatusBar()
 
   updateStatusBar: =>
     @updateGrammarText()
