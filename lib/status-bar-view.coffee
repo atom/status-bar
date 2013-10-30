@@ -68,7 +68,7 @@ class StatusBarView extends View
 
   subscribeToBuffer: ->
     @unsubscribeFromBuffer()
-    if @buffer = @pane.activeItem.getBuffer?()
+    if @buffer = @pane.activeItem?.getBuffer?()
       @buffer.on 'modified-status-changed', @updateBufferHasModifiedText
       @buffer.on 'saved', @updateStatusBar
 
@@ -80,7 +80,7 @@ class StatusBarView extends View
     @updateCursorPositionText()
 
   updateGrammarText: ->
-    grammar = @pane.activeView.getGrammar?()
+    grammar = @pane.activeView?.getGrammar?()
     if grammar?
       if grammar is syntax.nullGrammar
         grammarName = 'Plain Text'
@@ -155,13 +155,13 @@ class StatusBarView extends View
   updatePathText: ->
     if path = @getActiveItemPath()
       @currentPath.text(project.relativize(path)).show()
-    else if title = @pane.activeItem.getTitle?()
+    else if title = @pane.activeItem?.getTitle?()
       @currentPath.text(title).show()
     else
       @currentPath.hide()
 
   updateCursorPositionText: ->
-    if position = @pane.activeView.getCursorBufferPosition?()
+    if position = @pane.activeView?.getCursorBufferPosition?()
       @cursorPosition.text("#{position.row + 1},#{position.column + 1}").show()
     else
       @cursorPosition.hide()
