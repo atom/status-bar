@@ -1,6 +1,7 @@
 {_, $, $$, fs, RootView} = require 'atom'
 StatusBar = require '../lib/status-bar-view'
 path = require 'path'
+os = require 'os'
 
 describe "StatusBar", ->
   [editor, statusBar, buffer] = []
@@ -54,7 +55,7 @@ describe "StatusBar", ->
 
   describe "when the buffer content has changed from the content on disk", ->
     it "disables the buffer modified indicator on save", ->
-      filePath = "/tmp/atom-whitespace.txt"
+      filePath = path.join(os.tmpdir(), "atom-whitespace.txt")
       fs.writeSync(filePath, "")
       rootView.openSync(filePath)
       editor = rootView.getActiveView()
@@ -109,7 +110,7 @@ describe "StatusBar", ->
 
   describe "git branch label", ->
     beforeEach ->
-      fs.remove('/tmp/.git') if fs.isDirectorySync('/tmp/.git')
+      fs.remove(path.join(os.tmpdir(), '.git')) if fs.isDirectorySync(path.join(os.tmpdir(), '.git'))
       rootView.attachToDom()
 
     it "displays the current branch for files in repositories", ->
@@ -119,12 +120,12 @@ describe "StatusBar", ->
       expect(statusBar.branchLabel.text()).toBe 'master'
 
     it "doesn't display the current branch for a file not in a repository", ->
-      project.setPath('/tmp')
-      rootView.openSync('/tmp/temp.txt')
+      project.setPath(os.tmpdir())
+      rootView.openSync(path.join(os.tmpdir(), 'temp.txt'))
       expect(statusBar.branchArea).toBeHidden()
 
     it "doesn't display the current branch for a file outside the current project", ->
-      rootView.openSync('/tmp/atom-specs/not-in-project.txt')
+      rootView.openSync(path.join(os.tmpdir(), 'atom-specs', 'not-in-project.txt'))
       expect(statusBar.branchArea).toBeHidden()
 
   describe "git status label", ->
