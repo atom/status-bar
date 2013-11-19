@@ -2,12 +2,9 @@
 
 module.exports =
 class StatusBarView extends View
-  @activate: ->
-    rootView.eachPane (pane) =>
-      pane.append(new StatusBarView(rootView, pane))
-
   @content: ->
     @div class: 'status-bar tool-panel panel-bottom', =>
+
       @div class: 'status-bar-right pull-right', =>
         @div class: 'git-branch inline-block', outlet: 'branchArea', =>
           @span class: 'icon icon-git-branch'
@@ -25,21 +22,25 @@ class StatusBarView extends View
         @div class: 'cursor-position inline-block', outlet: 'cursorPosition'
         @a href: '#', class: 'grammar-name inline-block', outlet: 'grammarName'
 
-  initialize: (rootView, @pane) ->
-    @subscribe @pane, 'pane:active-item-changed', =>
+  initialize: ->
+    @subscribe rootView, 'pane-container:active-pane-item-changed', =>
       @subscribeToBuffer()
       @updateStatusBar()
       @updatePathText()
-    @subscribe @pane, 'pane:active-item-title-changed', =>
+    @subscribe rootView, 'pane:active-item-title-changed', =>
       @updatePathText()
+      @updateBufferHasModifiedText()
 
-    @subscribe @pane, 'cursor:moved', => @updateCursorPositionText()
-    @subscribe @grammarName, 'click', => @pane.activeView.trigger('grammar-selector:show'); false
-    @subscribe @pane, 'editor:grammar-changed', => @updateGrammarText()
+    @subscribe rootView, 'cursor:moved', => @updateCursorPositionText()
+    @subscribe @grammarName, 'click', => @getActiveView().trigger('grammar-selector:show'); false
+    @subscribe rootView, 'editor:grammar-changed', => @updateGrammarText()
     @subscribe project, 'path-changed', => @subscribeToRepo()
 
     @subscribeToRepo()
     @subscribeToBuffer()
+
+  attach: ->
+    rootView.vertical.append(this) unless @hasParent()
 
   afterAttach: ->
     @commitsArea.hide()
@@ -50,7 +51,13 @@ class StatusBarView extends View
     @unsubscribeFromBuffer()
 
   getActiveItemPath: ->
-    @pane.activeItem?.getPath?()
+    @getActiveItem()?.getPath?()
+
+  getActiveItem: ->
+    rootView.getActivePaneItem()
+
+  getActiveView: ->
+    rootView.getActiveView()
 
   unsubscribeFromBuffer: ->
     if @buffer?
@@ -68,7 +75,7 @@ class StatusBarView extends View
 
   subscribeToBuffer: ->
     @unsubscribeFromBuffer()
-    if @buffer = @pane.activeItem?.getBuffer?()
+    if @buffer = @getActiveItem()?.getBuffer?()
       @buffer.on 'modified-status-changed', @updateBufferHasModifiedText
       @buffer.on 'saved', @updateStatusBar
 
@@ -80,7 +87,7 @@ class StatusBarView extends View
     @updateCursorPositionText()
 
   updateGrammarText: ->
-    grammar = @pane.activeView?.getGrammar?()
+    grammar = @getActiveView()?.getGrammar?()
     if grammar?
       if grammar is atom.syntax.nullGrammar
         grammarName = 'Plain Text'
@@ -155,13 +162,13 @@ class StatusBarView extends View
   updatePathText: ->
     if path = @getActiveItemPath()
       @currentPath.text(project.relativize(path)).show()
-    else if title = @pane.activeItem?.getTitle?()
+    else if title = @getActiveItem()?.getTitle?()
       @currentPath.text(title).show()
     else
       @currentPath.hide()
 
   updateCursorPositionText: ->
-    if position = @pane.activeView?.getCursorBufferPosition?()
+    if position = @getActiveView()?.getCursorBufferPosition?()
       @cursorPosition.text("#{position.row + 1},#{position.column + 1}").show()
     else
       @cursorPosition.hide()
