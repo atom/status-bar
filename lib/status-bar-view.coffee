@@ -20,33 +20,42 @@ class StatusBarView extends View
 
     @storeActiveBuffer()
 
+  # Private:
   attach: ->
     atom.rootView.vertical.append(this) unless @hasParent()
 
+  # Public:
   appendLeft: (item) ->
     @leftPanel.append(item)
 
+  # Public:
   appendRight: (item) ->
     @rightPanel.append(item)
 
+  # Public:
   getActiveBuffer: ->
     @buffer
 
+  # Public:
   getActiveItem: ->
     atom.rootView.getActivePaneItem()
 
+  # Private:
   storeActiveBuffer: ->
     @buffer = @getActiveItem()?.getBuffer?()
 
+  # Public:
   subscribeToBuffer: (event, callback) ->
     @bufferSubscriptions.push([event, callback])
     @buffer.on(event, callback) if @buffer
 
+  # Priavte:
   subscribeAllToBuffer: ->
     return unless @buffer
     for [event, callback] in @bufferSubscriptions
       @buffer.on(event, callback)
 
+  # Priavte:
   unsubscribeAllFromBuffer: ->
     return unless @buffer
     for [event, callback] in @bufferSubscriptions
