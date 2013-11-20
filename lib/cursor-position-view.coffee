@@ -6,8 +6,8 @@ class CursorPositionView extends View
     @div class: 'cursor-position inline-block'
 
   initialize: (@statusBar) ->
-    @subscribe @statusBar, 'active-buffer-changed', => @updateCursorPositionText()
-    @subscribe atom.rootView, 'cursor:moved', => @updateCursorPositionText()
+    @subscribe @statusBar, 'active-buffer-changed', @updateCursorPositionText
+    @subscribe atom.rootView, 'cursor:moved', @updateCursorPositionText
 
   afterAttach: ->
     @updateCursorPositionText()
