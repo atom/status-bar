@@ -1,4 +1,4 @@
-{_, $, $$, fs, RootView} = require 'atom'
+{$$, fs, RootView} = require 'atom'
 StatusBar = require '../lib/status-bar'
 path = require 'path'
 os = require 'os'
