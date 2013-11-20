@@ -13,7 +13,7 @@ class GitView extends View
       @div class: 'git-status inline-block', outlet: 'gitStatus', =>
         @span outlet: 'gitStatusIcon'
 
-  initialize: ->
+  initialize: (@statusBar) ->
     @subscribe atom.rootView, 'pane-container:active-pane-item-changed', @update
     @subscribe project, 'path-changed', @subscribeToRepo
 
@@ -87,8 +87,8 @@ class GitView extends View
         @gitStatusIcon.text('')
     else if repo.isStatusNew(status)
       @gitStatusIcon.addClass('icon icon-diff-added status-added')
-      if @buffer?
-        @gitStatusIcon.text("+#{@buffer.getLineCount()}")
+      if @statusBar.getActiveBuffer()?
+        @gitStatusIcon.text("+#{@statusBar.getActiveBuffer().getLineCount()}")
       else
         @gitStatusIcon.text('')
     else if repo.isPathIgnored(itemPath)

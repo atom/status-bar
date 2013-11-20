@@ -31,7 +31,7 @@ class FileInfoView extends View
       @isModified = false
 
   updatePathText: ->
-    if path = @getActiveItem()?.getPath()
+    if path = @getActiveItem()?.getPath?()
       @currentPath.text(project.relativize(path)).show()
     else if title = @getActiveItem()?.getTitle?()
       @currentPath.text(title).show()

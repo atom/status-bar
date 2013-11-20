@@ -9,15 +9,17 @@ class StatusBarView extends View
 
   initialize: ->
     @bufferSubscriptions = []
-    @subscribe rootView, 'pane-container:active-pane-item-changed', =>
+    @subscribe atom.rootView, 'pane-container:active-pane-item-changed', =>
       @unsubscribeAllFromBuffer()
-      @buffer = @getActiveItem()?.getBuffer?()
+      @storeActiveBuffer()
       @subscribeAllToBuffer()
 
       @trigger('active-buffer-changed')
 
+    @storeActiveBuffer()
+
   attach: ->
-    rootView.vertical.append(this) unless @hasParent()
+    atom.rootView.vertical.append(this) unless @hasParent()
 
   appendLeft: (item) ->
     @leftPanel.append(item)
@@ -30,6 +32,9 @@ class StatusBarView extends View
 
   getActiveItem: ->
     atom.rootView.getActivePaneItem()
+
+  storeActiveBuffer: ->
+    @buffer = @getActiveItem()?.getBuffer?()
 
   subscribeToBuffer: (event, callback) ->
     @bufferSubscriptions.push([event, callback])
