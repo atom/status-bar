@@ -8,6 +8,8 @@ class StatusBarView extends View
       @div outlet: 'leftPanel', class: 'status-bar-left'
 
   initialize: ->
+    atom.rootView.statusBar = this
+
     @bufferSubscriptions = []
     @subscribe atom.rootView, 'pane-container:active-pane-item-changed', =>
       @unsubscribeAllFromBuffer()
