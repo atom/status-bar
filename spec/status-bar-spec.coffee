@@ -1,5 +1,5 @@
 {_, $, $$, fs, RootView} = require 'atom'
-StatusBar = require '../lib/status-bar-view'
+StatusBar = require '../lib/status-bar'
 path = require 'path'
 os = require 'os'
 
@@ -16,12 +16,10 @@ describe "StatusBar", ->
     buffer = editor.getBuffer()
 
   describe "@initialize", ->
-    it "appends a status bar to all existing and new editors", ->
-      expect(rootView.panes.find('.pane').length).toBe 1
-      expect(rootView.panes.find('.pane > .status-bar').length).toBe 1
+    it "appends only one status bar", ->
+      expect(rootView.vertical.find('.status-bar').length).toBe 1
       editor.splitRight()
-      expect(rootView.find('.pane').length).toBe 2
-      expect(rootView.panes.find('.pane > .status-bar').length).toBe 2
+      expect(rootView.vertical.find('.status-bar').length).toBe 1
 
   describe ".initialize(editor)", ->
     it "displays the editor's buffer path, cursor buffer position, and buffer modified indicator", ->
