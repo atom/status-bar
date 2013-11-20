@@ -205,7 +205,7 @@ describe "StatusBar", ->
 
     it "displays Plain Text when the current grammar is the null grammar", ->
       rootView.attachToDom()
-      editor.activeEditSession.setGrammar(syntax.nullGrammar)
+      editor.activeEditSession.setGrammar(atom.syntax.nullGrammar)
       expect(statusBar.find('.grammar-name')).toBeVisible()
       expect(statusBar.find('.grammar-name').text()).toBe 'Plain Text'
       editor.reloadGrammar()
@@ -215,13 +215,13 @@ describe "StatusBar", ->
     it "hides the label when the current grammar is null", ->
       rootView.attachToDom()
       spyOn(editor, 'getGrammar').andReturn null
-      editor.activeEditSession.setGrammar(syntax.nullGrammar)
+      editor.activeEditSession.setGrammar(atom.syntax.nullGrammar)
 
       expect(statusBar.find('.grammar-name')).toBeHidden()
 
     describe "when the editor's grammar changes", ->
       it "displays the new grammar of the editor", ->
-        syntax.setGrammarOverrideForPath(editor.getPath(), 'text.plain')
+        atom.syntax.setGrammarOverrideForPath(editor.getPath(), 'text.plain')
         editor.reloadGrammar()
         expect(statusBar.find('.grammar-name').text()).toBe 'Plain Text'
 
