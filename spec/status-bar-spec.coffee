@@ -193,43 +193,6 @@ describe "StatusBar", ->
       atom.rootView.openSync('/tmp/atom-specs/not-in-project.txt')
       expect(StatusBar.git.gitStatusIcon).toBeHidden()
 
-  describe "grammar label", ->
-    beforeEach ->
-      atom.packages.activatePackage('language-text', sync: true)
-      atom.packages.activatePackage('language-javascript', sync: true)
-
-    it "displays the name of the current grammar", ->
-      expect(statusBar.find('.grammar-name').text()).toBe 'JavaScript'
-
-    it "displays Plain Text when the current grammar is the null grammar", ->
-      atom.rootView.attachToDom()
-      editor.activeEditSession.setGrammar(atom.syntax.nullGrammar)
-      expect(statusBar.find('.grammar-name')).toBeVisible()
-      expect(statusBar.find('.grammar-name').text()).toBe 'Plain Text'
-      editor.reloadGrammar()
-      expect(statusBar.find('.grammar-name')).toBeVisible()
-      expect(statusBar.find('.grammar-name').text()).toBe 'JavaScript'
-
-    it "hides the label when the current grammar is null", ->
-      atom.rootView.attachToDom()
-      spyOn(editor, 'getGrammar').andReturn null
-      editor.activeEditSession.setGrammar(atom.syntax.nullGrammar)
-
-      expect(statusBar.find('.grammar-name')).toBeHidden()
-
-    describe "when the editor's grammar changes", ->
-      it "displays the new grammar of the editor", ->
-        atom.syntax.setGrammarOverrideForPath(editor.getPath(), 'text.plain')
-        editor.reloadGrammar()
-        expect(statusBar.find('.grammar-name').text()).toBe 'Plain Text'
-
-    describe "when clicked", ->
-      it "toggles the grammar-selector:show event", ->
-        eventHandler = jasmine.createSpy('eventHandler')
-        editor.on 'grammar-selector:show', eventHandler
-        statusBar.find('.grammar-name').click()
-        expect(eventHandler).toHaveBeenCalled()
-
   describe "when the active item view does not implement getCursorBufferPosition()", ->
     it "hides the cursor position view", ->
       atom.rootView.attachToDom()
