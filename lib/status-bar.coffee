@@ -1,7 +1,6 @@
 StatusBarView = require './status-bar-view'
 FileInfoView = require './file-info-view'
 CursorPositionView = require './cursor-position-view'
-GrammarView = require './grammar-view'
 GitView = require './git-view'
 
 module.exports =
