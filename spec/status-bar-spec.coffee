@@ -2,7 +2,6 @@
 StatusBar = require '../lib/status-bar'
 path = require 'path'
 os = require 'os'
-StatusBarView = require '../lib/status-bar-view'
 
 describe "StatusBar", ->
   [editor, statusBar, buffer] = []
