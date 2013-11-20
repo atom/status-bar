@@ -20,7 +20,7 @@ class GrammarView extends View
   updateGrammarText: =>
     grammar = @getActiveView()?.getGrammar?()
     if grammar?
-      if grammar is syntax.nullGrammar
+      if grammar is atom.syntax.nullGrammar
         grammarName = 'Plain Text'
       else
         grammarName = grammar.name
