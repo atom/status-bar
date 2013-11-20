@@ -15,8 +15,5 @@ module.exports =
     @cursorPosition = new CursorPositionView(@statusBar)
     @statusBar.appendLeft(@cursorPosition)
 
-    @grammar = new GrammarView(@statusBar)
-    @statusBar.appendLeft(@grammar)
-
     @git = new GitView(@statusBar)
     @statusBar.appendRight(@git)
