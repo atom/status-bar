@@ -14,6 +14,7 @@ class GitView extends View
         @span outlet: 'gitStatusIcon'
 
   initialize: (@statusBar) ->
+    @subscribeToBuffer 'saved', @update
     @subscribe atom.rootView, 'pane-container:active-pane-item-changed', @update
     @subscribe project, 'path-changed', @subscribeToRepo
 
