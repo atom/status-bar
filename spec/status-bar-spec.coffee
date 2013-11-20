@@ -195,8 +195,8 @@ describe "StatusBar", ->
 
   describe "grammar label", ->
     beforeEach ->
-      atom.activatePackage('language-text', sync: true)
-      atom.activatePackage('language-javascript', sync: true)
+      atom.packages.activatePackage('language-text', sync: true)
+      atom.packages.activatePackage('language-javascript', sync: true)
 
     it "displays the name of the current grammar", ->
       expect(statusBar.find('.grammar-name').text()).toBe 'JavaScript'
