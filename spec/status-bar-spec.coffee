@@ -112,13 +112,13 @@ describe "StatusBar", ->
       atom.rootView.attachToDom()
 
     it "displays the current branch for files in repositories", ->
-      project.setPath(project.resolve('git/master.git'))
+      atom.project.setPath(atom.project.resolve('git/master.git'))
       atom.rootView.openSync('HEAD')
       expect(StatusBar.git.branchArea).toBeVisible()
       expect(StatusBar.git.branchLabel.text()).toBe 'master'
 
     it "doesn't display the current branch for a file not in a repository", ->
-      project.setPath(os.tmpdir())
+      atom.project.setPath(os.tmpdir())
       atom.rootView.openSync(path.join(os.tmpdir(), 'temp.txt'))
       expect(StatusBar.git.branchArea).toBeHidden()
 
@@ -130,18 +130,18 @@ describe "StatusBar", ->
     [repo, filePath, originalPathText, newPath, ignorePath, ignoredPath, projectPath] = []
 
     beforeEach ->
-      projectPath = project.resolve('git/working-dir')
+      projectPath = atom.project.resolve('git/working-dir')
       fs.move(path.join(projectPath, 'git.git'), path.join(projectPath, '.git'))
-      project.setPath(projectPath)
-      filePath = project.resolve('a.txt')
-      newPath = project.resolve('new.txt')
+      atom.project.setPath(projectPath)
+      filePath = atom.project.resolve('a.txt')
+      newPath = atom.project.resolve('new.txt')
       fs.writeSync(newPath, "I'm new here")
       ignorePath = path.join(projectPath, '.gitignore')
       fs.writeSync(ignorePath, 'ignored.txt')
       ignoredPath = path.join(projectPath, 'ignored.txt')
       fs.writeSync(ignoredPath, '')
-      project.getRepo().getPathStatus(filePath)
-      project.getRepo().getPathStatus(newPath)
+      atom.project.getRepo().getPathStatus(filePath)
+      atom.project.getRepo().getPathStatus(newPath)
       originalPathText = fs.read(filePath)
       atom.rootView.attachToDom()
 
@@ -154,7 +154,7 @@ describe "StatusBar", ->
 
     it "displays the modified icon for a changed file", ->
       fs.writeSync(filePath, "i've changed for the worse")
-      project.getRepo().getPathStatus(filePath)
+      atom.project.getRepo().getPathStatus(filePath)
       atom.rootView.openSync(filePath)
       expect(StatusBar.git.gitStatusIcon).toHaveClass('icon-diff-modified')
 
@@ -172,16 +172,16 @@ describe "StatusBar", ->
 
     it "updates when a status-changed event occurs", ->
       fs.writeSync(filePath, "i've changed for the worse")
-      project.getRepo().getPathStatus(filePath)
+      atom.project.getRepo().getPathStatus(filePath)
       atom.rootView.openSync(filePath)
       expect(StatusBar.git.gitStatusIcon).toHaveClass('icon-diff-modified')
       fs.writeSync(filePath, originalPathText)
-      project.getRepo().getPathStatus(filePath)
+      atom.project.getRepo().getPathStatus(filePath)
       expect(StatusBar.git.gitStatusIcon).not.toHaveClass('icon-diff-modified')
 
     it "displays the diff stat for modified files", ->
       fs.writeSync(filePath, "i've changed for the worse")
-      project.getRepo().getPathStatus(filePath)
+      atom.project.getRepo().getPathStatus(filePath)
       atom.rootView.openSync(filePath)
       expect(StatusBar.git.gitStatusIcon).toHaveText('+1')
 

@@ -16,7 +16,7 @@ class GitView extends View
   initialize: (@statusBar) ->
     @statusBar.subscribeToBuffer 'saved', @update
     @subscribe atom.rootView, 'pane-container:active-pane-item-changed', @update
-    @subscribe project, 'path-changed', @subscribeToRepo
+    @subscribe atom.project, 'path-changed', @subscribeToRepo
 
     @subscribeToRepo()
 
@@ -34,7 +34,7 @@ class GitView extends View
 
   subscribeToRepo: =>
     @unsubscribe(@repo) if @repo?
-    if repo = project.getRepo()
+    if repo = atom.project.getRepo()
       @repo = repo
       @subscribe repo, 'status-changed', (path, status) =>
         @update() if path is @getActiveItemPath()
@@ -46,9 +46,9 @@ class GitView extends View
 
   updateBranchText: ->
     @branchArea.hide()
-    return unless project.contains(@getActiveItemPath())
+    return unless atom.project.contains(@getActiveItemPath())
 
-    head = project.getRepo()?.getShortHead() or ''
+    head = atom.project.getRepo()?.getShortHead() or ''
     @branchLabel.text(head)
     @branchArea.show() if head
 
@@ -56,9 +56,9 @@ class GitView extends View
     itemPath = @getActiveItemPath()
     @gitStatus.hide()
     @commitsArea.hide()
-    return unless project.contains(itemPath)
+    return unless atom.project.contains(itemPath)
 
-    repo = project.getRepo()
+    repo = atom.project.getRepo()
     return unless repo?
 
     if repo.upstream.ahead > 0
