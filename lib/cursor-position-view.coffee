@@ -7,13 +7,13 @@ class CursorPositionView extends View
 
   initialize: (@statusBar) ->
     @subscribe @statusBar, 'active-buffer-changed', @updateCursorPositionText
-    @subscribe atom.rootView, 'cursor:moved', @updateCursorPositionText
+    @subscribe atom.workspaceView, 'cursor:moved', @updateCursorPositionText
 
   afterAttach: ->
     @updateCursorPositionText()
 
   getActiveView: ->
-    atom.rootView.getActiveView()
+    atom.workspaceView.getActiveView()
 
   updateCursorPositionText: =>
     if position = @getActiveView()?.getCursorBufferPosition?()

@@ -8,10 +8,10 @@ class StatusBarView extends View
       @div outlet: 'leftPanel', class: 'status-bar-left'
 
   initialize: ->
-    atom.rootView.statusBar = this
+    atom.workspaceView.statusBar = this
 
     @bufferSubscriptions = []
-    @subscribe atom.rootView, 'pane-container:active-pane-item-changed', =>
+    @subscribe atom.workspaceView, 'pane-container:active-pane-item-changed', =>
       @unsubscribeAllFromBuffer()
       @storeActiveBuffer()
       @subscribeAllToBuffer()
@@ -22,7 +22,7 @@ class StatusBarView extends View
 
   # Private:
   attach: ->
-    atom.rootView.vertical.append(this) unless @hasParent()
+    atom.workspaceView.vertical.append(this) unless @hasParent()
 
   # Public:
   appendLeft: (item) ->
@@ -38,7 +38,7 @@ class StatusBarView extends View
 
   # Public:
   getActiveItem: ->
-    atom.rootView.getActivePaneItem()
+    atom.workspaceView.getActivePaneItem()
 
   # Private:
   storeActiveBuffer: ->

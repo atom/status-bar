@@ -15,7 +15,7 @@ class GitView extends View
 
   initialize: (@statusBar) ->
     @statusBar.subscribeToBuffer 'saved', @update
-    @subscribe atom.rootView, 'pane-container:active-pane-item-changed', @update
+    @subscribe atom.workspaceView, 'pane-container:active-pane-item-changed', @update
     @subscribe atom.project, 'path-changed', @subscribeToRepo
 
     @subscribeToRepo()
@@ -27,10 +27,10 @@ class GitView extends View
     @getActiveItem()?.getPath?()
 
   getActiveItem: ->
-    atom.rootView.getActivePaneItem()
+    atom.workspaceView.getActivePaneItem()
 
   getActiveView: ->
-    atom.rootView.getActiveView()
+    atom.workspaceView.getActiveView()
 
   subscribeToRepo: =>
     @unsubscribe(@repo) if @repo?
