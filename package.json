@@ -3,17 +3,8 @@
   "version": "0.23.0",
   "main": "./lib/status-bar",
   "description": "Display information about the current editor such as cursor position, file path, grammar, current branch, and line diff count.",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/atom/status-bar.git"
-  },
-  "bugs": {
-    "url": "https://github.com/atom/status-bar/issues"
-  },
+  "repository": "https://github.com/atom/status-bar",
   "engines": {
     "atom": "*"
-  },
-  "publishConfig": {
-    "registry": "https://atom.cloudant.com/registry/_design/app/_rewrite"
   }
 }
