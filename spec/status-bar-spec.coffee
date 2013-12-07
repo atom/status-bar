@@ -29,10 +29,7 @@ describe "StatusBar", ->
 
     describe "when associated with an unsaved buffer", ->
       it "displays 'untitled' instead of the buffer's path, but still displays the buffer position", ->
-        atom.workspaceView.remove()
-        atom.workspaceView = new WorkspaceView
         atom.workspaceView.openSync()
-        atom.workspaceView.simulateDomAttachment()
         StatusBar.activate()
         statusBar = atom.workspaceView.find('.status-bar').view()
         expect(StatusBar.fileInfo.currentPath.text()).toBe 'untitled'
