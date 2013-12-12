@@ -8,6 +8,10 @@ module.exports =
     @statusBar = new StatusBarView()
     @statusBar.attach()
 
+    if atom.getLoadSettings().devMode
+      DevModeView = require './dev-mode-view'
+      @statusBar.appendLeft(new DevModeView())
+
     @fileInfo = new FileInfoView(@statusBar)
     @statusBar.appendLeft(@fileInfo)
 
