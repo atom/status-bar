@@ -3,4 +3,4 @@
 module.exports =
 class DevModeView extends View
   @content: ->
-    @span class: 'inline-block icon icon-primitive-square text-error'
+    @span class: 'inline-block icon icon-color-mode text-error'
