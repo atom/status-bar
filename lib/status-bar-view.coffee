@@ -22,7 +22,7 @@ class StatusBarView extends View
 
   # Private:
   attach: ->
-    atom.workspaceView.after(this) unless @hasParent()
+    atom.workspaceView.horizontal.after(this) unless @hasParent()
 
   # Public:
   appendLeft: (item) ->
