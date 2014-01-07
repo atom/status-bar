@@ -17,9 +17,9 @@ describe "StatusBar", ->
 
   describe "@initialize", ->
     it "appends only one status bar", ->
-      expect(atom.workspaceView.vertical.find('.status-bar').length).toBe 1
+      expect(atom.workspaceView.find('.status-bar').length).toBe 1
       editor.splitRight()
-      expect(atom.workspaceView.vertical.find('.status-bar').length).toBe 1
+      expect(atom.workspaceView.find('.status-bar').length).toBe 1
 
   describe ".initialize(editor)", ->
     it "displays the editor's buffer path, cursor buffer position, and buffer modified indicator", ->

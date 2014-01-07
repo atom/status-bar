@@ -1,11 +1,31 @@
 @import "ui-variables";
 @import "octicon-mixins";
 
+.workspace {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  .horizontal {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 26px;
+    height: initial;
+  }
+}
+
 .status-bar {
   padding: @component-padding/2 @component-padding;
   font-size: 11px;
   line-height: 14px;
-  position: relative;
+  height: 26px;
+  position: absolute !important;
+  bottom: 0;
+  left: 0;
+  right: 0;
   -webkit-user-select: none;
   cursor: default;
   overflow: hidden;
