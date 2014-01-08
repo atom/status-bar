@@ -4,8 +4,9 @@ module.exports =
 class StatusBarView extends View
   @content: ->
     @div class: 'status-bar tool-panel panel-bottom', =>
-      @div outlet: 'rightPanel', class: 'status-bar-right pull-right'
-      @div outlet: 'leftPanel', class: 'status-bar-left'
+      @div class: 'flexbox-repaint-hack', =>
+        @div outlet: 'rightPanel', class: 'status-bar-right pull-right'
+        @div outlet: 'leftPanel', class: 'status-bar-left'
 
   initialize: ->
     atom.workspaceView.statusBar = this

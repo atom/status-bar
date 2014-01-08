@@ -2,15 +2,24 @@
 @import "octicon-mixins";
 
 .status-bar {
-  padding: @component-padding/2 @component-padding;
   font-size: 11px;
-  line-height: 14px;
+  line-height: @component-line-height;
+  height: @component-line-height;
   position: relative;
   -webkit-user-select: none;
   cursor: default;
   overflow: hidden;
   white-space: nowrap;
   min-width: -webkit-min-content;
+
+  .flexbox-repaint-hack {
+    padding: 0 @component-line-height/2;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
 
   // All icons are smaller than normal (normal is 16px)
   .icon:before {
