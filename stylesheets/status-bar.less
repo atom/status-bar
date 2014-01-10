@@ -3,8 +3,8 @@
 
 .status-bar {
   font-size: 11px;
-  line-height: @component-line-height;
-  height: @component-line-height;
+  line-height: @component-line-height - 3px;
+  height: @component-line-height + 1px;
   position: relative;
   -webkit-user-select: none;
   cursor: default;
@@ -24,6 +24,8 @@
   // All icons are smaller than normal (normal is 16px)
   .icon:before {
     .icon-size(14px);
+    position: relative;
+    top: 1px;
     margin-right: 0px;
   }
 
