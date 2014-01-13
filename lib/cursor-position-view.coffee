@@ -12,11 +12,9 @@ class CursorPositionView extends View
   afterAttach: ->
     @updateCursorPositionText()
 
-  getActiveView: ->
-    atom.workspaceView.getActiveView()
-
   updateCursorPositionText: =>
-    if position = @getActiveView()?.getCursorBufferPosition?()
+    editor = atom.workspaceView.getActivePaneItem()
+    if position = editor?.getCursorBufferPosition?()
       @text("#{position.row + 1},#{position.column + 1}").show()
     else
       @hide()
