@@ -4,21 +4,22 @@ path = require 'path'
 os = require 'os'
 
 describe "StatusBar", ->
-  [editor, statusBar, buffer] = []
+  [editor, editorView, statusBar, buffer] = []
 
   beforeEach ->
     atom.workspaceView = new WorkspaceView
     atom.workspaceView.openSync('sample.js')
     atom.workspaceView.simulateDomAttachment()
     StatusBar.activate()
-    editor = atom.workspaceView.getActiveView()
+    editorView = atom.workspaceView.getActiveView()
+    editor = editorView.getEditor()
     statusBar = atom.workspaceView.find('.status-bar').view()
     buffer = editor.getBuffer()
 
   describe "@initialize", ->
     it "appends only one status bar", ->
       expect(atom.workspaceView.vertical.find('.status-bar').length).toBe 1
-      editor.splitRight()
+      editorView.splitRight()
       expect(atom.workspaceView.vertical.find('.status-bar').length).toBe 1
 
   describe ".initialize(editor)", ->
@@ -53,7 +54,7 @@ describe "StatusBar", ->
       filePath = path.join(os.tmpdir(), "atom-whitespace.txt")
       fs.writeFileSync(filePath, "")
       atom.workspaceView.openSync(filePath)
-      editor = atom.workspaceView.getActiveView()
+      editor = atom.workspaceView.getActivePaneItem()
       expect(StatusBar.fileInfo.bufferModified.text()).toBe ''
       editor.insertText("\n")
       advanceClock(buffer.stoppedChangingDelay)
@@ -83,7 +84,7 @@ describe "StatusBar", ->
     it "updates the buffer modified indicator for the new buffer", ->
       expect(StatusBar.fileInfo.bufferModified.text()).toBe ''
       atom.workspaceView.openSync('sample.txt')
-      editor = atom.workspaceView.getActiveView()
+      editor = atom.workspaceView.getActivePaneItem()
       editor.insertText("\n")
       advanceClock(buffer.stoppedChangingDelay)
       expect(StatusBar.fileInfo.bufferModified.text()).toBe '*'
@@ -100,7 +101,7 @@ describe "StatusBar", ->
     it "updates the cursor position in the status bar", ->
       atom.workspaceView.attachToDom()
       editor.setCursorScreenPosition([1, 2])
-      editor.updateDisplay()
+      editorView.updateDisplay()
       expect(StatusBar.cursorPosition.text()).toBe '2,3'
 
   describe "git branch label", ->
@@ -194,7 +195,7 @@ describe "StatusBar", ->
     it "hides the cursor position view", ->
       atom.workspaceView.attachToDom()
       view = $$ -> @div id: 'view', tabindex: -1, 'View'
-      editor.getPane().showItem(view)
+      editorView.getPane().showItem(view)
       expect(StatusBar.cursorPosition).toBeHidden()
 
   describe "when the active item implements getTitle() but not getPath()", ->
@@ -202,7 +203,7 @@ describe "StatusBar", ->
       atom.workspaceView.attachToDom()
       view = $$ -> @div id: 'view', tabindex: -1, 'View'
       view.getTitle = => 'View Title'
-      editor.getPane().showItem(view)
+      editorView.getPane().showItem(view)
       expect(StatusBar.fileInfo.currentPath.text()).toBe 'View Title'
       expect(StatusBar.fileInfo.currentPath).toBeVisible()
 
@@ -210,7 +211,7 @@ describe "StatusBar", ->
     it "hides the path view", ->
       atom.workspaceView.attachToDom()
       view = $$ -> @div id: 'view', tabindex: -1, 'View'
-      editor.getPane().showItem(view)
+      editorView.getPane().showItem(view)
       expect(StatusBar.fileInfo.currentPath).toBeHidden()
 
   describe "when the active item's title changes", ->
@@ -218,7 +219,7 @@ describe "StatusBar", ->
       atom.workspaceView.attachToDom()
       view = $$ -> @div id: 'view', tabindex: -1, 'View'
       view.getTitle = => 'View Title'
-      editor.getPane().showItem(view)
+      editorView.getPane().showItem(view)
       expect(StatusBar.fileInfo.currentPath.text()).toBe 'View Title'
       view.getTitle = => 'New Title'
       view.trigger 'title-changed'
