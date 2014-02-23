@@ -1,4 +1,5 @@
-{$$, fs, WorkspaceView} = require 'atom'
+{$$, WorkspaceView} = require 'atom'
+fs = require 'fs-plus'
 StatusBar = require '../lib/status-bar'
 path = require 'path'
 os = require 'os'
@@ -106,7 +107,7 @@ describe "StatusBar", ->
 
   describe "git branch label", ->
     beforeEach ->
-      fs.removeSync(path.join(os.tmpdir(), '.git')) if fs.isDirectorySync(path.join(os.tmpdir(), '.git'))
+      fs.removeSync(path.join(os.tmpdir(), '.git'))
       atom.workspaceView.attachToDom()
 
     it "displays the current branch for files in repositories", ->
