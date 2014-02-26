@@ -50,13 +50,13 @@ class StatusBarView extends View
     @bufferSubscriptions.push([event, callback])
     @buffer.on(event, callback) if @buffer
 
-  # Priavte:
+  # Private:
   subscribeAllToBuffer: ->
     return unless @buffer
     for [event, callback] in @bufferSubscriptions
       @buffer.on(event, callback)
 
-  # Priavte:
+  # Private:
   unsubscribeAllFromBuffer: ->
     return unless @buffer
     for [event, callback] in @bufferSubscriptions
