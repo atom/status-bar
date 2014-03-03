@@ -37,6 +37,18 @@ describe "StatusBar", ->
         expect(StatusBar.fileInfo.currentPath.text()).toBe 'untitled'
         expect(StatusBar.cursorPosition.text()).toBe '1,1'
 
+  describe ".deactivate()", ->
+    it "removes the StatusBarView", ->
+      statusBar = atom.workspaceView.find('.status-bar')
+      expect(statusBar).toExist()
+      expect(atom.workspaceView.statusBar).toBeDefined()
+
+      StatusBar.deactivate()
+
+      statusBar = atom.workspaceView.find('.status-bar')
+      expect(statusBar).not.toExist()
+      expect(atom.workspaceView.statusBar).toBeFalsy()
+
   describe "when the associated editor's path changes", ->
     it "updates the path in the status bar", ->
       atom.workspaceView.openSync('sample.txt')
