@@ -25,6 +25,10 @@ class StatusBarView extends View
   attach: ->
     atom.workspaceView.appendToBottom(this) unless @hasParent()
 
+  destroy: ->
+    @remove()
+    atom.workspaceView.statusBar = null
+
   # Public:
   appendLeft: (item) ->
     @leftPanel.append(item)

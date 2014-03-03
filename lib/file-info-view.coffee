@@ -12,6 +12,9 @@ class FileInfoView extends View
     @statusBar.subscribeToBuffer 'saved modified-status-changed', @update
     @subscribe atom.workspaceView, 'pane:active-item-title-changed', @update
 
+  destroy: ->
+    @remove()
+
   afterAttach: ->
     @updatePathText()
 

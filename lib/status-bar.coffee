@@ -20,3 +20,16 @@ module.exports =
 
     @git = new GitView(@statusBar)
     @statusBar.appendRight(@git)
+
+  deactivate: ->
+    @git.destroy()
+    @git = null
+
+    @fileInfo.destroy()
+    @fileInfo = null
+
+    @cursorPosition.destroy()
+    @cursorPosition = null
+
+    @statusBar.destroy()
+    @statusBar = null
