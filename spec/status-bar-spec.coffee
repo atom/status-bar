@@ -49,6 +49,10 @@ describe "StatusBar", ->
       expect(statusBar).not.toExist()
       expect(atom.workspaceView.statusBar).toBeFalsy()
 
+    it "can be called twice", ->
+      StatusBar.deactivate()
+      StatusBar.deactivate()
+
   describe "when the associated editor's path changes", ->
     it "updates the path in the status bar", ->
       atom.workspaceView.openSync('sample.txt')

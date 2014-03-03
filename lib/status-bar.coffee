@@ -22,14 +22,14 @@ module.exports =
     @statusBar.appendRight(@git)
 
   deactivate: ->
-    @git.destroy()
+    @git?.destroy()
     @git = null
 
-    @fileInfo.destroy()
+    @fileInfo?.destroy()
     @fileInfo = null
 
-    @cursorPosition.destroy()
+    @cursorPosition?.destroy()
     @cursorPosition = null
 
-    @statusBar.destroy()
+    @statusBar?.destroy()
     @statusBar = null
