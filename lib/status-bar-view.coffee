@@ -21,7 +21,6 @@ class StatusBarView extends View
 
     @storeActiveBuffer()
 
-  # Private:
   attach: ->
     atom.workspaceView.appendToBottom(this) unless @hasParent()
 
@@ -45,7 +44,6 @@ class StatusBarView extends View
   getActiveItem: ->
     atom.workspaceView.getActivePaneItem()
 
-  # Private:
   storeActiveBuffer: ->
     @buffer = @getActiveItem()?.getBuffer?()
 
@@ -54,13 +52,11 @@ class StatusBarView extends View
     @bufferSubscriptions.push([event, callback])
     @buffer.on(event, callback) if @buffer
 
-  # Private:
   subscribeAllToBuffer: ->
     return unless @buffer
     for [event, callback] in @bufferSubscriptions
       @buffer.on(event, callback)
 
-  # Private:
   unsubscribeAllFromBuffer: ->
     return unless @buffer
     for [event, callback] in @bufferSubscriptions
