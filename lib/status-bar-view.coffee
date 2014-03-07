@@ -28,13 +28,21 @@ class StatusBarView extends View
     @remove()
     atom.workspaceView.statusBar = null
 
-  # Public: Append the view to the left of the status bar.
+  # Public: Append the view to the left side of the status bar.
   appendLeft: (view) ->
     @leftPanel.append(view)
 
-  # Public: Append the view to the right of the status bar.
+  # Public: Prepend the view to the left side of the status bar.
+  prependLeft: (view) ->
+    @leftPanel.prepend(view)
+
+  # Public: Append the view to the right side of the status bar.
   appendRight: (view) ->
     @rightPanel.append(view)
+
+  # Public: Prepend the view to the right side of the status bar.
+  prependRight: (view) ->
+    @rightPanel.prepend(view)
 
   # Public:
   getActiveBuffer: ->
