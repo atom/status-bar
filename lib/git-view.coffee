@@ -52,7 +52,7 @@ class GitView extends View
     @branchArea.hide()
     return unless atom.project.contains(@getActiveItemPath())
 
-    head = atom.project.getRepo()?.getShortHead() or ''
+    head = atom.project.getRepo()?.getShortHead(@getActiveItemPath()) or ''
     @branchLabel.text(head)
     @branchArea.show() if head
 
@@ -65,17 +65,19 @@ class GitView extends View
     repo = atom.project.getRepo()
     return unless repo?
 
-    if repo.upstream.ahead > 0
-      @commitsAhead.text(repo.upstream.ahead).show()
+    upstream = repo.getCachedUpstreamAheadBehindCount(itemPath) ? {}
+
+    if upstream.ahead > 0
+      @commitsAhead.text(upstream.ahead).show()
     else
       @commitsAhead.hide()
 
-    if repo.upstream.behind > 0
-      @commitsBehind.text(repo.upstream.behind).show()
+    if upstream.behind > 0
+      @commitsBehind.text(upstream.behind).show()
     else
       @commitsBehind.hide()
 
-    @commitsArea.show() if repo.upstream.ahead > 0 or repo.upstream.behind > 0
+    @commitsArea.show() if upstream.ahead > 0 or upstream.behind > 0
 
     status = repo.statuses[itemPath]
     @gitStatusIcon.removeClass()
