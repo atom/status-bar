@@ -9,6 +9,7 @@ describe "StatusBar", ->
 
   beforeEach ->
     atom.workspaceView = new WorkspaceView
+    atom.workspace = atom.workspaceView.model
     atom.workspaceView.openSync('sample.js')
     atom.workspaceView.simulateDomAttachment()
     StatusBar.activate()
