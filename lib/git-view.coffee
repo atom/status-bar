@@ -79,7 +79,7 @@ class GitView extends View
 
     @commitsArea.show() if upstream.ahead > 0 or upstream.behind > 0
 
-    status = repo.statuses[itemPath]
+    status = repo.getCachedPathStatus(itemPath)
     @gitStatusIcon.removeClass()
     if repo.isStatusModified(status)
       @gitStatusIcon.addClass('icon icon-diff-modified status-modified')
