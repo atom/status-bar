@@ -133,6 +133,14 @@ describe "StatusBar", ->
       expect(StatusBar.git.branchArea).toBeVisible()
       expect(StatusBar.git.branchLabel.text()).toBe 'master'
 
+      atom.workspaceView.getActivePaneView().destroyItems()
+      expect(StatusBar.git.branchArea).toBeVisible()
+      expect(StatusBar.git.branchLabel.text()).toBe 'master'
+
+      view = $$ -> @div id: 'view', tabindex: -1, 'View'
+      atom.workspaceView.getActivePaneView().showItem(view)
+      expect(StatusBar.git.branchArea).not.toBeVisible()
+
     it "doesn't display the current branch for a file not in a repository", ->
       atom.project.setPath(os.tmpdir())
       atom.workspaceView.openSync(path.join(os.tmpdir(), 'temp.txt'))

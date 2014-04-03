@@ -50,36 +50,41 @@ class GitView extends View
 
   updateBranchText: ->
     @branchArea.hide()
-    return unless atom.project.contains(@getActiveItemPath())
+    if @showBranchInformation()
+      head = atom.project.getRepo()?.getShortHead(@getActiveItemPath()) or ''
+      @branchLabel.text(head)
+      @branchArea.show() if head
 
-    head = atom.project.getRepo()?.getShortHead(@getActiveItemPath()) or ''
-    @branchLabel.text(head)
-    @branchArea.show() if head
+  showBranchInformation: ->
+    if itemPath = @getActiveItemPath()
+      atom.project.contains(itemPath)
+    else
+      not @getActiveItem()?
 
   updateStatusText: ->
     itemPath = @getActiveItemPath()
     @gitStatus.hide()
     @commitsArea.hide()
-    return unless atom.project.contains(itemPath)
 
     repo = atom.project.getRepo()
     return unless repo?
 
-    upstream = repo.getCachedUpstreamAheadBehindCount(itemPath) ? {}
+    if @showBranchInformation()
+      {ahead, behind} = repo.getCachedUpstreamAheadBehindCount(itemPath) ? {}
 
-    if upstream.ahead > 0
-      @commitsAhead.text(upstream.ahead).show()
-    else
-      @commitsAhead.hide()
+      if ahead > 0
+        @commitsAhead.text(ahead).show()
+      else
+        @commitsAhead.hide()
 
-    if upstream.behind > 0
-      @commitsBehind.text(upstream.behind).show()
-    else
-      @commitsBehind.hide()
+      if behind > 0
+        @commitsBehind.text(behind).show()
+      else
+        @commitsBehind.hide()
 
-    @commitsArea.show() if upstream.ahead > 0 or upstream.behind > 0
+      @commitsArea.show() if ahead > 0 or behind > 0
 
-    status = repo.getCachedPathStatus(itemPath)
+    status = repo.getCachedPathStatus(itemPath) ? 0
     @gitStatusIcon.removeClass()
     if repo.isStatusModified(status)
       @gitStatusIcon.addClass('icon icon-diff-modified status-modified')
