@@ -72,7 +72,7 @@ describe "StatusBar", ->
       filePath = path.join(os.tmpdir(), "atom-whitespace.txt")
       fs.writeFileSync(filePath, "")
       atom.workspaceView.openSync(filePath)
-      editor = atom.workspaceView.getActivePaneItem()
+      editor = atom.workspace.getActivePaneItem()
       expect(StatusBar.fileInfo.bufferModified.text()).toBe ''
       editor.insertText("\n")
       advanceClock(buffer.stoppedChangingDelay)
@@ -102,7 +102,7 @@ describe "StatusBar", ->
     it "updates the buffer modified indicator for the new buffer", ->
       expect(StatusBar.fileInfo.bufferModified.text()).toBe ''
       atom.workspaceView.openSync('sample.txt')
-      editor = atom.workspaceView.getActivePaneItem()
+      editor = atom.workspace.getActivePaneItem()
       editor.insertText("\n")
       advanceClock(buffer.stoppedChangingDelay)
       expect(StatusBar.fileInfo.bufferModified.text()).toBe '*'

@@ -19,7 +19,7 @@ class FileInfoView extends View
     @updatePathText()
 
   getActiveItem: ->
-    atom.workspaceView.getActivePaneItem()
+    atom.workspace.getActivePaneItem()
 
   update: =>
     @updatePathText()

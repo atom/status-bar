@@ -50,7 +50,7 @@ class StatusBarView extends View
 
   # Public:
   getActiveItem: ->
-    atom.workspaceView.getActivePaneItem()
+    atom.workspace.getActivePaneItem()
 
   storeActiveBuffer: ->
     @buffer = @getActiveItem()?.getBuffer?()

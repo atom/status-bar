@@ -31,7 +31,7 @@ class GitView extends View
     @getActiveItem()?.getPath?()
 
   getActiveItem: ->
-    atom.workspaceView.getActivePaneItem()
+    atom.workspace.getActivePaneItem()
 
   getActiveView: ->
     atom.workspaceView.getActiveView()
