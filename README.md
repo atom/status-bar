@@ -16,7 +16,7 @@ You can access it from your package by doing the following:
 module.exports =
   activate: ->
     atom.packages.once 'activated', ->
-      atom.workspaceView.statusBar?.appendLeft('<span>hi!<span>')
+      atom.workspaceView.statusBar?.appendLeft('<span>hi!</span>')
 ```
 
 It is important to guard against the `atom.workspaceView.statusBar` property
