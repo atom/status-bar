@@ -28,6 +28,9 @@ describe "StatusBar", ->
       editorView.splitRight()
       expect(atom.workspaceView.vertical.find('.status-bar').length).toBe 1
 
+    it "the status bar is visible by default", ->
+      expect(atom.workspaceView.find('.status-bar')).toExist()
+
   describe ".initialize(editor)", ->
     it "displays the editor's buffer path, cursor buffer position, and buffer modified indicator", ->
       expect(StatusBar.fileInfo.currentPath.text()).toBe 'sample.js'
@@ -60,6 +63,13 @@ describe "StatusBar", ->
     it "can be called twice", ->
       StatusBar.deactivate()
       StatusBar.deactivate()
+
+  describe "when status-bar:toggle is triggered", ->
+    it "hides or shows the status bar", ->
+      atom.workspaceView.trigger 'status-bar:toggle'
+      expect(atom.workspaceView.find('.status-bar')).not.toExist()
+      atom.workspaceView.trigger 'status-bar:toggle'
+      expect(atom.workspaceView.find('.status-bar')).toExist()
 
   describe "when the associated editor's path changes", ->
     it "updates the path in the status bar", ->
