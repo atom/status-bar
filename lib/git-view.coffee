@@ -3,7 +3,7 @@
 module.exports =
 class GitView extends View
   @content: ->
-    @div class: 'git-view', =>
+    @div class: 'git-view inline-block', =>
       @div class: 'git-branch inline-block', outlet: 'branchArea', =>
         @span class: 'icon icon-git-branch'
         @span class: 'branch-label', outlet: 'branchLabel'
