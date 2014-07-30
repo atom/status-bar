@@ -1,6 +1,7 @@
 StatusBarView = require './status-bar-view'
 FileInfoView = require './file-info-view'
 CursorPositionView = require './cursor-position-view'
+SelectionCountView = require './selection-count-view'
 GitView = require './git-view'
 
 module.exports =
@@ -18,6 +19,9 @@ module.exports =
     @cursorPosition = new CursorPositionView(@statusBar)
     @statusBar.appendLeft(@cursorPosition)
 
+    @selectionCount = new SelectionCountView(@statusBar)
+    @statusBar.appendLeft(@selectionCount)
+
     @git = new GitView(@statusBar)
     @statusBar.appendRight(@git)
 
@@ -30,6 +34,9 @@ module.exports =
 
     @cursorPosition?.destroy()
     @cursorPosition = null
+
+    @selectionCount?.destroy()
+    @selectionCount = null
 
     @statusBar?.destroy()
     @statusBar = null
