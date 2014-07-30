@@ -36,6 +36,7 @@ describe "StatusBar", ->
       expect(StatusBar.fileInfo.currentPath.text()).toBe 'sample.js'
       expect(StatusBar.fileInfo.bufferModified.text()).toBe ''
       expect(StatusBar.cursorPosition.text()).toBe '1,1'
+      expect(StatusBar.selectionCount).toBeHidden()
 
     describe "when associated with an unsaved buffer", ->
       it "displays 'untitled' instead of the buffer's path, but still displays the buffer position", ->
@@ -47,6 +48,7 @@ describe "StatusBar", ->
           statusBar = atom.workspaceView.find('.status-bar').view()
           expect(StatusBar.fileInfo.currentPath.text()).toBe 'untitled'
           expect(StatusBar.cursorPosition.text()).toBe '1,1'
+          expect(StatusBar.selectionCount).toBeHidden()
 
   describe ".deactivate()", ->
     it "removes the StatusBarView", ->
@@ -153,6 +155,15 @@ describe "StatusBar", ->
       editor.setCursorScreenPosition([1, 2])
       editorView.updateDisplay()
       expect(StatusBar.cursorPosition.text()).toBe '2,3'
+
+  describe "when the associated editor's selection changes", ->
+    it "updates the selection count in the status bar", ->
+      waitsForPromise ->
+        atom.workspace.open('sample.txt')
+
+      runs ->
+        editor.setSelectedBufferRange([0,0], [0,1])
+        expect(StatusBar.selectionCount.text()).toBe '(2)'
 
   describe "git branch label", ->
     beforeEach ->
