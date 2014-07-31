@@ -158,12 +158,10 @@ describe "StatusBar", ->
 
   describe "when the associated editor's selection changes", ->
     it "updates the selection count in the status bar", ->
-      waitsForPromise ->
-        atom.workspace.open('sample.txt')
-
-      runs ->
-        editor.setSelectedBufferRange([0,0], [0,1])
-        expect(StatusBar.selectionCount.text()).toBe '(2)'
+      atom.workspaceView.attachToDom()
+      editor.setSelectedBufferRange([[0, 0], [0, 2]])
+      editorView.updateDisplay()
+      expect(StatusBar.selectionCount.text()).toBe '(2)'
 
   describe "git branch label", ->
     beforeEach ->
