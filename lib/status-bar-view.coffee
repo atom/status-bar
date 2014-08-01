@@ -8,7 +8,10 @@ class StatusBarView extends View
         @div outlet: 'rightPanel', class: 'status-bar-right pull-right'
         @div outlet: 'leftPanel', class: 'status-bar-left'
 
-  initialize: ->
+  serialize: ->
+    attached: @hasParent()
+
+  initialize: (state) ->
     atom.workspaceView.statusBar = this
 
     @bufferSubscriptions = []
@@ -21,12 +24,20 @@ class StatusBarView extends View
 
     @storeActiveBuffer()
 
+    @attach() if state.attached
+
   attach: ->
     atom.workspaceView.appendToBottom(this) unless @hasParent()
 
   destroy: ->
     @remove()
     atom.workspaceView.statusBar = null
+
+  toggle: ->
+    if @hasParent()
+      @detach()
+    else
+      @attach()
 
   # Public: Append the view to the left side of the status bar.
   appendLeft: (view) ->

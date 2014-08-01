@@ -4,9 +4,11 @@ CursorPositionView = require './cursor-position-view'
 GitView = require './git-view'
 
 module.exports =
-  activate: ->
-    @statusBar = new StatusBarView()
-    @statusBar.attach()
+  activate: (state = {}) ->
+    state.attached ?= true
+    @statusBar = new StatusBarView(state)
+
+    atom.workspaceView.command 'status-bar:toggle', => @statusBar.toggle()
 
     if atom.getLoadSettings().devMode
       DevModeView = require './dev-mode-view'
