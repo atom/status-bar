@@ -16,7 +16,7 @@ class SelectionCountView extends View
     @updateCount()
 
   updateCount: =>
-    count = atom.workspace.getActiveEditor()?.getSelection().getText().length
+    count = atom.workspace.getActiveEditor()?.getSelectedText().length
     if count > 0
       @text("(#{count})").show()
     else
