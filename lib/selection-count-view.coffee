@@ -8,7 +8,7 @@ class SelectionCountView extends View
   initialize: (@statusBar) ->
     @subscribe atom.workspaceView.eachEditorView (editor) =>
       @subscribe editor, "selection:changed", @updateCount
-    @subscribe atom.workspaceView, "pane-container:active-pane-item-changed", @updateCount
+    @subscribe @statusBar, "active-buffer-changed", @updateCount
 
   destroy: ->
     @remove()
