@@ -6,8 +6,7 @@ class SelectionCountView extends View
     @div class: "selection-count inline-block"
 
   initialize: (@statusBar) ->
-    @subscribe atom.workspaceView.eachEditorView (editor) =>
-      @subscribe editor, "selection:changed", @updateCount
+    @subscribe atom.workspaceView, "selection:changed", @updateCount
     @subscribe @statusBar, "active-buffer-changed", @updateCount
 
   destroy: ->
