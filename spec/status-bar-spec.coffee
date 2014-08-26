@@ -159,7 +159,7 @@ describe "StatusBar", ->
     it "updates the selection count in the status bar", ->
       atom.workspaceView.attachToDom()
       editorView.height(100)
-      editorView.component.checkForVisibilityChange()
+      editorView.component.pollDOM()
 
       atom.workspaceView.attachToDom()
       editor.setSelectedBufferRange([[0, 0], [0, 2]])
