@@ -153,14 +153,16 @@ describe "StatusBar", ->
     it "updates the cursor position in the status bar", ->
       atom.workspaceView.attachToDom()
       editor.setCursorScreenPosition([1, 2])
-      editorView.updateDisplay()
       expect(StatusBar.cursorPosition.text()).toBe '2,3'
 
   describe "when the associated editor's selection changes", ->
     it "updates the selection count in the status bar", ->
       atom.workspaceView.attachToDom()
+      editorView.height(100)
+      editorView.component.checkForVisibilityChange()
+
+      atom.workspaceView.attachToDom()
       editor.setSelectedBufferRange([[0, 0], [0, 2]])
-      editorView.updateDisplay()
       expect(StatusBar.selectionCount.text()).toBe '(2)'
 
   describe "git branch label", ->
