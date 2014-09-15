@@ -27,18 +27,16 @@ class FileInfoView extends View
 
   updateBufferHasModifiedText: (isModified) ->
     if isModified
-      @bufferModified.text('*') unless @isModified
+      @bufferModified.element.textContent = '*' unless @isModified
       @isModified = true
     else
-      @bufferModified.text('') if @isModified
+      @bufferModified.element.textContent = '' if @isModified
       @isModified = false
 
   updatePathText: ->
     if path = @getActiveItem()?.getPath?()
-      @currentPath.text(atom.project.relativize(path))
-      @currentPath.element.style.display = ''
+      @currentPath.element.textContent = atom.project.relativize(path)
     else if title = @getActiveItem()?.getTitle?()
-      @currentPath.text(title)
-      @currentPath.element.style.display = ''
+      @currentPath.element.textContent = title
     else
-      @currentPath.element.style.display = 'none'
+      @currentPath.element.textContent = ''
