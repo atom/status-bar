@@ -22,7 +22,6 @@ module.exports =
     @statusBar.appendLeft(@cursorPosition)
 
     @selectionCount = new SelectionCountView()
-    console.log @selectionCount
     @selectionCount.initialize(@statusBar)
     @statusBar.appendLeft(@selectionCount)
 
