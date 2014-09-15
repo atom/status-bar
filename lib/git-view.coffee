@@ -49,11 +49,11 @@ class GitView extends View
     @updateStatusText()
 
   updateBranchText: ->
-    @branchArea.hide()
+    @branchArea.element.style.display = 'none'
     if @showBranchInformation()
       head = atom.project.getRepo()?.getShortHead(@getActiveItemPath()) or ''
       @branchLabel.text(head)
-      @branchArea.show() if head
+      @branchArea.element.style.display = '' if head
 
   showBranchInformation: ->
     if itemPath = @getActiveItemPath()
@@ -63,8 +63,8 @@ class GitView extends View
 
   updateStatusText: ->
     itemPath = @getActiveItemPath()
-    @gitStatus.hide()
-    @commitsArea.hide()
+    @gitStatus.element.style.display = 'none'
+    @commitsArea.element.style.display = 'none'
 
     repo = atom.project.getRepo()
     return unless repo?
@@ -73,16 +73,18 @@ class GitView extends View
       {ahead, behind} = repo.getCachedUpstreamAheadBehindCount(itemPath) ? {}
 
       if ahead > 0
-        @commitsAhead.text(ahead).show()
+        @commitsAhead.text(ahead)
+        @commitsAhead.element.style.display = ''
       else
-        @commitsAhead.hide()
+        @commitsAhead.element.style.display = 'none'
 
       if behind > 0
-        @commitsBehind.text(behind).show()
+        @commitsBehind.text(behind)
+        @commitsBehind.element.style.display = ''
       else
-        @commitsBehind.hide()
+        @commitsBehind.element.style.display = 'none'
 
-      @commitsArea.show() if ahead > 0 or behind > 0
+      @commitsArea.element.style.display = '' if ahead > 0 or behind > 0
 
     status = repo.getCachedPathStatus(itemPath) ? 0
     @gitStatusIcon.removeClass()
@@ -107,4 +109,7 @@ class GitView extends View
       @gitStatusIcon.addClass('icon icon-diff-ignored status-ignored')
       @gitStatusIcon.text('')
 
-    if @gitStatusIcon.attr('class') then @gitStatus.show() else @gitStatus.hide()
+    if @gitStatusIcon.attr('class')
+      @gitStatus.element.style.display = ''
+    else
+      @gitStatus.element.style.display = 'none'

@@ -35,8 +35,10 @@ class FileInfoView extends View
 
   updatePathText: ->
     if path = @getActiveItem()?.getPath?()
-      @currentPath.text(atom.project.relativize(path)).show()
+      @currentPath.text(atom.project.relativize(path))
+      @currentPath.element.style.display = ''
     else if title = @getActiveItem()?.getTitle?()
-      @currentPath.text(title).show()
+      @currentPath.text(title)
+      @currentPath.element.style.display = ''
     else
-      @currentPath.hide()
+      @currentPath.element.style.display = 'none'

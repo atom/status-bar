@@ -19,6 +19,7 @@ class CursorPositionView extends View
   updateCursorPositionText: =>
     editor = atom.workspace.getActiveEditor()
     if position = editor?.getCursorBufferPosition()
-      @cursorPosition.text("#{position.row + 1},#{position.column + 1}").show()
+      @cursorPosition.text("#{position.row + 1},#{position.column + 1}")
+      @cursorPosition.element.style.display = ''
     else
-      @cursorPosition.hide()
+      @cursorPosition.element.style.display = 'none'
