@@ -21,7 +21,9 @@ module.exports =
     @cursorPosition = new CursorPositionView(@statusBar)
     @statusBar.appendLeft(@cursorPosition)
 
-    @selectionCount = new SelectionCountView(@statusBar)
+    @selectionCount = new SelectionCountView()
+    console.log @selectionCount
+    @selectionCount.initialize(@statusBar)
     @statusBar.appendLeft(@selectionCount)
 
     @git = new GitView(@statusBar)
