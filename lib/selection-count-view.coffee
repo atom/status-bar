@@ -3,7 +3,7 @@
 module.exports =
 class SelectionCountView extends View
   @content: ->
-    @div class: "selection-count inline-block"
+    @div class: 'selection-count inline-block'
 
   initialize: (@statusBar) ->
     @subscribe atom.workspaceView, "selection:changed", @updateCount
@@ -18,7 +18,6 @@ class SelectionCountView extends View
   updateCount: =>
     count = atom.workspace.getActiveEditor()?.getSelectedText().length
     if count > 0
-      @text("(#{count})")
-      @element.style.display = ''
+      @element.textContent = "(#{count})"
     else
-      @element.style.display = 'none'
+      @element.textContent = ''
