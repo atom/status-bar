@@ -1,6 +1,6 @@
 {$$, WorkspaceView} = require 'atom'
 fs = require 'fs-plus'
-StatusBar = require '../lib/status-bar'
+StatusBar = require '../lib/main'
 path = require 'path'
 os = require 'os'
 
