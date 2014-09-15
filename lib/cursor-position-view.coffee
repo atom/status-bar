@@ -3,8 +3,7 @@
 module.exports =
 class CursorPositionView extends View
   @content: ->
-    @div class: 'cursor-position inline-block', =>
-      @span outlet: 'cursorPosition'
+    @div class: 'cursor-position inline-block'
 
   initialize: (@statusBar) ->
     @subscribe @statusBar, 'active-buffer-changed', @updateCursorPositionText
@@ -19,6 +18,6 @@ class CursorPositionView extends View
   updateCursorPositionText: =>
     editor = atom.workspace.getActiveEditor()
     if position = editor?.getCursorBufferPosition()
-      @cursorPosition.element.textContent = "#{position.row + 1},#{position.column + 1}"
+      @element.textContent = "#{position.row + 1},#{position.column + 1}"
     else
-      @cursorPosition.element.textContent = ''
+      @element.textContent = ''
