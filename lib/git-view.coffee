@@ -28,8 +28,8 @@ class GitView extends View
     @subscribeToRepo()
 
   destroy: ->
-    @unsubscribe(@repo) if @repo?
-    @repo = null
+    @statusChangedSubscription?.dispose()
+    @statusesChangedSubscription?.dispose()
     @remove()
 
   afterAttach: ->
@@ -42,12 +42,14 @@ class GitView extends View
     atom.workspace.getActivePaneItem()
 
   subscribeToRepo: =>
-    @unsubscribe(@repo) if @repo?
+    @statusChangedSubscription?.dispose()
+    @statusesChangedSubscription?.dispose()
+
     if repo = atom.project.getRepo()
-      @repo = repo
-      @subscribe repo, 'status-changed', (path, status) =>
+      @statusChangedSubscription = repo.onDidChangeStatus ({path, status}) =>
         @update() if path is @getActiveItemPath()
-      @subscribe repo, 'statuses-changed', @update
+      @statusesChangedSubscription = repo.onDidChangeStatuses =>
+        @update()
 
   update: =>
     @updateBranchText()
