@@ -33,8 +33,8 @@ describe "StatusBar", ->
 
   describe ".initialize(editor)", ->
     it "displays the editor's buffer path, cursor buffer position, and buffer modified indicator", ->
-      expect(StatusBar.fileInfo.currentPath.text()).toBe 'sample.js'
-      expect(StatusBar.fileInfo.bufferModified.text()).toBe ''
+      expect(StatusBar.fileInfo.currentPath.textContent).toBe 'sample.js'
+      expect(StatusBar.fileInfo.bufferModified.textContent).toBe ''
       expect(StatusBar.cursorPosition.textContent).toBe '1,1'
       expect(StatusBar.selectionCount).toBeHidden()
 
@@ -46,7 +46,7 @@ describe "StatusBar", ->
         runs ->
           StatusBar.activate()
           statusBar = atom.workspaceView.find('.status-bar').view()
-          expect(StatusBar.fileInfo.currentPath.text()).toBe 'untitled'
+          expect(StatusBar.fileInfo.currentPath.textContent).toBe 'untitled'
           expect(StatusBar.cursorPosition.textContent).toBe '1,1'
           expect(StatusBar.selectionCount).toBeHidden()
 
@@ -79,14 +79,14 @@ describe "StatusBar", ->
         atom.workspace.open('sample.txt')
 
       runs ->
-        expect(StatusBar.fileInfo.currentPath.text()).toBe 'sample.txt'
+        expect(StatusBar.fileInfo.currentPath.textContent).toBe 'sample.txt'
 
   describe "when the associated editor's buffer's content changes", ->
     it "enables the buffer modified indicator", ->
-      expect(StatusBar.fileInfo.bufferModified.text()).toBe ''
+      expect(StatusBar.fileInfo.bufferModified.textContent).toBe ''
       editor.insertText("\n")
       advanceClock(buffer.stoppedChangingDelay)
-      expect(StatusBar.fileInfo.bufferModified.text()).toBe '*'
+      expect(StatusBar.fileInfo.bufferModified.textContent).toBe '*'
       editor.backspace()
 
   describe "when the buffer content has changed from the content on disk", ->
@@ -99,34 +99,34 @@ describe "StatusBar", ->
 
       runs ->
         editor = atom.workspace.getActiveEditor()
-        expect(StatusBar.fileInfo.bufferModified.text()).toBe ''
+        expect(StatusBar.fileInfo.bufferModified.textContent).toBe ''
         editor.insertText("\n")
         advanceClock(buffer.stoppedChangingDelay)
-        expect(StatusBar.fileInfo.bufferModified.text()).toBe '*'
+        expect(StatusBar.fileInfo.bufferModified.textContent).toBe '*'
         editor.getBuffer().save()
-        expect(StatusBar.fileInfo.bufferModified.text()).toBe ''
+        expect(StatusBar.fileInfo.bufferModified.textContent).toBe ''
 
     it "disables the buffer modified indicator if the content matches again", ->
-      expect(StatusBar.fileInfo.bufferModified.text()).toBe ''
+      expect(StatusBar.fileInfo.bufferModified.textContent).toBe ''
       editor.insertText("\n")
       advanceClock(buffer.stoppedChangingDelay)
-      expect(StatusBar.fileInfo.bufferModified.text()).toBe '*'
+      expect(StatusBar.fileInfo.bufferModified.textContent).toBe '*'
       editor.backspace()
       advanceClock(buffer.stoppedChangingDelay)
-      expect(StatusBar.fileInfo.bufferModified.text()).toBe ''
+      expect(StatusBar.fileInfo.bufferModified.textContent).toBe ''
 
     it "disables the buffer modified indicator when the change is undone", ->
-      expect(StatusBar.fileInfo.bufferModified.text()).toBe ''
+      expect(StatusBar.fileInfo.bufferModified.textContent).toBe ''
       editor.insertText("\n")
       advanceClock(buffer.stoppedChangingDelay)
-      expect(StatusBar.fileInfo.bufferModified.text()).toBe '*'
+      expect(StatusBar.fileInfo.bufferModified.textContent).toBe '*'
       editor.undo()
       advanceClock(buffer.stoppedChangingDelay)
-      expect(StatusBar.fileInfo.bufferModified.text()).toBe ''
+      expect(StatusBar.fileInfo.bufferModified.textContent).toBe ''
 
   describe "when the buffer changes", ->
     it "updates the buffer modified indicator for the new buffer", ->
-      expect(StatusBar.fileInfo.bufferModified.text()).toBe ''
+      expect(StatusBar.fileInfo.bufferModified.textContent).toBe ''
 
       waitsForPromise ->
         atom.workspace.open('sample.txt')
@@ -135,11 +135,11 @@ describe "StatusBar", ->
         editor = atom.workspace.getActiveEditor()
         editor.insertText("\n")
         advanceClock(buffer.stoppedChangingDelay)
-        expect(StatusBar.fileInfo.bufferModified.text()).toBe '*'
+        expect(StatusBar.fileInfo.bufferModified.textContent).toBe '*'
 
     it "doesn't update the buffer modified indicator for the old buffer", ->
       oldBuffer = editor.getBuffer()
-      expect(StatusBar.fileInfo.bufferModified.text()).toBe ''
+      expect(StatusBar.fileInfo.bufferModified.textContent).toBe ''
 
       waitsForPromise ->
         atom.workspace.open('sample.txt')
@@ -147,7 +147,7 @@ describe "StatusBar", ->
       runs ->
         oldBuffer.setText("new text")
         advanceClock(buffer.stoppedChangingDelay)
-        expect(StatusBar.fileInfo.bufferModified.text()).toBe ''
+        expect(StatusBar.fileInfo.bufferModified.textContent).toBe ''
 
   describe "when the associated editor's cursor position changes", ->
     it "updates the cursor position in the status bar", ->
@@ -311,7 +311,7 @@ describe "StatusBar", ->
       view = $$ -> @div id: 'view', tabindex: -1, 'View'
       view.getTitle = => 'View Title'
       editorView.getPane().activateItem(view)
-      expect(StatusBar.fileInfo.currentPath.text()).toBe 'View Title'
+      expect(StatusBar.fileInfo.currentPath.textContent).toBe 'View Title'
       expect(StatusBar.fileInfo.currentPath).toBeVisible()
 
   describe "when the active item neither getTitle() nor getPath()", ->
@@ -324,10 +324,12 @@ describe "StatusBar", ->
   describe "when the active item's title changes", ->
     it "updates the path view with the new title", ->
       atom.workspaceView.attachToDom()
+      callback = null
       view = $$ -> @div id: 'view', tabindex: -1, 'View'
+      view.onDidChangeTitle = (fn) -> callback ?= fn
       view.getTitle = => 'View Title'
       editorView.getPane().activateItem(view)
-      expect(StatusBar.fileInfo.currentPath.text()).toBe 'View Title'
+      expect(StatusBar.fileInfo.currentPath.textContent).toBe 'View Title'
       view.getTitle = => 'New Title'
-      view.trigger 'title-changed'
-      expect(StatusBar.fileInfo.currentPath.text()).toBe 'New Title'
+      callback?()
+      expect(StatusBar.fileInfo.currentPath.textContent).toBe 'New Title'

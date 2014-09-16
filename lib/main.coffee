@@ -15,7 +15,8 @@ module.exports =
       DevModeView = require './dev-mode-view'
       @statusBar.appendLeft(new DevModeView())
 
-    @fileInfo = new FileInfoView(@statusBar)
+    @fileInfo = new FileInfoView()
+    @fileInfo.initialize(@statusBar)
     @statusBar.appendLeft(@fileInfo)
 
     @cursorPosition = new CursorPositionView()
