@@ -3,9 +3,9 @@ class SelectionCountView extends HTMLElement
   initialize: (@statusBar) ->
     @classList.add('selection-count', 'inline-block')
 
-    @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem (textEditor) =>
+    @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem (activeItem) =>
       @selectionSubscription?.dispose()
-      @selectionSubscription = textEditor.onDidChangeSelectionRange? => @updateCount()
+      @selectionSubscription = activeItem?.onDidChangeSelectionRange? => @updateCount()
 
     @selectionSubscription = atom.workspace.getActiveTextEditor()?.onDidChangeSelectionRange => @updateCount()
     @updateCount()
