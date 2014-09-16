@@ -26,8 +26,7 @@ class StatusBarView extends HTMLElement
       @storeActiveBuffer()
       @subscribeAllToBuffer()
 
-      event = new CustomEvent('active-buffer-changed', bubbles: true)
-      @dispatchEvent(event)
+      @dispatchEvent(new CustomEvent('active-buffer-changed', bubbles: true))
 
     @storeActiveBuffer()
 
