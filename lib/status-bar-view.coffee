@@ -15,7 +15,8 @@ class StatusBarView extends View
     atom.workspaceView.statusBar = this
 
     @bufferSubscriptions = []
-    @subscribe atom.workspaceView, 'pane-container:active-pane-item-changed', =>
+
+    @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
       @unsubscribeAllFromBuffer()
       @storeActiveBuffer()
       @subscribeAllToBuffer()
@@ -30,6 +31,7 @@ class StatusBarView extends View
     atom.workspaceView.appendToBottom(this) unless @hasParent()
 
   destroy: ->
+    @activeItemSubscription.dispose()
     @remove()
     atom.workspaceView.statusBar = null
 
