@@ -1,5 +1,5 @@
 class CursorPositionView extends HTMLElement
-  initialize: (@statusBar) ->
+  initialize: ->
     @classList.add('cursor-position', 'inline-block')
 
     @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem (activeItem) =>

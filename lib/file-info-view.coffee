@@ -1,5 +1,5 @@
 class FileInfoView extends HTMLElement
-  initialize: (@statusBar) ->
+  initialize: ->
     @classList.add('file-info', 'inline-block')
 
     @currentPath = document.createElement('span')

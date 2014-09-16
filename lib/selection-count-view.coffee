@@ -1,5 +1,5 @@
 class SelectionCountView extends HTMLElement
-  initialize: (@statusBar) ->
+  initialize: ->
     @classList.add('selection-count', 'inline-block')
 
     @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem (activeItem) =>

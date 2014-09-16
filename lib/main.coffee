@@ -18,15 +18,15 @@ module.exports =
       @statusBar.appendLeft(devModeView)
 
     @fileInfo = new FileInfoView()
-    @fileInfo.initialize(@statusBar)
+    @fileInfo.initialize()
     @statusBar.appendLeft(@fileInfo)
 
     @cursorPosition = new CursorPositionView()
-    @cursorPosition.initialize(@statusBar)
+    @cursorPosition.initialize()
     @statusBar.appendLeft(@cursorPosition)
 
     @selectionCount = new SelectionCountView()
-    @selectionCount.initialize(@statusBar)
+    @selectionCount.initialize()
     @statusBar.appendLeft(@selectionCount)
 
     @git = new GitView(@statusBar)
