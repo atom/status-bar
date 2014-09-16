@@ -70,7 +70,7 @@ class GitView extends HTMLElement
   getActiveItem: ->
     atom.workspace.getActivePaneItem()
 
-  subscribeToRepo: =>
+  subscribeToRepo: ->
     @statusChangedSubscription?.dispose()
     @statusesChangedSubscription?.dispose()
 
