@@ -1,5 +1,5 @@
 module.exports =
-class SelectionCountView
+class SelectionCountView extends HTMLElement
   initialize: (@statusBar) ->
     @classList.add('selection-count', 'inline-block')
 
