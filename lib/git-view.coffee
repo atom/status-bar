@@ -87,7 +87,7 @@ class GitView extends View
       @commitsArea.element.style.display = '' if ahead > 0 or behind > 0
 
     status = repo.getCachedPathStatus(itemPath) ? 0
-    @gitStatus.element.classList.remove('icon-diff-modified', 'status-modified', 'icon-diff-added', 'status-added', 'icon-diff-ignored', 'status-ignored')
+    @gitStatusIcon.element.classList.remove('icon-diff-modified', 'status-modified', 'icon-diff-added', 'status-added', 'icon-diff-ignored', 'status-ignored')
 
     if repo.isStatusModified(status)
       @gitStatusIcon.element.classList.add('icon-diff-modified', 'status-modified')
