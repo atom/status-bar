@@ -1,17 +1,24 @@
-{View} = require 'atom'
+{$} = require 'atom'
 
-module.exports =
-class StatusBarView extends View
-  @content: ->
-    @div class: 'status-bar tool-panel panel-bottom', =>
-      @div class: 'flexbox-repaint-hack', =>
-        @div outlet: 'rightPanel', class: 'status-bar-right pull-right'
-        @div outlet: 'leftPanel', class: 'status-bar-left'
-
+class StatusBarView extends HTMLElement
   serialize: ->
     attached: @hasParent()
 
   initialize: (state) ->
+    @classList.add('status-bar', 'tool-panel', 'panel-bottom')
+
+    flexboxHackElement = document.createElement('div')
+    flexboxHackElement.classList.add('flexbox-repaint-hack')
+    @appendChild(flexboxHackElement)
+
+    @rightPanel = document.createElement('div')
+    @rightPanel.classList.add('status-bar-right', 'pull-right')
+    flexboxHackElement.appendChild(@rightPanel)
+
+    @leftPanel = document.createElement('div')
+    @leftPanel.classList.add('status-bar-left')
+    flexboxHackElement.appendChild(@leftPanel)
+
     @bufferSubscriptions = []
 
     @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
@@ -19,14 +26,15 @@ class StatusBarView extends View
       @storeActiveBuffer()
       @subscribeAllToBuffer()
 
-      @trigger('active-buffer-changed')
+      event = new CustomEvent('active-buffer-changed', bubbles: true)
+      @dispatchEvent(event)
 
     @storeActiveBuffer()
 
     @attach() if state.attached
 
   attach: ->
-    atom.workspaceView.appendToBottom(this) unless @hasParent()
+    atom.workspaceView.appendToBottom(this) unless @parentElement?
 
   destroy: ->
     @activeItemSubscription.dispose()
@@ -34,26 +42,26 @@ class StatusBarView extends View
     @remove()
 
   toggle: ->
-    if @hasParent()
-      @detach()
+    if @parentElement
+      @remove()
     else
       @attach()
 
   # Public: Append the view to the left side of the status bar.
   appendLeft: (view) ->
-    @leftPanel.append(view)
+    $(@leftPanel).append(view)
 
   # Public: Prepend the view to the left side of the status bar.
   prependLeft: (view) ->
-    @leftPanel.prepend(view)
+    $(@leftPanel).prepend(view)
 
   # Public: Append the view to the right side of the status bar.
   appendRight: (view) ->
-    @rightPanel.append(view)
+    $(@rightPanel).append(view)
 
   # Public: Prepend the view to the right side of the status bar.
   prependRight: (view) ->
-    @rightPanel.prepend(view)
+    $(@rightPanel).prepend(view)
 
   # Public:
   getActiveBuffer: ->
@@ -80,3 +88,5 @@ class StatusBarView extends View
     return unless @buffer
     for [event, callback] in @bufferSubscriptions
       @buffer.off(event, callback)
+
+module.exports = document.registerElement('status-bar', prototype: StatusBarView.prototype, extends: 'div')
