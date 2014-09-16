@@ -178,11 +178,11 @@ describe "StatusBar", ->
 
       runs ->
         expect(StatusBar.git.branchArea).toBeVisible()
-        expect(StatusBar.git.branchLabel.text()).toBe 'master'
+        expect(StatusBar.git.branchLabel.textContent).toBe 'master'
 
         atom.workspaceView.getActivePaneView().destroyItems()
         expect(StatusBar.git.branchArea).toBeVisible()
-        expect(StatusBar.git.branchLabel.text()).toBe 'master'
+        expect(StatusBar.git.branchLabel.textContent).toBe 'master'
 
       view = $$ -> @div id: 'view', tabindex: -1, 'View'
       atom.workspaceView.getActivePaneView().activateItem(view)

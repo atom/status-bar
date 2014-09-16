@@ -14,6 +14,14 @@ class GitView extends View
         @span outlet: 'gitStatusIcon', class: 'icon'
 
   initialize: (@statusBar) ->
+    @branchArea = @branchArea.element
+    @branchLabel = @branchLabel.element
+    @commitsArea = @commitsArea.element
+    @commitsAhead = @commitsAhead.element
+    @commitsBehind = @commitsBehind.element
+    @gitStatus = @gitStatus.element
+    @gitStatusIcon = @gitStatusIcon.element
+
     @statusBar.subscribeToBuffer 'saved', @update
     @subscribe atom.workspaceView, 'pane-container:active-pane-item-changed', @update
     @subscribe atom.project, 'path-changed', @subscribeToRepo
@@ -49,11 +57,11 @@ class GitView extends View
     @updateStatusText()
 
   updateBranchText: ->
-    @branchArea.element.style.display = 'none'
+    @branchArea.style.display = 'none'
     if @showBranchInformation()
       head = atom.project.getRepo()?.getShortHead(@getActiveItemPath()) or ''
-      @branchLabel.element.textContent = head
-      @branchArea.element.style.display = '' if head
+      @branchLabel.textContent = head
+      @branchArea.style.display = '' if head
 
   showBranchInformation: ->
     if itemPath = @getActiveItemPath()
@@ -63,8 +71,8 @@ class GitView extends View
 
   updateStatusText: ->
     itemPath = @getActiveItemPath()
-    @gitStatus.element.style.display = 'none'
-    @commitsArea.element.style.display = 'none'
+    @gitStatus.style.display = 'none'
+    @commitsArea.style.display = 'none'
 
     repo = atom.project.getRepo()
     return unless repo?
@@ -73,42 +81,42 @@ class GitView extends View
       {ahead, behind} = repo.getCachedUpstreamAheadBehindCount(itemPath) ? {}
 
       if ahead > 0
-        @commitsAhead.element.textContent = ahead
-        @commitsAhead.element.style.display = ''
+        @commitsAhead.textContent = ahead
+        @commitsAhead.style.display = ''
       else
-        @commitsAhead.element.style.display = 'none'
+        @commitsAhead.style.display = 'none'
 
       if behind > 0
-        @commitsBehind.element.textContent = behind
-        @commitsBehind.element.style.display = ''
+        @commitsBehind.textContent = behind
+        @commitsBehind.style.display = ''
       else
-        @commitsBehind.element.style.display = 'none'
+        @commitsBehind.style.display = 'none'
 
-      @commitsArea.element.style.display = '' if ahead > 0 or behind > 0
+      @commitsArea.style.display = '' if ahead > 0 or behind > 0
 
     status = repo.getCachedPathStatus(itemPath) ? 0
-    @gitStatusIcon.element.classList.remove('icon-diff-modified', 'status-modified', 'icon-diff-added', 'status-added', 'icon-diff-ignored', 'status-ignored')
+    @gitStatusIcon.classList.remove('icon-diff-modified', 'status-modified', 'icon-diff-added', 'status-added', 'icon-diff-ignored', 'status-ignored')
 
     if repo.isStatusModified(status)
-      @gitStatusIcon.element.classList.add('icon-diff-modified', 'status-modified')
+      @gitStatusIcon.classList.add('icon-diff-modified', 'status-modified')
       stats = repo.getDiffStats(itemPath)
       if stats.added and stats.deleted
-        @gitStatusIcon.element.textContent = "+#{stats.added}, -#{stats.deleted}"
+        @gitStatusIcon.textContent = "+#{stats.added}, -#{stats.deleted}"
       else if stats.added
-        @gitStatusIcon.element.textContent = "+#{stats.added}"
+        @gitStatusIcon.textContent = "+#{stats.added}"
       else if stats.deleted
-        @gitStatusIcon.element.textContent = "-#{stats.deleted}"
+        @gitStatusIcon.textContent = "-#{stats.deleted}"
       else
-        @gitStatusIcon.element.textContent = ''
-      @gitStatus.element.style.display = ''
+        @gitStatusIcon.textContent = ''
+      @gitStatus.style.display = ''
     else if repo.isStatusNew(status)
-      @gitStatusIcon.element.classList.add('icon-diff-added', 'status-added')
+      @gitStatusIcon.classList.add('icon-diff-added', 'status-added')
       if @statusBar.getActiveBuffer()?
-        @gitStatusIcon.element.textContent = "+#{@statusBar.getActiveBuffer().getLineCount()}"
+        @gitStatusIcon.textContent = "+#{@statusBar.getActiveBuffer().getLineCount()}"
       else
-        @gitStatusIcon.element.textContent = ''
-      @gitStatus.element.style.display = ''
+        @gitStatusIcon.textContent = ''
+      @gitStatus.style.display = ''
     else if repo.isPathIgnored(itemPath)
-      @gitStatusIcon.element.classList.add('icon-diff-ignored',  'status-ignored')
-      @gitStatusIcon.element.textContent = ''
-      @gitStatus.element.style.display = ''
+      @gitStatusIcon.classList.add('icon-diff-ignored',  'status-ignored')
+      @gitStatusIcon.textContent = ''
+      @gitStatus.style.display = ''
