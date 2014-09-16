@@ -8,6 +8,7 @@ module.exports =
   activate: (state = {}) ->
     state.attached ?= true
     @statusBar = new StatusBarView(state)
+    atom.workspaceView.statusBar = @statusBar
 
     atom.workspaceView.command 'status-bar:toggle', => @statusBar.toggle()
 
@@ -48,3 +49,5 @@ module.exports =
 
     @statusBar?.destroy()
     @statusBar = null
+
+    atom.workspaceView.statusBar = null

@@ -12,8 +12,6 @@ class StatusBarView extends View
     attached: @hasParent()
 
   initialize: (state) ->
-    atom.workspaceView.statusBar = this
-
     @bufferSubscriptions = []
 
     @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
@@ -34,7 +32,6 @@ class StatusBarView extends View
     @activeItemSubscription.dispose()
     @unsubscribeAllFromBuffer()
     @remove()
-    atom.workspaceView.statusBar = null
 
   toggle: ->
     if @hasParent()
