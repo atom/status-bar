@@ -55,6 +55,16 @@ class GitView extends HTMLElement
 
     @update()
 
+  subscribeToRepo: ->
+    @statusChangedSubscription?.dispose()
+    @statusesChangedSubscription?.dispose()
+
+    if repo = atom.project.getRepo()
+      @statusChangedSubscription = repo.onDidChangeStatus ({path, status}) =>
+        @update() if path is @getActiveItemPath()
+      @statusesChangedSubscription = repo.onDidChangeStatuses =>
+        @update()
+
   destroy: ->
     @activeItemSubscription.dispose()
     @projectPathSubscription.off()
@@ -68,16 +78,6 @@ class GitView extends HTMLElement
 
   getActiveItem: ->
     atom.workspace.getActivePaneItem()
-
-  subscribeToRepo: ->
-    @statusChangedSubscription?.dispose()
-    @statusesChangedSubscription?.dispose()
-
-    if repo = atom.project.getRepo()
-      @statusChangedSubscription = repo.onDidChangeStatus ({path, status}) =>
-        @update() if path is @getActiveItemPath()
-      @statusesChangedSubscription = repo.onDidChangeStatuses =>
-        @update()
 
   update: =>
     @updateBranchText()
