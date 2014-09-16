@@ -163,7 +163,7 @@ describe "StatusBar", ->
 
       atom.workspaceView.attachToDom()
       editor.setSelectedBufferRange([[0, 0], [0, 2]])
-      expect(StatusBar.selectionCount.text()).toBe '(2)'
+      expect(StatusBar.selectionCount.textContent).toBe '(2)'
 
   describe "git branch label", ->
     beforeEach ->
