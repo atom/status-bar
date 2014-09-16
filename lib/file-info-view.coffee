@@ -15,13 +15,21 @@ class FileInfoView extends HTMLElement
     @subscribeToActiveItem()
 
   subscribeToActiveItem: ->
-    activeItem = @getActiveItem()
-
-    @titleSubscription?.dispose()
-    @titleSubscription = activeItem?.onDidChangeTitle? => @update()
-
     @modifiedSubscription?.dispose()
-    @modifiedSubscription = activeItem?.onDidChangeModified? => @update()
+    @titleSubscription?.dispose()
+
+    if activeItem = @getActiveItem()
+      @updateCallback ?= => @update()
+
+      if typeof activeItem.onDidChangeTitle is 'function'
+        @titleSubscription = activeItem.onDidChangeTitle(@updateCallback)
+      else if typeof activeItem.on is 'function'
+        #TODO Remove once title-changed event support is removed
+        activeItem.on('title-changed', @updateCallback)
+        @titleSubscription = dispose: =>
+          activeItem.off?('title-changed', @updateCallback)
+
+      @modifiedSubscription = activeItem.onDidChangeModified?(@updateCallback)
 
     @update()
 
