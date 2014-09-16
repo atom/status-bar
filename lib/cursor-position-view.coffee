@@ -1,24 +1,29 @@
-{View} = require 'atom'
+class CursorPositionView extends HTMLElement
+  initialize: ->
+    @classList.add('cursor-position', 'inline-block')
 
-module.exports =
-class CursorPositionView extends View
-  @content: ->
-    @div class: 'cursor-position inline-block', =>
-      @span outlet: 'cursorPosition'
+    @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem (activeItem) =>
+      @subscribeToActiveTextEditor()
 
-  initialize: (@statusBar) ->
-    @subscribe @statusBar, 'active-buffer-changed', @updateCursorPositionText
-    @subscribe atom.workspaceView, 'cursor:moved', @updateCursorPositionText
+    @subscribeToActiveTextEditor()
 
   destroy: ->
-    @remove()
+    @activeItemSubscription.dispose()
+    @cursorSubscription?.dispose()
 
-  afterAttach: ->
-    @updateCursorPositionText()
+  subscribeToActiveTextEditor: ->
+    @cursorSubscription?.dispose()
+    @cursorSubscription = @getActiveTextEditor()?.onDidChangeCursorPosition =>
+      @updatePosition()
+    @updatePosition()
 
-  updateCursorPositionText: =>
-    editor = atom.workspace.getActiveEditor()
-    if position = editor?.getCursorBufferPosition()
-      @cursorPosition.text("#{position.row + 1},#{position.column + 1}").show()
+  getActiveTextEditor: ->
+    atom.workspace.getActiveTextEditor()
+
+  updatePosition: ->
+    if position = @getActiveTextEditor()?.getCursorBufferPosition()
+      @textContent = "#{position.row + 1},#{position.column + 1}"
     else
-      @cursorPosition.hide()
+      @textContent = ''
+
+module.exports = document.registerElement('status-bar-cursor', prototype: CursorPositionView.prototype, extends: 'div')

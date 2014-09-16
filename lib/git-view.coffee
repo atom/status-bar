@@ -1,31 +1,78 @@
-{View} = require 'atom'
+class GitView extends HTMLElement
+  initialize: ->
+    @classList.add('git-view', 'inline-block')
 
-module.exports =
-class GitView extends View
-  @content: ->
-    @div class: 'git-view inline-block', =>
-      @div class: 'git-branch inline-block', outlet: 'branchArea', =>
-        @span class: 'icon icon-git-branch'
-        @span class: 'branch-label', outlet: 'branchLabel'
-      @div class: 'git-commits inline-block', outlet: 'commitsArea', =>
-        @span class: 'icon icon-arrow-up commits-ahead-label', outlet: 'commitsAhead'
-        @span class: 'icon icon-arrow-down commits-behind-label', outlet: 'commitsBehind'
-      @div class: 'git-status inline-block', outlet: 'gitStatus', =>
-        @span outlet: 'gitStatusIcon'
+    @createBranchArea()
+    @createCommitsArea()
+    @createStatusArea()
 
-  initialize: (@statusBar) ->
-    @statusBar.subscribeToBuffer 'saved', @update
-    @subscribe atom.workspaceView, 'pane-container:active-pane-item-changed', @update
-    @subscribe atom.project, 'path-changed', @subscribeToRepo
+    @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
+      @subscribeToActiveItem()
+    @projectPathSubscription = atom.project.on 'path-changed', =>
+      @subscribeToRepo()
     @subscribeToRepo()
+    @subscribeToActiveItem()
+
+  createBranchArea: ->
+    @branchArea = document.createElement('div')
+    @branchArea.classList.add('git-branch', 'inline-block')
+    @appendChild(@branchArea)
+
+    branchIcon = document.createElement('span')
+    branchIcon.classList.add('icon', 'icon-git-branch')
+    @branchArea.appendChild(branchIcon)
+
+    @branchLabel = document.createElement('span')
+    @branchLabel.classList.add('branch-label')
+    @branchArea.appendChild(@branchLabel)
+
+  createCommitsArea: ->
+    @commitsArea = document.createElement('div')
+    @commitsArea.classList.add('git-commits', 'inline-block')
+    @appendChild(@commitsArea)
+
+    @commitsAhead = document.createElement('span')
+    @commitsAhead.classList.add('icon', 'icon-arrow-up', 'commits-ahead-label')
+    @commitsArea.appendChild(@commitsAhead)
+
+    @commitsBehind = document.createElement('span')
+    @commitsBehind.classList.add('icon', 'icon-arrow-down', 'commits-behind-label')
+    @commitsArea.appendChild(@commitsBehind)
+
+  createStatusArea: ->
+    @gitStatus = document.createElement('div')
+    @gitStatus.classList.add('git-status', 'inline-block')
+    @appendChild(@gitStatus)
+
+    @gitStatusIcon = document.createElement('span')
+    @gitStatusIcon.classList.add('icon')
+    @gitStatus.appendChild(@gitStatusIcon)
+
+  subscribeToActiveItem: ->
+    activeItem = @getActiveItem()
+
+    @savedSubscription?.dispose()
+    @savedSubscription = activeItem?.onDidSave? => @update()
+
+    @update()
+
+  subscribeToRepo: ->
+    @statusChangedSubscription?.dispose()
+    @statusesChangedSubscription?.dispose()
+
+    if repo = atom.project.getRepo()
+      @statusChangedSubscription = repo.onDidChangeStatus ({path, status}) =>
+        @update() if path is @getActiveItemPath()
+      @statusesChangedSubscription = repo.onDidChangeStatuses =>
+        @update()
 
   destroy: ->
-    @unsubscribe(@repo) if @repo?
-    @repo = null
-    @remove()
+    @activeItemSubscription?.dispose()
+    @projectPathSubscription?.off() # Still an old subscription, not a disposable
 
-  afterAttach: ->
-    @update()
+    @savedSubscription?.dispose()
+    @statusChangedSubscription?.dispose()
+    @statusesChangedSubscription?.dispose()
 
   getActiveItemPath: ->
     @getActiveItem()?.getPath?()
@@ -33,27 +80,17 @@ class GitView extends View
   getActiveItem: ->
     atom.workspace.getActivePaneItem()
 
-  getActiveView: ->
-    atom.workspaceView.getActiveView()
-
-  subscribeToRepo: =>
-    @unsubscribe(@repo) if @repo?
-    if repo = atom.project.getRepo()
-      @repo = repo
-      @subscribe repo, 'status-changed', (path, status) =>
-        @update() if path is @getActiveItemPath()
-      @subscribe repo, 'statuses-changed', @update
-
-  update: =>
+  update: ->
     @updateBranchText()
+    @updateAheadBehindCount()
     @updateStatusText()
 
   updateBranchText: ->
-    @branchArea.hide()
+    @branchArea.style.display = 'none'
     if @showBranchInformation()
       head = atom.project.getRepo()?.getShortHead(@getActiveItemPath()) or ''
-      @branchLabel.text(head)
-      @branchArea.show() if head
+      @branchLabel.textContent = head
+      @branchArea.style.display = '' if head
 
   showBranchInformation: ->
     if itemPath = @getActiveItemPath()
@@ -61,50 +98,61 @@ class GitView extends View
     else
       not @getActiveItem()?
 
-  updateStatusText: ->
+  updateAheadBehindCount: ->
     itemPath = @getActiveItemPath()
-    @gitStatus.hide()
-    @commitsArea.hide()
-
     repo = atom.project.getRepo()
-    return unless repo?
 
-    if @showBranchInformation()
+    if repo? and @showBranchInformation()
       {ahead, behind} = repo.getCachedUpstreamAheadBehindCount(itemPath) ? {}
 
       if ahead > 0
-        @commitsAhead.text(ahead).show()
+        @commitsAhead.textContent = ahead
+        @commitsAhead.style.display = ''
       else
-        @commitsAhead.hide()
+        @commitsAhead.style.display = 'none'
 
       if behind > 0
-        @commitsBehind.text(behind).show()
+        @commitsBehind.textContent = behind
+        @commitsBehind.style.display = ''
       else
-        @commitsBehind.hide()
+        @commitsBehind.style.display = 'none'
 
-      @commitsArea.show() if ahead > 0 or behind > 0
+    if ahead > 0 or behind > 0
+      @commitsArea.style.display = ''
+    else
+      @commitsArea.style.display = 'none'
 
-    status = repo.getCachedPathStatus(itemPath) ? 0
-    @gitStatusIcon.removeClass()
-    if repo.isStatusModified(status)
-      @gitStatusIcon.addClass('icon icon-diff-modified status-modified')
+  updateStatusText: ->
+    itemPath = @getActiveItemPath()
+    repo = atom.project.getRepo()
+
+    status = repo?.getCachedPathStatus(itemPath) ? 0
+    @gitStatusIcon.classList.remove('icon-diff-modified', 'status-modified', 'icon-diff-added', 'status-added', 'icon-diff-ignored', 'status-ignored')
+
+    if repo?.isStatusModified(status)
+      @gitStatusIcon.classList.add('icon-diff-modified', 'status-modified')
       stats = repo.getDiffStats(itemPath)
       if stats.added and stats.deleted
-        @gitStatusIcon.text("+#{stats.added}, -#{stats.deleted}")
+        @gitStatusIcon.textContent = "+#{stats.added}, -#{stats.deleted}"
       else if stats.added
-        @gitStatusIcon.text("+#{stats.added}")
+        @gitStatusIcon.textContent = "+#{stats.added}"
       else if stats.deleted
-        @gitStatusIcon.text("-#{stats.deleted}")
+        @gitStatusIcon.textContent = "-#{stats.deleted}"
       else
-        @gitStatusIcon.text('')
-    else if repo.isStatusNew(status)
-      @gitStatusIcon.addClass('icon icon-diff-added status-added')
-      if @statusBar.getActiveBuffer()?
-        @gitStatusIcon.text("+#{@statusBar.getActiveBuffer().getLineCount()}")
+        @gitStatusIcon.textContent = ''
+      @gitStatus.style.display = ''
+    else if repo?.isStatusNew(status)
+      @gitStatusIcon.classList.add('icon-diff-added', 'status-added')
+      if textEditor = atom.workspace.getActiveTextEditor()
+        @gitStatusIcon.textContent = "+#{textEditor.getLineCount()}"
       else
-        @gitStatusIcon.text('')
-    else if repo.isPathIgnored(itemPath)
-      @gitStatusIcon.addClass('icon icon-diff-ignored status-ignored')
-      @gitStatusIcon.text('')
+        @gitStatusIcon.textContent = ''
+      @gitStatus.style.display = ''
+    else if repo?.isPathIgnored(itemPath)
+      @gitStatusIcon.classList.add('icon-diff-ignored',  'status-ignored')
+      @gitStatusIcon.textContent = ''
+      @gitStatus.style.display = ''
+    else
+      @gitStatus.style.display = 'none'
 
-    if @gitStatusIcon.attr('class') then @gitStatus.show() else @gitStatus.hide()
+module.exports = document.registerElement('status-bar-git', prototype: GitView.prototype, extends: 'div')

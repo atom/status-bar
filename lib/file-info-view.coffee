@@ -1,42 +1,64 @@
-{View} = require 'atom'
+class FileInfoView extends HTMLElement
+  initialize: ->
+    @classList.add('file-info', 'inline-block')
 
-module.exports =
-class FileInfoView extends View
-  @content: ->
-    @div class: 'file-info inline-block', =>
-      @span class: 'current-path', outlet: 'currentPath'
-      @span class: 'buffer-modified', outlet: 'bufferModified'
+    @currentPath = document.createElement('span')
+    @currentPath.classList.add('current-path')
+    @appendChild(@currentPath)
 
-  initialize: (@statusBar) ->
-    @subscribe @statusBar, 'active-buffer-changed', @update
-    @statusBar.subscribeToBuffer 'saved modified-status-changed', @update
-    @subscribe atom.workspaceView, 'pane:active-item-title-changed', @update
+    @bufferModified = document.createElement('span')
+    @bufferModified.classList.add('buffer-modified')
+    @appendChild(@bufferModified)
+
+    @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
+      @subscribeToActiveItem()
+    @subscribeToActiveItem()
+
+  subscribeToActiveItem: ->
+    @modifiedSubscription?.dispose()
+    @titleSubscription?.dispose()
+
+    if activeItem = @getActiveItem()
+      @updateCallback ?= => @update()
+
+      if typeof activeItem.onDidChangeTitle is 'function'
+        @titleSubscription = activeItem.onDidChangeTitle(@updateCallback)
+      else if typeof activeItem.on is 'function'
+        #TODO Remove once title-changed event support is removed
+        activeItem.on('title-changed', @updateCallback)
+        @titleSubscription = dispose: =>
+          activeItem.off?('title-changed', @updateCallback)
+
+      @modifiedSubscription = activeItem.onDidChangeModified?(@updateCallback)
+
+    @update()
 
   destroy: ->
-    @remove()
-
-  afterAttach: ->
-    @updatePathText()
+    @activeItemSubscription.dispose()
+    @titleSubscription?.dispose()
+    @modifiedSubscription?.dispose()
 
   getActiveItem: ->
     atom.workspace.getActivePaneItem()
 
-  update: =>
+  update: ->
     @updatePathText()
-    @updateBufferHasModifiedText(@statusBar.getActiveBuffer()?.isModified())
+    @updateBufferHasModifiedText(@getActiveItem()?.isModified?())
 
   updateBufferHasModifiedText: (isModified) ->
     if isModified
-      @bufferModified.text('*') unless @isModified
+      @bufferModified.textContent = '*' unless @isModified
       @isModified = true
     else
-      @bufferModified.text('') if @isModified
+      @bufferModified.textContent = '' if @isModified
       @isModified = false
 
   updatePathText: ->
     if path = @getActiveItem()?.getPath?()
-      @currentPath.text(atom.project.relativize(path)).show()
+      @currentPath.textContent = atom.project.relativize(path)
     else if title = @getActiveItem()?.getTitle?()
-      @currentPath.text(title).show()
+      @currentPath.textContent = title
     else
-      @currentPath.hide()
+      @currentPath.textContent = ''
+
+module.exports = document.registerElement('status-bar-file', prototype: FileInfoView.prototype, extends: 'div')

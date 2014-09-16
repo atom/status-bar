@@ -1,23 +1,30 @@
-{View} = require 'atom'
+class SelectionCountView extends HTMLElement
+  initialize: ->
+    @classList.add('selection-count', 'inline-block')
 
-module.exports =
-class SelectionCountView extends View
-  @content: ->
-    @div class: "selection-count inline-block"
+    @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
+      @subscribeToActiveTextEditor()
 
-  initialize: (@statusBar) ->
-    @subscribe atom.workspaceView, "selection:changed", @updateCount
-    @subscribe @statusBar, "active-buffer-changed", @updateCount
+    @subscribeToActiveTextEditor()
 
   destroy: ->
-    @remove()
+    @activeItemSubscription.dispose()
+    @selectionSubscription?.dispose()
 
-  afterAttach: ->
+  subscribeToActiveTextEditor: ->
+    @selectionSubscription?.dispose()
+    @selectionSubscription = @getActiveTextEditor()?.onDidChangeSelectionRange =>
+      @updateCount()
     @updateCount()
 
-  updateCount: =>
-    count = atom.workspace.getActiveEditor()?.getSelectedText().length
+  getActiveTextEditor: ->
+    atom.workspace.getActiveTextEditor()
+
+  updateCount: ->
+    count = @getActiveTextEditor()?.getSelectedText().length
     if count > 0
-      @text("(#{count})").show()
+      @textContent = "(#{count})"
     else
-      @hide()
+      @textContent = ''
+
+module.exports = document.registerElement('status-bar-selection', prototype: SelectionCountView.prototype, extends: 'div')
