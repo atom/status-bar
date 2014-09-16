@@ -2,7 +2,7 @@ class SelectionCountView extends HTMLElement
   initialize: ->
     @classList.add('selection-count', 'inline-block')
 
-    @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem (activeItem) =>
+    @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
       @subscribeToActiveTextEditor()
 
     @subscribeToActiveTextEditor()
