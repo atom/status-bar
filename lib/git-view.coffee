@@ -79,7 +79,7 @@ class GitView extends HTMLElement
   getActiveItem: ->
     atom.workspace.getActivePaneItem()
 
-  update: =>
+  update: ->
     @updateBranchText()
     @updateAheadBehindCount()
     @updateStatusText()
