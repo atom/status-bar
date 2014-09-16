@@ -32,6 +32,7 @@ class StatusBarView extends View
 
   destroy: ->
     @activeItemSubscription.dispose()
+    @unsubscribeAllFromBuffer()
     @remove()
     atom.workspaceView.statusBar = null
 
