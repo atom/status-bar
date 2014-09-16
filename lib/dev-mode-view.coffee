@@ -1,6 +1,5 @@
 {$} = require 'atom'
 
-module.exports =
 class DevModeView extends HTMLElement
   initialize: ->
     @classList.add('inline-block', 'icon', 'icon-color-mode', 'text-error')

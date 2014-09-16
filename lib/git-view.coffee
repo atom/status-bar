@@ -1,4 +1,3 @@
-module.exports =
 class GitView extends HTMLElement
   initialize: ->
     @classList.add('git-view', 'inline-block')
