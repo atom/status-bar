@@ -1,9 +1,6 @@
 {$} = require 'atom'
 
 class StatusBarView extends HTMLElement
-  serialize: ->
-    attached: @hasParent()
-
   initialize: (state) ->
     @classList.add('status-bar', 'tool-panel', 'panel-bottom')
 
@@ -31,6 +28,9 @@ class StatusBarView extends HTMLElement
     @storeActiveBuffer()
 
     @attach() if state.attached
+
+  serialize: ->
+    attached: @hasParent()
 
   attach: ->
     atom.workspaceView.appendToBottom(this) unless @parentElement?
