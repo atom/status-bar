@@ -13,7 +13,9 @@ module.exports =
 
     if atom.getLoadSettings().devMode
       DevModeView = require './dev-mode-view'
-      @statusBar.appendLeft(new DevModeView())
+      devModeView = new DevModeView()
+      devModeView.initialize()
+      @statusBar.appendLeft(devModeView)
 
     @fileInfo = new FileInfoView()
     @fileInfo.initialize(@statusBar)
