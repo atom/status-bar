@@ -19,7 +19,6 @@ describe "StatusBar", ->
       StatusBar.activate()
       editorView = atom.workspaceView.getActiveView()
       editor = editorView.getEditor()
-      statusBar = atom.workspaceView.find('.status-bar').view()
       buffer = editor.getBuffer()
 
   describe "@initialize", ->
@@ -45,7 +44,6 @@ describe "StatusBar", ->
 
         runs ->
           StatusBar.activate()
-          statusBar = atom.workspaceView.find('.status-bar').view()
           expect(StatusBar.fileInfo.currentPath.textContent).toBe 'untitled'
           expect(StatusBar.cursorPosition.textContent).toBe '1,1'
           expect(StatusBar.selectionCount).toBeHidden()
