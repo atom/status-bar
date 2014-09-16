@@ -22,15 +22,28 @@ class GitView extends View
     @gitStatus = @gitStatus.element
     @gitStatusIcon = @gitStatusIcon.element
 
-    @statusBar.subscribeToBuffer 'saved', @update
-    @subscribe atom.workspaceView, 'pane-container:active-pane-item-changed', @update
-    @projectPathSubscription = atom.project.on 'path-changed' => @subscribeToRepo()
+    @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
+      @subscribeToActiveItem()
+    @projectPathSubscription = atom.project.on 'path-changed', => @subscribeToRepo()
     @subscribeToRepo()
+    @subscribeToActiveItem()
+
+  subscribeToActiveItem: ->
+    activeItem = @getActiveItem()
+
+    @savedSubscription?.dispose()
+    @savedSubscription = activeItem?.onDidSave? => @update()
+
+    @update()
 
   destroy: ->
+    @activeItemSubscription.dispose()
+    @projectPathSubscription.off()
+
+    @savedSubscription?.dispose()
     @statusChangedSubscription?.dispose()
     @statusesChangedSubscription?.dispose()
-    @projectPathSubscription.off()
+
     @remove()
 
   afterAttach: ->
