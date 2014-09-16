@@ -66,8 +66,8 @@ class GitView extends HTMLElement
         @update()
 
   destroy: ->
-    @activeItemSubscription.dispose()
-    @projectPathSubscription.off()
+    @activeItemSubscription?.dispose()
+    @projectPathSubscription?.off() # Still an old subscription, not a disposable
 
     @savedSubscription?.dispose()
     @statusChangedSubscription?.dispose()
