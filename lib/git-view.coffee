@@ -41,9 +41,6 @@ class GitView extends View
   getActiveItem: ->
     atom.workspace.getActivePaneItem()
 
-  getActiveView: ->
-    atom.workspaceView.getActiveView()
-
   subscribeToRepo: =>
     @unsubscribe(@repo) if @repo?
     if repo = atom.project.getRepo()
