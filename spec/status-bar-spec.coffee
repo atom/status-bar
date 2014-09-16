@@ -35,7 +35,7 @@ describe "StatusBar", ->
     it "displays the editor's buffer path, cursor buffer position, and buffer modified indicator", ->
       expect(StatusBar.fileInfo.currentPath.text()).toBe 'sample.js'
       expect(StatusBar.fileInfo.bufferModified.text()).toBe ''
-      expect(StatusBar.cursorPosition.text()).toBe '1,1'
+      expect(StatusBar.cursorPosition.textContent).toBe '1,1'
       expect(StatusBar.selectionCount).toBeHidden()
 
     describe "when associated with an unsaved buffer", ->
@@ -47,7 +47,7 @@ describe "StatusBar", ->
           StatusBar.activate()
           statusBar = atom.workspaceView.find('.status-bar').view()
           expect(StatusBar.fileInfo.currentPath.text()).toBe 'untitled'
-          expect(StatusBar.cursorPosition.text()).toBe '1,1'
+          expect(StatusBar.cursorPosition.textContent).toBe '1,1'
           expect(StatusBar.selectionCount).toBeHidden()
 
   describe ".deactivate()", ->
@@ -153,7 +153,7 @@ describe "StatusBar", ->
     it "updates the cursor position in the status bar", ->
       atom.workspaceView.attachToDom()
       editor.setCursorScreenPosition([1, 2])
-      expect(StatusBar.cursorPosition.text()).toBe '2,3'
+      expect(StatusBar.cursorPosition.textContent).toBe '2,3'
 
   describe "when the associated editor's selection changes", ->
     it "updates the selection count in the status bar", ->

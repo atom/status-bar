@@ -18,7 +18,8 @@ module.exports =
     @fileInfo = new FileInfoView(@statusBar)
     @statusBar.appendLeft(@fileInfo)
 
-    @cursorPosition = new CursorPositionView(@statusBar)
+    @cursorPosition = new CursorPositionView()
+    @cursorPosition.initialize(@statusBar)
     @statusBar.appendLeft(@cursorPosition)
 
     @selectionCount = new SelectionCountView()

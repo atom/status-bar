@@ -1,23 +1,27 @@
-{View} = require 'atom'
-
-module.exports =
-class CursorPositionView extends View
-  @content: ->
-    @div class: 'cursor-position inline-block'
-
+class CursorPositionView extends HTMLElement
   initialize: (@statusBar) ->
-    @subscribe @statusBar, 'active-buffer-changed', @updateCursorPositionText
-    @subscribe atom.workspaceView, 'cursor:moved', @updateCursorPositionText
+    @classList.add('cursor-position', 'inline-block')
+
+    @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem (activeItem) =>
+      @subscribeToActiveTextEditor()
+
+    @subscribeToActiveTextEditor()
 
   destroy: ->
-    @remove()
+    @activeItemSubscription.dispose()
+    @cursorSubscription?.dispose()
 
-  afterAttach: ->
-    @updateCursorPositionText()
+  subscribeToActiveTextEditor: ->
+    @cursorSubscription?.dispose()
+    @cursorSubscription = atom.workspace.getActiveTextEditor()?.onDidChangeCursorPosition =>
+      @updatePosition()
+    @updatePosition()
 
-  updateCursorPositionText: =>
-    editor = atom.workspace.getActiveEditor()
+  updatePosition: ->
+    editor = atom.workspace.getActiveTextEditor()
     if position = editor?.getCursorBufferPosition()
-      @element.textContent = "#{position.row + 1},#{position.column + 1}"
+      @textContent = "#{position.row + 1},#{position.column + 1}"
     else
-      @element.textContent = ''
+      @textContent = ''
+
+module.exports = document.registerElement('status-bar-cursor', prototype: CursorPositionView.prototype, extends: 'div')
