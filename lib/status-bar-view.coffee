@@ -30,7 +30,7 @@ class StatusBarView extends HTMLElement
     @attach() if state.attached
 
   serialize: ->
-    attached: @hasParent()
+    attached: @parentElement?
 
   attach: ->
     atom.workspaceView.appendToBottom(this) unless @parentElement?
