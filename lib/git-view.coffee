@@ -1,32 +1,52 @@
-{View} = require 'atom'
-
 module.exports =
-class GitView extends View
-  @content: ->
-    @div class: 'git-view inline-block', =>
-      @div class: 'git-branch inline-block', outlet: 'branchArea', =>
-        @span class: 'icon icon-git-branch'
-        @span class: 'branch-label', outlet: 'branchLabel'
-      @div class: 'git-commits inline-block', outlet: 'commitsArea', =>
-        @span class: 'icon icon-arrow-up commits-ahead-label', outlet: 'commitsAhead'
-        @span class: 'icon icon-arrow-down commits-behind-label', outlet: 'commitsBehind'
-      @div class: 'git-status inline-block', outlet: 'gitStatus', =>
-        @span outlet: 'gitStatusIcon', class: 'icon'
+class GitView extends HTMLElement
+  initialize: ->
+    @classList.add('git-view', 'inline-block')
 
-  initialize: (@statusBar) ->
-    @branchArea = @branchArea.element
-    @branchLabel = @branchLabel.element
-    @commitsArea = @commitsArea.element
-    @commitsAhead = @commitsAhead.element
-    @commitsBehind = @commitsBehind.element
-    @gitStatus = @gitStatus.element
-    @gitStatusIcon = @gitStatusIcon.element
+    @createBranchArea()
+    @createCommitsArea()
+    @createStatusArea()
 
     @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
       @subscribeToActiveItem()
     @projectPathSubscription = atom.project.on 'path-changed', => @subscribeToRepo()
     @subscribeToRepo()
     @subscribeToActiveItem()
+
+  createBranchArea: ->
+    @branchArea = document.createElement('div')
+    @branchArea.classList.add('git-branch', 'inline-block')
+    @appendChild(@branchArea)
+
+    branchIcon = document.createElement('span')
+    branchIcon.classList.add('icon', 'icon-git-branch')
+    @branchArea.appendChild(branchIcon)
+
+    @branchLabel = document.createElement('span')
+    @branchLabel.classList.add('branch-label')
+    @branchArea.appendChild(@branchLabel)
+
+  createCommitsArea: ->
+    @commitsArea = document.createElement('div')
+    @commitsArea.classList.add('git-commits', 'inline-block')
+    @appendChild(@commitsArea)
+
+    @commitsAhead = document.createElement('span')
+    @commitsAhead.classList.add('icon', 'icon-arrow-up', 'commits-ahead-label')
+    @commitsArea.appendChild(@commitsAhead)
+
+    @commitsBehind = document.createElement('span')
+    @commitsBehind.classList.add('icon', 'icon-arrow-down', 'commits-behind-label')
+    @commitsArea.appendChild(@commitsBehind)
+
+  createStatusArea: ->
+    @gitStatus = document.createElement('div')
+    @gitStatus.classList.add('git-status', 'inline-block')
+    @appendChild(@gitStatus)
+
+    @gitStatusIcon = document.createElement('span')
+    @gitStatusIcon.classList.add('icon')
+    @gitStatus.appendChild(@gitStatusIcon)
 
   subscribeToActiveItem: ->
     activeItem = @getActiveItem()
@@ -43,11 +63,6 @@ class GitView extends View
     @savedSubscription?.dispose()
     @statusChangedSubscription?.dispose()
     @statusesChangedSubscription?.dispose()
-
-    @remove()
-
-  afterAttach: ->
-    @update()
 
   getActiveItemPath: ->
     @getActiveItem()?.getPath?()
@@ -128,8 +143,8 @@ class GitView extends View
       @gitStatus.style.display = ''
     else if repo?.isStatusNew(status)
       @gitStatusIcon.classList.add('icon-diff-added', 'status-added')
-      if @statusBar.getActiveBuffer()?
-        @gitStatusIcon.textContent = "+#{@statusBar.getActiveBuffer().getLineCount()}"
+      if textEditor = atom.workspace.getActiveTextEditor()
+        @gitStatusIcon.textContent = "+#{textEditor.getLineCount()}"
       else
         @gitStatusIcon.textContent = ''
       @gitStatus.style.display = ''
@@ -139,3 +154,5 @@ class GitView extends View
       @gitStatus.style.display = ''
     else
       @gitStatus.style.display = 'none'
+
+module.exports = document.registerElement('status-bar-git', prototype: GitView.prototype, extends: 'div')

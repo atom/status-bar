@@ -29,7 +29,8 @@ module.exports =
     @selectionCount.initialize()
     @statusBar.appendLeft(@selectionCount)
 
-    @git = new GitView(@statusBar)
+    @git = new GitView()
+    @git.initialize()
     @statusBar.appendRight(@git)
 
   deactivate: ->
