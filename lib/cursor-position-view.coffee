@@ -13,13 +13,15 @@ class CursorPositionView extends HTMLElement
 
   subscribeToActiveTextEditor: ->
     @cursorSubscription?.dispose()
-    @cursorSubscription = atom.workspace.getActiveTextEditor()?.onDidChangeCursorPosition =>
+    @cursorSubscription = @getActiveTextEditor()?.onDidChangeCursorPosition =>
       @updatePosition()
     @updatePosition()
 
+  getActiveTextEditor: ->
+    atom.workspace.getActiveTextEditor()
+
   updatePosition: ->
-    editor = atom.workspace.getActiveTextEditor()
-    if position = editor?.getCursorBufferPosition()
+    if position = @getActiveTextEditor()?.getCursorBufferPosition()
       @textContent = "#{position.row + 1},#{position.column + 1}"
     else
       @textContent = ''

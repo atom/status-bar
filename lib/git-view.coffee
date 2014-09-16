@@ -8,7 +8,8 @@ class GitView extends HTMLElement
 
     @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
       @subscribeToActiveItem()
-    @projectPathSubscription = atom.project.on 'path-changed', => @subscribeToRepo()
+    @projectPathSubscription = atom.project.on 'path-changed', =>
+      @subscribeToRepo()
     @subscribeToRepo()
     @subscribeToActiveItem()
 

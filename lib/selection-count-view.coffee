@@ -13,12 +13,15 @@ class SelectionCountView extends HTMLElement
 
   subscribeToActiveTextEditor: ->
     @selectionSubscription?.dispose()
-    @selectionSubscription = atom.workspace.getActiveTextEditor()?.onDidChangeSelectionRange =>
+    @selectionSubscription = @getActiveTextEditor()?.onDidChangeSelectionRange =>
       @updateCount()
     @updateCount()
 
+  getActiveTextEditor: ->
+    atom.workspace.getActiveTextEditor()
+
   updateCount: ->
-    count = atom.workspace.getActiveTextEditor()?.getSelectedText().length
+    count = @getActiveTextEditor()?.getSelectedText().length
     if count > 0
       @textContent = "(#{count})"
     else
