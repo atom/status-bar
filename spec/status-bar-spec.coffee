@@ -160,7 +160,6 @@ describe "Status Bar package", ->
       editorView.height(100)
       editorView.component.pollDOM()
 
-      atom.workspaceView.attachToDom()
       editor.setSelectedBufferRange([[0, 0], [0, 2]])
       expect(statusBar.selectionCount.textContent).toBe '(2)'
 
