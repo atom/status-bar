@@ -322,12 +322,14 @@ describe "Status Bar package", ->
   describe "when the active item's title changes", ->
     it "updates the path view with the new title", ->
       atom.workspaceView.attachToDom()
-      callback = null
+      callbacks = []
       view = $$ -> @div id: 'view', tabindex: -1, 'View'
-      view.onDidChangeTitle = (fn) -> callback ?= fn
+      view.onDidChangeTitle = (fn) ->
+        callbacks.push(fn)
+        {dispose: ->}
       view.getTitle = => 'View Title'
       editorView.getPane().activateItem(view)
       expect(statusBar.fileInfo.currentPath.textContent).toBe 'View Title'
       view.getTitle = => 'New Title'
-      callback?()
+      callback() for callback in callbacks
       expect(statusBar.fileInfo.currentPath.textContent).toBe 'New Title'
