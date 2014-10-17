@@ -11,7 +11,7 @@ module.exports =
 
     @statusBar = new StatusBarView()
     @statusBar.initialize(state)
-    @statusBarPanel = atom.workspace.addBottomPanel(item: @statusBar)
+    @statusBarPanel = atom.workspace.addBottomPanel(item: @statusBar, priority: 0)
 
     # Wrap status bar element in a jQuery wrapper for backwards compatibility
     wrappedStatusBar = $(@statusBar)
