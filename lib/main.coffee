@@ -66,7 +66,7 @@ module.exports =
     @selectionCount = null
 
     @statusBarPanel?.destroy()
-    @statusBarPanel
+    @statusBarPanel = null
 
     @statusBar?.destroy()
     @statusBar = null
