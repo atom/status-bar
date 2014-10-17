@@ -27,24 +27,10 @@ class StatusBarView extends HTMLElement
 
     @storeActiveBuffer()
 
-    @attach() if state.attached
-
-  serialize: ->
-    attached: @parentElement?
-
-  attach: ->
-    atom.workspaceView.appendToBottom(this) unless @parentElement?
-
   destroy: ->
     @activeItemSubscription.dispose()
     @unsubscribeAllFromBuffer()
     @remove()
-
-  toggle: ->
-    if @parentElement
-      @remove()
-    else
-      @attach()
 
   # Public: Append the view to the left side of the status bar.
   appendLeft: (view) ->

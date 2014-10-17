@@ -11,6 +11,7 @@ module.exports =
 
     @statusBar = new StatusBarView()
     @statusBar.initialize(state)
+    @statusBarPanel = atom.workspace.addBottomPanel(item: @statusBar)
 
     # Wrap status bar element in a jQuery wrapper for backwards compatibility
     wrappedStatusBar = $(@statusBar)
@@ -23,7 +24,11 @@ module.exports =
     wrappedStatusBar.subscribeToBuffer = (event, callback) => @statusBar.subscribeToBuffer(event, callback)
     atom.workspaceView.statusBar = wrappedStatusBar
 
-    atom.workspaceView.command 'status-bar:toggle', => @statusBar.toggle()
+    atom.workspaceView.command 'status-bar:toggle', =>
+      if @statusBarPanel.isVisible()
+        @statusBarPanel.hide()
+      else
+        @statusBarPanel.show()
 
     if atom.getLoadSettings().devMode
       DevModeView = require './dev-mode-view'
@@ -59,6 +64,9 @@ module.exports =
 
     @selectionCount?.destroy()
     @selectionCount = null
+
+    @statusBarPanel?.destroy()
+    @statusBarPanel
 
     @statusBar?.destroy()
     @statusBar = null

@@ -68,9 +68,9 @@ describe "Status Bar package", ->
   describe "when status-bar:toggle is triggered", ->
     it "hides or shows the status bar", ->
       atom.workspaceView.trigger 'status-bar:toggle'
-      expect(atom.workspaceView.find('.status-bar')).not.toExist()
+      expect(atom.workspaceView.find('.status-bar').parent()).toHide()
       atom.workspaceView.trigger 'status-bar:toggle'
-      expect(atom.workspaceView.find('.status-bar')).toExist()
+      expect(atom.workspaceView.find('.status-bar').parent()).not.toHide()
 
   describe "when the associated editor's path changes", ->
     it "updates the path in the status bar", ->
