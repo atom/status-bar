@@ -4,11 +4,11 @@ path = require 'path'
 os = require 'os'
 
 describe "Status Bar package", ->
-  [editor, editorView, statusBar, buffer] = []
+  [editor, editorView, statusBar, buffer, workspaceElement] = []
 
   beforeEach ->
+    workspaceElement = atom.views.getView(atom.workspace)
     atom.workspaceView = new WorkspaceView
-    atom.workspace = atom.workspaceView.model
 
     waitsForPromise ->
       atom.workspace.open('sample.js')
@@ -66,11 +66,14 @@ describe "Status Bar package", ->
       statusBar.deactivate()
 
   describe "when status-bar:toggle is triggered", ->
+    beforeEach ->
+      jasmine.attachToDOM(workspaceElement)
+
     it "hides or shows the status bar", ->
       atom.workspaceView.trigger 'status-bar:toggle'
-      expect(atom.workspaceView.find('.status-bar')).not.toExist()
+      expect(workspaceElement.querySelector('.status-bar').parentNode).not.toBeVisible()
       atom.workspaceView.trigger 'status-bar:toggle'
-      expect(atom.workspaceView.find('.status-bar')).toExist()
+      expect(workspaceElement.querySelector('.status-bar').parentNode).toBeVisible()
 
   describe "when the associated editor's path changes", ->
     it "updates the path in the status bar", ->
