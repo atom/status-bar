@@ -2,7 +2,7 @@
 
 class StatusBarView extends HTMLElement
   initialize: (state) ->
-    @classList.add('status-bar', 'tool-panel', 'panel-bottom')
+    @classList.add('status-bar')
 
     flexboxHackElement = document.createElement('div')
     flexboxHackElement.classList.add('flexbox-repaint-hack')
