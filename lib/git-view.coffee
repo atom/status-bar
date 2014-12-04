@@ -8,7 +8,7 @@ class GitView extends HTMLElement
 
     @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
       @subscribeToActiveItem()
-    @projectPathSubscription = atom.project.on 'path-changed', =>
+    @projectPathSubscription = atom.project.onDidChangePaths =>
       @subscribeToRepo()
     @subscribeToRepo()
     @subscribeToActiveItem()
@@ -68,7 +68,7 @@ class GitView extends HTMLElement
 
   destroy: ->
     @activeItemSubscription?.dispose()
-    @projectPathSubscription?.off() # Still an old subscription, not a disposable
+    @projectPathSubscription?.dispose()
 
     @savedSubscription?.dispose()
     @statusChangedSubscription?.dispose()
