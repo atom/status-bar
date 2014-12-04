@@ -92,7 +92,7 @@ describe "Status Bar package", ->
         atom.workspace.open(filePath)
 
       runs ->
-        editor = atom.workspace.getActiveEditor()
+        editor = atom.workspace.getActiveTextEditor()
         expect(statusBar.fileInfo.bufferModified.textContent).toBe ''
         editor.insertText("\n")
         advanceClock(buffer.stoppedChangingDelay)
@@ -126,7 +126,7 @@ describe "Status Bar package", ->
         atom.workspace.open('sample.txt')
 
       runs ->
-        editor = atom.workspace.getActiveEditor()
+        editor = atom.workspace.getActiveTextEditor()
         editor.insertText("\n")
         advanceClock(buffer.stoppedChangingDelay)
         expect(statusBar.fileInfo.bufferModified.textContent).toBe '*'
