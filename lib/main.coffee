@@ -1,4 +1,4 @@
-{$} = require 'atom'
+{$} = require 'space-pen'
 StatusBarView = require './status-bar-view'
 FileInfoView = require './file-info-view'
 CursorPositionView = require './cursor-position-view'

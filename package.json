@@ -9,6 +9,7 @@
     "atom": "*"
   },
   "dependencies": {
-    "fs-plus": "2.x"
+    "fs-plus": "2.x",
+    "space-pen": "^4.2.2"
   }
 }

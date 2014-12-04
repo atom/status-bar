@@ -1,4 +1,4 @@
-{$} = require 'atom'
+{$} = require 'space-pen'
 
 class StatusBarView extends HTMLElement
   initialize: (state) ->
