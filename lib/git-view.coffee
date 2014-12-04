@@ -8,7 +8,7 @@ class GitView extends HTMLElement
 
     @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
       @subscribeToActiveItem()
-    @projectPathSubscription = atom.project.on 'path-changed', =>
+    @projectPathSubscription = atom.project.onDidChangePaths =>
       @subscribeToRepo()
     @subscribeToRepo()
     @subscribeToActiveItem()
@@ -60,7 +60,7 @@ class GitView extends HTMLElement
     @statusChangedSubscription?.dispose()
     @statusesChangedSubscription?.dispose()
 
-    if repo = atom.project.getRepo()
+    if repo = atom.project.getRepositories()[0]
       @statusChangedSubscription = repo.onDidChangeStatus ({path, status}) =>
         @update() if path is @getActiveItemPath()
       @statusesChangedSubscription = repo.onDidChangeStatuses =>
@@ -68,7 +68,7 @@ class GitView extends HTMLElement
 
   destroy: ->
     @activeItemSubscription?.dispose()
-    @projectPathSubscription?.off() # Still an old subscription, not a disposable
+    @projectPathSubscription?.dispose()
 
     @savedSubscription?.dispose()
     @statusChangedSubscription?.dispose()
@@ -88,7 +88,7 @@ class GitView extends HTMLElement
   updateBranchText: ->
     @branchArea.style.display = 'none'
     if @showBranchInformation()
-      head = atom.project.getRepo()?.getShortHead(@getActiveItemPath()) or ''
+      head = atom.project.getRepositories()[0]?.getShortHead(@getActiveItemPath()) or ''
       @branchLabel.textContent = head
       @branchArea.style.display = '' if head
 
@@ -100,7 +100,7 @@ class GitView extends HTMLElement
 
   updateAheadBehindCount: ->
     itemPath = @getActiveItemPath()
-    repo = atom.project.getRepo()
+    repo = atom.project.getRepositories()[0]
 
     if repo? and @showBranchInformation()
       {ahead, behind} = repo.getCachedUpstreamAheadBehindCount(itemPath) ? {}
@@ -124,7 +124,7 @@ class GitView extends HTMLElement
 
   updateStatusText: ->
     itemPath = @getActiveItemPath()
-    repo = atom.project.getRepo()
+    repo = atom.project.getRepositories()[0]
 
     status = repo?.getCachedPathStatus(itemPath) ? 0
     @gitStatusIcon.classList.remove('icon-diff-modified', 'status-modified', 'icon-diff-added', 'status-added', 'icon-diff-ignored', 'status-ignored')
