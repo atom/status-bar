@@ -208,8 +208,8 @@ describe "Status Bar package", ->
       fs.writeFileSync(ignorePath, 'ignored.txt')
       ignoredPath = path.join(projectPath, 'ignored.txt')
       fs.writeFileSync(ignoredPath, '')
-      atom.project.getRepo().getPathStatus(filePath)
-      atom.project.getRepo().getPathStatus(newPath)
+      atom.project.getRepositories()[0].getPathStatus(filePath)
+      atom.project.getRepositories()[0].getPathStatus(newPath)
       originalPathText = fs.readFileSync(filePath, 'utf8')
       jasmine.attachToDOM(workspaceElement)
 
@@ -222,7 +222,7 @@ describe "Status Bar package", ->
 
     it "displays the modified icon for a changed file", ->
       fs.writeFileSync(filePath, "i've changed for the worse")
-      atom.project.getRepo().getPathStatus(filePath)
+      atom.project.getRepositories()[0].getPathStatus(filePath)
 
       waitsForPromise ->
         atom.workspace.open(filePath)
@@ -253,7 +253,7 @@ describe "Status Bar package", ->
 
     it "updates when a status-changed event occurs", ->
       fs.writeFileSync(filePath, "i've changed for the worse")
-      atom.project.getRepo().getPathStatus(filePath)
+      atom.project.getRepositories()[0].getPathStatus(filePath)
 
       waitsForPromise ->
         atom.workspace.open(filePath)
@@ -261,12 +261,12 @@ describe "Status Bar package", ->
       runs ->
         expect(statusBar.git.gitStatusIcon).toHaveClass('icon-diff-modified')
         fs.writeFileSync(filePath, originalPathText)
-        atom.project.getRepo().getPathStatus(filePath)
+        atom.project.getRepositories()[0].getPathStatus(filePath)
         expect(statusBar.git.gitStatusIcon).not.toHaveClass('icon-diff-modified')
 
     it "displays the diff stat for modified files", ->
       fs.writeFileSync(filePath, "i've changed for the worse")
-      atom.project.getRepo().getPathStatus(filePath)
+      atom.project.getRepositories()[0].getPathStatus(filePath)
 
       waitsForPromise ->
         atom.workspace.open(filePath)
