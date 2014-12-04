@@ -74,4 +74,4 @@ class StatusBarView extends HTMLElement
     for [event, callback] in @bufferSubscriptions
       @buffer.off(event, callback)
 
-module.exports = document.registerElement('status-bar', prototype: StatusBarView.prototype, extends: 'div')
+module.exports = document.registerElement('status-bar', prototype: StatusBarView.prototype)

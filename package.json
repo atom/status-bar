@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "fs-plus": "2.x",
+    "grim": "^0.12.0",
     "space-pen": "^4.2.2"
   }
 }

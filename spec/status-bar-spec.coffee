@@ -1,3 +1,4 @@
+Grim = require 'grim'
 fs = require 'fs-plus'
 path = require 'path'
 os = require 'os'
@@ -7,7 +8,7 @@ describe "Status Bar package", ->
 
   beforeEach ->
     workspaceElement = atom.views.getView(atom.workspace)
-    atom.workspaceView = {}
+    atom.__workspaceView = {}
 
     dummyView = document.createElement("div")
 
@@ -28,8 +29,11 @@ describe "Status Bar package", ->
       atom.workspace.getActivePane().splitRight(copyActiveItem: true)
       expect(workspaceElement.querySelectorAll('.status-bar').length).toBe 1
 
-    it "makes the status bar available as a property on atom.workspaceView", ->
-      expect(atom.workspaceView.statusBar[0]).toBe(workspaceElement.querySelector(".status-bar"))
+    it "makes the status bar available as a deprecated property on atom.workspaceView", ->
+      spyOn(Grim, 'deprecate')
+      expect(atom.__workspaceView.statusBar[0]).toBe(workspaceElement.querySelector(".status-bar"))
+      expect(atom.__workspaceView.statusBar[0]).toBe(workspaceElement.querySelector("status-bar"))
+      expect(Grim.deprecate).toHaveBeenCalled()
 
     it "displays the editor's buffer path, cursor buffer position, and buffer modified indicator", ->
       expect(statusBar.fileInfo.currentPath.textContent).toBe 'sample.js'
@@ -51,7 +55,7 @@ describe "Status Bar package", ->
     it "removes the status bar view", ->
       statusBar.deactivate()
       expect(workspaceElement.querySelector('.status-bar')).toBeNull()
-      expect(atom.workspaceView.statusBar).toBeFalsy()
+      expect(atom.__workspaceView.statusBar).toBeFalsy()
 
     it "can be called twice", ->
       statusBar.deactivate()
