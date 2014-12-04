@@ -1,14 +1,16 @@
-{$$, WorkspaceView} = require 'atom'
+{WorkspaceView} = require 'atom'
 fs = require 'fs-plus'
 path = require 'path'
 os = require 'os'
 
 describe "Status Bar package", ->
-  [editor, editorView, statusBar, buffer, workspaceElement] = []
+  [editor, editorView, statusBar, buffer, workspaceElement, dummyView] = []
 
   beforeEach ->
     workspaceElement = atom.views.getView(atom.workspace)
     atom.workspaceView = new WorkspaceView
+
+    dummyView = document.createElement("div")
 
     waitsForPromise ->
       atom.workspace.open('sample.js')
@@ -185,8 +187,7 @@ describe "Status Bar package", ->
         expect(statusBar.git.branchArea).toBeVisible()
         expect(statusBar.git.branchLabel.textContent).toBe 'master'
 
-      view = $$ -> @div id: 'view', tabindex: -1, 'View'
-      atom.workspaceView.getActivePaneView().activateItem(view)
+      atom.workspaceView.getActivePaneView().activateItem(dummyView)
       expect(statusBar.git.branchArea).not.toBeVisible()
 
     it "doesn't display the current branch for a file not in a repository", ->
@@ -302,37 +303,33 @@ describe "Status Bar package", ->
   describe "when the active item view does not implement getCursorBufferPosition()", ->
     it "hides the cursor position view", ->
       atom.workspaceView.attachToDom()
-      view = $$ -> @div id: 'view', tabindex: -1, 'View'
-      editorView.getPane().activateItem(view)
+      editorView.getPane().activateItem(dummyView)
       expect(statusBar.cursorPosition).toBeHidden()
 
   describe "when the active item implements getTitle() but not getPath()", ->
     it "displays the title", ->
       atom.workspaceView.attachToDom()
-      view = $$ -> @div id: 'view', tabindex: -1, 'View'
-      view.getTitle = => 'View Title'
-      editorView.getPane().activateItem(view)
+      dummyView.getTitle = => 'View Title'
+      editorView.getPane().activateItem(dummyView)
       expect(statusBar.fileInfo.currentPath.textContent).toBe 'View Title'
       expect(statusBar.fileInfo.currentPath).toBeVisible()
 
   describe "when the active item neither getTitle() nor getPath()", ->
     it "hides the path view", ->
       atom.workspaceView.attachToDom()
-      view = $$ -> @div id: 'view', tabindex: -1, 'View'
-      editorView.getPane().activateItem(view)
+      editorView.getPane().activateItem(dummyView)
       expect(statusBar.fileInfo.currentPath).toBeHidden()
 
   describe "when the active item's title changes", ->
     it "updates the path view with the new title", ->
       atom.workspaceView.attachToDom()
       callbacks = []
-      view = $$ -> @div id: 'view', tabindex: -1, 'View'
-      view.onDidChangeTitle = (fn) ->
+      dummyView.onDidChangeTitle = (fn) ->
         callbacks.push(fn)
         {dispose: ->}
-      view.getTitle = => 'View Title'
-      editorView.getPane().activateItem(view)
+      dummyView.getTitle = -> 'View Title'
+      editorView.getPane().activateItem(dummyView)
       expect(statusBar.fileInfo.currentPath.textContent).toBe 'View Title'
-      view.getTitle = => 'New Title'
+      dummyView.getTitle = -> 'New Title'
       callback() for callback in callbacks
       expect(statusBar.fileInfo.currentPath.textContent).toBe 'New Title'
