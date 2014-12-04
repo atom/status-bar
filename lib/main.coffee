@@ -27,7 +27,7 @@ module.exports =
     wrappedStatusBar.subscribeToBuffer = (event, callback) => @statusBar.subscribeToBuffer(event, callback)
     atom.workspaceView.statusBar = wrappedStatusBar
 
-    atom.workspaceView.command 'status-bar:toggle', =>
+    atom.commands.add 'atom-workspace', 'status-bar:toggle', =>
       if @statusBarPanel.isVisible()
         @statusBarPanel.hide()
       else

@@ -1,14 +1,13 @@
-{WorkspaceView} = require 'atom'
 fs = require 'fs-plus'
 path = require 'path'
 os = require 'os'
 
 describe "Status Bar package", ->
-  [editor, editorView, statusBar, buffer, workspaceElement, dummyView] = []
+  [editor, statusBar, buffer, workspaceElement, dummyView] = []
 
   beforeEach ->
     workspaceElement = atom.views.getView(atom.workspace)
-    atom.workspaceView = new WorkspaceView
+    atom.workspaceView = {}
 
     dummyView = document.createElement("div")
 
@@ -19,22 +18,19 @@ describe "Status Bar package", ->
       atom.packages.activatePackage('status-bar')
 
     runs ->
-      atom.workspaceView.simulateDomAttachment()
       statusBar = atom.packages.getActivePackage('status-bar').mainModule
-      editorView = atom.workspaceView.getActiveView()
-      editor = editorView.getEditor()
+      editor = atom.workspace.getActiveTextEditor()
       buffer = editor.getBuffer()
 
-  describe "@initialize", ->
+  describe "@activate", ->
     it "appends only one status bar", ->
-      expect(atom.workspaceView.vertical.find('.status-bar').length).toBe 1
-      editorView.splitRight()
-      expect(atom.workspaceView.vertical.find('.status-bar').length).toBe 1
+      expect(workspaceElement.querySelectorAll('.status-bar').length).toBe 1
+      atom.workspace.getActivePane().splitRight(copyActiveItem: true)
+      expect(workspaceElement.querySelectorAll('.status-bar').length).toBe 1
 
-    it "the status bar is visible by default", ->
-      expect(atom.workspaceView.find('.status-bar')).toExist()
+    it "makes the status bar available as a property on atom.workspaceView", ->
+      expect(atom.workspaceView.statusBar[0]).toBe(workspaceElement.querySelector(".status-bar"))
 
-  describe ".initialize(editor)", ->
     it "displays the editor's buffer path, cursor buffer position, and buffer modified indicator", ->
       expect(statusBar.fileInfo.currentPath.textContent).toBe 'sample.js'
       expect(statusBar.fileInfo.bufferModified.textContent).toBe ''
@@ -51,16 +47,10 @@ describe "Status Bar package", ->
           expect(statusBar.cursorPosition.textContent).toBe '1,1'
           expect(statusBar.selectionCount).toBeHidden()
 
-  describe ".deactivate()", ->
-    it "removes the StatusBarView", ->
-      statusBarView = atom.workspaceView.find('.status-bar')
-      expect(statusBarView).toExist()
-      expect(atom.workspaceView.statusBar).toBeDefined()
-
+  describe "@deactivate()", ->
+    it "removes the status bar view", ->
       statusBar.deactivate()
-
-      statusBarView = atom.workspaceView.find('.status-bar')
-      expect(statusBarView).not.toExist()
+      expect(workspaceElement.querySelector('.status-bar')).toBeNull()
       expect(atom.workspaceView.statusBar).toBeFalsy()
 
     it "can be called twice", ->
@@ -72,9 +62,9 @@ describe "Status Bar package", ->
       jasmine.attachToDOM(workspaceElement)
 
     it "hides or shows the status bar", ->
-      atom.workspaceView.trigger 'status-bar:toggle'
+      atom.commands.dispatch(workspaceElement, 'status-bar:toggle')
       expect(workspaceElement.querySelector('.status-bar').parentNode).not.toBeVisible()
-      atom.workspaceView.trigger 'status-bar:toggle'
+      atom.commands.dispatch(workspaceElement, 'status-bar:toggle')
       expect(workspaceElement.querySelector('.status-bar').parentNode).toBeVisible()
 
   describe "when the associated editor's path changes", ->
@@ -155,15 +145,13 @@ describe "Status Bar package", ->
 
   describe "when the associated editor's cursor position changes", ->
     it "updates the cursor position in the status bar", ->
-      atom.workspaceView.attachToDom()
+      jasmine.attachToDOM(workspaceElement)
       editor.setCursorScreenPosition([1, 2])
       expect(statusBar.cursorPosition.textContent).toBe '2,3'
 
   describe "when the associated editor's selection changes", ->
     it "updates the selection count in the status bar", ->
-      atom.workspaceView.attachToDom()
-      editorView.height(100)
-      editorView.component.pollDOM()
+      jasmine.attachToDOM(workspaceElement)
 
       editor.setSelectedBufferRange([[0, 0], [0, 2]])
       expect(statusBar.selectionCount.textContent).toBe '(2)'
@@ -171,7 +159,7 @@ describe "Status Bar package", ->
   describe "git branch label", ->
     beforeEach ->
       fs.removeSync(path.join(os.tmpdir(), '.git'))
-      atom.workspaceView.attachToDom()
+      jasmine.attachToDOM(workspaceElement)
 
     it "displays the current branch for files in repositories", ->
       atom.project.setPath(atom.project.resolve('git/master.git'))
@@ -183,11 +171,11 @@ describe "Status Bar package", ->
         expect(statusBar.git.branchArea).toBeVisible()
         expect(statusBar.git.branchLabel.textContent).toBe 'master'
 
-        atom.workspaceView.getActivePaneView().destroyItems()
+        atom.workspace.getActivePane().destroyItems()
         expect(statusBar.git.branchArea).toBeVisible()
         expect(statusBar.git.branchLabel.textContent).toBe 'master'
 
-      atom.workspaceView.getActivePaneView().activateItem(dummyView)
+      atom.workspace.getActivePane().activateItem(dummyView)
       expect(statusBar.git.branchArea).not.toBeVisible()
 
     it "doesn't display the current branch for a file not in a repository", ->
@@ -223,7 +211,7 @@ describe "Status Bar package", ->
       atom.project.getRepo().getPathStatus(filePath)
       atom.project.getRepo().getPathStatus(newPath)
       originalPathText = fs.readFileSync(filePath, 'utf8')
-      atom.workspaceView.attachToDom()
+      jasmine.attachToDOM(workspaceElement)
 
     afterEach ->
       fs.writeFileSync(filePath, originalPathText)
@@ -302,33 +290,33 @@ describe "Status Bar package", ->
 
   describe "when the active item view does not implement getCursorBufferPosition()", ->
     it "hides the cursor position view", ->
-      atom.workspaceView.attachToDom()
-      editorView.getPane().activateItem(dummyView)
+      jasmine.attachToDOM(workspaceElement)
+      atom.workspace.getActivePane().activateItem(dummyView)
       expect(statusBar.cursorPosition).toBeHidden()
 
   describe "when the active item implements getTitle() but not getPath()", ->
     it "displays the title", ->
-      atom.workspaceView.attachToDom()
+      jasmine.attachToDOM(workspaceElement)
       dummyView.getTitle = => 'View Title'
-      editorView.getPane().activateItem(dummyView)
+      atom.workspace.getActivePane().activateItem(dummyView)
       expect(statusBar.fileInfo.currentPath.textContent).toBe 'View Title'
       expect(statusBar.fileInfo.currentPath).toBeVisible()
 
   describe "when the active item neither getTitle() nor getPath()", ->
     it "hides the path view", ->
-      atom.workspaceView.attachToDom()
-      editorView.getPane().activateItem(dummyView)
+      jasmine.attachToDOM(workspaceElement)
+      atom.workspace.getActivePane().activateItem(dummyView)
       expect(statusBar.fileInfo.currentPath).toBeHidden()
 
   describe "when the active item's title changes", ->
     it "updates the path view with the new title", ->
-      atom.workspaceView.attachToDom()
+      jasmine.attachToDOM(workspaceElement)
       callbacks = []
       dummyView.onDidChangeTitle = (fn) ->
         callbacks.push(fn)
         {dispose: ->}
       dummyView.getTitle = -> 'View Title'
-      editorView.getPane().activateItem(dummyView)
+      atom.workspace.getActivePane().activateItem(dummyView)
       expect(statusBar.fileInfo.currentPath.textContent).toBe 'View Title'
       dummyView.getTitle = -> 'New Title'
       callback() for callback in callbacks
