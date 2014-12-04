@@ -162,7 +162,7 @@ describe "Status Bar package", ->
       jasmine.attachToDOM(workspaceElement)
 
     it "displays the current branch for files in repositories", ->
-      atom.project.setPath(atom.project.resolve('git/master.git'))
+      atom.project.setPaths([atom.project.resolve('git/master.git')])
 
       waitsForPromise ->
         atom.workspace.open('HEAD')
@@ -179,7 +179,7 @@ describe "Status Bar package", ->
       expect(statusBar.git.branchArea).not.toBeVisible()
 
     it "doesn't display the current branch for a file not in a repository", ->
-      atom.project.setPath(os.tmpdir())
+      atom.project.setPaths([os.tmpdir()])
 
       waitsForPromise ->
         atom.workspace.open(path.join(os.tmpdir(), 'temp.txt'))
@@ -200,7 +200,7 @@ describe "Status Bar package", ->
     beforeEach ->
       projectPath = atom.project.resolve('git/working-dir')
       fs.moveSync(path.join(projectPath, 'git.git'), path.join(projectPath, '.git'))
-      atom.project.setPath(projectPath)
+      atom.project.setPaths([projectPath])
       filePath = atom.project.resolve('a.txt')
       newPath = atom.project.resolve('new.txt')
       fs.writeFileSync(newPath, "I'm new here")
