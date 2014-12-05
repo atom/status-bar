@@ -1,4 +1,5 @@
 {$} = require 'space-pen'
+{Disposable} = require 'atom'
 
 class StatusBarView extends HTMLElement
   createdCallback: ->
@@ -45,10 +46,15 @@ class StatusBarView extends HTMLElement
         nextItem = item
         break
 
-    @leftItems.splice(index, 0, {item: newItem, priority: newPriority})
+    prioritizedItem = {item: newItem, priority: newPriority}
+    @leftItems.splice(index, 0, prioritizedItem)
     newElement = atom.views.getView(newItem)
     nextElement = atom.views.getView(nextItem)
     @leftPanel.insertBefore(newElement, nextElement)
+
+    new Disposable =>
+      newElement.remove()
+      @leftItems.splice(@leftItems.indexOf(prioritizedItem), 1)
 
   addRightItem: (newItem, options) ->
     newPriority = options?.priority ? @rightItems[0].priority + 1
@@ -58,10 +64,15 @@ class StatusBarView extends HTMLElement
         nextItem = item
         break
 
-    @rightItems.splice(index, 0, {item: newItem, priority: newPriority})
+    prioritizedItem = {item: newItem, priority: newPriority}
+    @rightItems.splice(index, 0, prioritizedItem)
     newElement = atom.views.getView(newItem)
     nextElement = atom.views.getView(nextItem)
     @rightPanel.insertBefore(newElement, nextElement)
+
+    new Disposable =>
+      newElement.remove()
+      @rightItems.splice(@rightItems.indexOf(prioritizedItem), 1)
 
   # Public: Append the view to the left side of the status bar.
   appendLeft: (view) ->
