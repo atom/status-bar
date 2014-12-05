@@ -34,6 +34,14 @@ describe "StatusBarElement", ->
       expect(leftPanel.children[1].model).toBe(testItem3)
       expect(leftPanel.children[2].model).toBe(testItem2)
 
+    it "returns a disposable that can be used to remove the view", ->
+      testItem = new TestItem(1)
+      disposable = statusBarElement.addLeftItem(testItem, priority: 10)
+      disposable.dispose()
+      expect(statusBarElement.leftPanel.children.length).toBe(0)
+
+      statusBarElement.addLeftItem(testItem, priority: 9)
+
     describe "when no priority is given", ->
       it "appends the item", ->
         testItem1 = new TestItem(1)
@@ -65,6 +73,14 @@ describe "StatusBarElement", ->
       expect(rightPanel.children[0].model).toBe(testItem2)
       expect(rightPanel.children[1].model).toBe(testItem3)
       expect(rightPanel.children[2].model).toBe(testItem1)
+
+    it "returns a disposable that can be used to remove the view", ->
+      testItem = new TestItem(1)
+      disposable = statusBarElement.addRightItem(testItem, priority: 10)
+      disposable.dispose()
+      expect(statusBarElement.rightPanel.children.length).toBe(0)
+
+      statusBarElement.addRightItem(testItem, priority: 11)
 
     describe "when no priority is given", ->
       it "prepends the item", ->
