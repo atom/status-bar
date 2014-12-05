@@ -1,7 +1,7 @@
 {$} = require 'space-pen'
 
 class StatusBarView extends HTMLElement
-  initialize: (state) ->
+  createdCallback: ->
     @classList.add('status-bar')
 
     flexboxHackElement = document.createElement('div')
@@ -16,6 +16,10 @@ class StatusBarView extends HTMLElement
     @leftPanel.classList.add('status-bar-left')
     flexboxHackElement.appendChild(@leftPanel)
 
+    @leftItems = []
+    @rightItems = []
+
+  initialize: (state) ->
     @bufferSubscriptions = []
 
     @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
@@ -26,11 +30,38 @@ class StatusBarView extends HTMLElement
       @dispatchEvent(new CustomEvent('active-buffer-changed', bubbles: true))
 
     @storeActiveBuffer()
+    this
 
   destroy: ->
     @activeItemSubscription.dispose()
     @unsubscribeAllFromBuffer()
     @remove()
+
+  addLeftItem: (newItem, options) ->
+    newPriority = options?.priority ? 0
+    nextItem = null
+    for {priority, item}, index in @leftItems
+      if priority > newPriority
+        nextItem = item
+        break
+
+    @leftItems.splice(index, 0, {item: newItem, priority: newPriority})
+    newElement = atom.views.getView(newItem)
+    nextElement = atom.views.getView(nextItem)
+    @leftPanel.insertBefore(newElement, nextElement)
+
+  addRightItem: (newItem, options) ->
+    newPriority = options?.priority ? 0
+    nextItem = null
+    for {priority, item}, index in @rightItems
+      if priority < newPriority
+        nextItem = item
+        break
+
+    @rightItems.splice(index, 0, {item: newItem, priority: newPriority})
+    newElement = atom.views.getView(newItem)
+    nextElement = atom.views.getView(nextItem)
+    @rightPanel.insertBefore(newElement, nextElement)
 
   # Public: Append the view to the left side of the status bar.
   appendLeft: (view) ->
