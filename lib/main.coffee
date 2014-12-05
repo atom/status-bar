@@ -70,6 +70,10 @@ module.exports =
     @git.initialize()
     @statusBar.addRightItem(@git, priority: 0)
 
+    atom.services?.provide "status-bar", "0.50.0",
+      addLeftItem: @statusBar.addLeftItem.bind(@statusBar)
+      addRightItem: @statusBar.addRightItem.bind(@statusBar)
+
   deactivate: ->
     @git?.destroy()
     @git = null
