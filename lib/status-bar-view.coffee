@@ -38,7 +38,7 @@ class StatusBarView extends HTMLElement
     @remove()
 
   addLeftItem: (newItem, options) ->
-    newPriority = options?.priority ? 0
+    newPriority = options?.priority ? @leftItems[@leftItems.length - 1].priority + 1
     nextItem = null
     for {priority, item}, index in @leftItems
       if priority > newPriority
@@ -51,7 +51,7 @@ class StatusBarView extends HTMLElement
     @leftPanel.insertBefore(newElement, nextElement)
 
   addRightItem: (newItem, options) ->
-    newPriority = options?.priority ? 0
+    newPriority = options?.priority ? @rightItems[0].priority + 1
     nextItem = null
     for {priority, item}, index in @rightItems
       if priority < newPriority
