@@ -89,4 +89,4 @@ module.exports =
     @statusBar?.destroy()
     @statusBar = null
 
-    delete atom.__workspaceView.statusBar
+    delete atom.__workspaceView.statusBar if atom.__workspaceView?
