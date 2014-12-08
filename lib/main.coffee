@@ -27,20 +27,20 @@ module.exports =
     wrappedStatusBar.getActiveItem     = => @statusBar.getActiveItem()
     wrappedStatusBar.subscribeToBuffer = (event, callback) => @statusBar.subscribeToBuffer(event, callback)
 
-    Object.defineProperty atom.__workspaceView, 'statusBar',
-      get: ->
-        Grim.deprecate """
-          The atom.workspaceView.statusBar global is deprecated. The global was
-          previously being assigned by the status-bar package, but Atom packages
-          should never assign globals.
+    if atom.__workspaceView?
+      Object.defineProperty atom.__workspaceView, 'statusBar',
+        get: ->
+          Grim.deprecate """
+            The atom.workspaceView.statusBar global is deprecated. The global was
+            previously being assigned by the status-bar package, but Atom packages
+            should never assign globals.
 
-          In the future, this problem will be solved by an inter-package communication
-          API available on `atom.services`. For now, you can get a reference to the
-          `status-bar` element via `document.querySelector('status-bar')`.
-        """
-        wrappedStatusBar
-      configurable: true
-
+            In the future, this problem will be solved by an inter-package communication
+            API available on `atom.services`. For now, you can get a reference to the
+            `status-bar` element via `document.querySelector('status-bar')`.
+          """
+          wrappedStatusBar
+        configurable: true
 
     atom.commands.add 'atom-workspace', 'status-bar:toggle', =>
       if @statusBarPanel.isVisible()
