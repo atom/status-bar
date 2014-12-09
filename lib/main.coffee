@@ -56,19 +56,25 @@ module.exports =
 
     @fileInfo = new FileInfoView()
     @fileInfo.initialize()
-    @statusBar.appendLeft(@fileInfo)
+    @statusBar.addLeftTile(item: @fileInfo, priority: 0)
 
     @cursorPosition = new CursorPositionView()
     @cursorPosition.initialize()
-    @statusBar.appendLeft(@cursorPosition)
+    @statusBar.addLeftTile(item: @cursorPosition, priority: 1)
 
     @selectionCount = new SelectionCountView()
     @selectionCount.initialize()
-    @statusBar.appendLeft(@selectionCount)
+    @statusBar.addLeftTile(item: @selectionCount, priority: 2)
 
     @git = new GitView()
     @git.initialize()
-    @statusBar.appendRight(@git)
+    @statusBar.addRightTile(item: @git, priority: 0)
+
+    atom.services?.provide "status-bar", "0.50.0",
+      addLeftTile: @statusBar.addLeftTile.bind(@statusBar)
+      addRightTile: @statusBar.addRightTile.bind(@statusBar)
+      getLeftTiles: @statusBar.getLeftTiles.bind(@statusBar)
+      getRightTiles: @statusBar.getRightTiles.bind(@statusBar)
 
   deactivate: ->
     @git?.destroy()

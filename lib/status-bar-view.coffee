@@ -1,7 +1,21 @@
 {$} = require 'space-pen'
+{Disposable} = require 'atom'
+
+class Tile
+  constructor: (@item, @priority, @collection) ->
+
+  getItem: ->
+    @item
+
+  getPriority: ->
+    @priority
+
+  destroy: ->
+    @collection.splice(@collection.indexOf(this), 1)
+    atom.views.getView(@item).remove()
 
 class StatusBarView extends HTMLElement
-  initialize: (state) ->
+  createdCallback: ->
     @classList.add('status-bar')
 
     flexboxHackElement = document.createElement('div')
@@ -16,6 +30,10 @@ class StatusBarView extends HTMLElement
     @leftPanel.classList.add('status-bar-left')
     flexboxHackElement.appendChild(@leftPanel)
 
+    @leftTiles = []
+    @rightTiles = []
+
+  initialize: (state) ->
     @bufferSubscriptions = []
 
     @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
@@ -26,11 +44,50 @@ class StatusBarView extends HTMLElement
       @dispatchEvent(new CustomEvent('active-buffer-changed', bubbles: true))
 
     @storeActiveBuffer()
+    this
 
   destroy: ->
     @activeItemSubscription.dispose()
     @unsubscribeAllFromBuffer()
     @remove()
+
+  addLeftTile: (options) ->
+    newItem = options.item
+    newPriority = options?.priority ? @leftTiles[@leftTiles.length - 1].priority + 1
+    nextItem = null
+    for {priority, item}, index in @leftTiles
+      if priority > newPriority
+        nextItem = item
+        break
+
+    newTile = new Tile(newItem, newPriority, @leftTiles)
+    @leftTiles.splice(index, 0, newTile)
+    newElement = atom.views.getView(newItem)
+    nextElement = atom.views.getView(nextItem)
+    @leftPanel.insertBefore(newElement, nextElement)
+    newTile
+
+  addRightTile: (options) ->
+    newItem = options.item
+    newPriority = options?.priority ? @rightTiles[0].priority + 1
+    nextItem = null
+    for {priority, item}, index in @rightTiles
+      if priority < newPriority
+        nextItem = item
+        break
+
+    newTile = new Tile(newItem, newPriority, @rightTiles)
+    @rightTiles.splice(index, 0, newTile)
+    newElement = atom.views.getView(newItem)
+    nextElement = atom.views.getView(nextItem)
+    @rightPanel.insertBefore(newElement, nextElement)
+    newTile
+
+  getLeftTiles: ->
+    @leftTiles
+
+  getRightTiles: ->
+    @rightTiles
 
   # Public: Append the view to the left side of the status bar.
   appendLeft: (view) ->
