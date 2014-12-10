@@ -292,13 +292,13 @@ describe "Status Bar package", ->
       runs ->
         expect(statusBar.git.gitStatusIcon).toBeHidden()
 
-  describe "when the active item view does not implement getCursorBufferPosition()", ->
+  describe "when the active pane item does not implement getCursorBufferPosition()", ->
     it "hides the cursor position view", ->
       jasmine.attachToDOM(workspaceElement)
       atom.workspace.getActivePane().activateItem(dummyView)
       expect(statusBar.cursorPosition).toBeHidden()
 
-  describe "when the active item implements getTitle() but not getPath()", ->
+  describe "when the active pane item implements getTitle() but not getPath()", ->
     it "displays the title", ->
       jasmine.attachToDOM(workspaceElement)
       dummyView.getTitle = => 'View Title'
@@ -306,13 +306,13 @@ describe "Status Bar package", ->
       expect(statusBar.fileInfo.currentPath.textContent).toBe 'View Title'
       expect(statusBar.fileInfo.currentPath).toBeVisible()
 
-  describe "when the active item neither getTitle() nor getPath()", ->
+  describe "when the active pane item neither getTitle() nor getPath()", ->
     it "hides the path view", ->
       jasmine.attachToDOM(workspaceElement)
       atom.workspace.getActivePane().activateItem(dummyView)
       expect(statusBar.fileInfo.currentPath).toBeHidden()
 
-  describe "when the active item's title changes", ->
+  describe "when the active pane item's title changes", ->
     it "updates the path view with the new title", ->
       jasmine.attachToDOM(workspaceElement)
       callbacks = []
