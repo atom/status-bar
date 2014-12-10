@@ -56,19 +56,19 @@ module.exports =
 
     @fileInfo = new FileInfoView()
     @fileInfo.initialize()
-    @statusBar.addLeftItem(@fileInfo, priority: 0)
+    @statusBar.addLeftTile(item: @fileInfo, priority: 0)
 
     @cursorPosition = new CursorPositionView()
     @cursorPosition.initialize()
-    @statusBar.addLeftItem(@cursorPosition, priority: 1)
+    @statusBar.addLeftTile(item: @cursorPosition, priority: 1)
 
     @selectionCount = new SelectionCountView()
     @selectionCount.initialize()
-    @statusBar.addLeftItem(@selectionCount, priority: 2)
+    @statusBar.addLeftTile(item: @selectionCount, priority: 2)
 
     @git = new GitView()
     @git.initialize()
-    @statusBar.addRightItem(@git, priority: 0)
+    @statusBar.addRightTile(item: @git, priority: 0)
 
   deactivate: ->
     @git?.destroy()

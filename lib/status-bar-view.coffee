@@ -1,5 +1,6 @@
 {$} = require 'space-pen'
 {Disposable} = require 'atom'
+Tile = require './tile'
 
 class StatusBarView extends HTMLElement
   createdCallback: ->
@@ -17,8 +18,8 @@ class StatusBarView extends HTMLElement
     @leftPanel.classList.add('status-bar-left')
     flexboxHackElement.appendChild(@leftPanel)
 
-    @leftItems = []
-    @rightItems = []
+    @leftTiles = []
+    @rightTiles = []
 
   initialize: (state) ->
     @bufferSubscriptions = []
@@ -38,41 +39,43 @@ class StatusBarView extends HTMLElement
     @unsubscribeAllFromBuffer()
     @remove()
 
-  addLeftItem: (newItem, options) ->
-    newPriority = options?.priority ? @leftItems[@leftItems.length - 1].priority + 1
+  addLeftTile: (options) ->
+    newItem = options.item
+    newPriority = options?.priority ? @leftTiles[@leftTiles.length - 1].priority + 1
     nextItem = null
-    for {priority, item}, index in @leftItems
+    for {priority, item}, index in @leftTiles
       if priority > newPriority
         nextItem = item
         break
 
-    prioritizedItem = {item: newItem, priority: newPriority}
-    @leftItems.splice(index, 0, prioritizedItem)
+    newTile = new Tile(newItem, newPriority, @leftTiles)
+    @leftTiles.splice(index, 0, newTile)
     newElement = atom.views.getView(newItem)
     nextElement = atom.views.getView(nextItem)
     @leftPanel.insertBefore(newElement, nextElement)
+    newTile
 
-    new Disposable =>
-      newElement.remove()
-      @leftItems.splice(@leftItems.indexOf(prioritizedItem), 1)
-
-  addRightItem: (newItem, options) ->
-    newPriority = options?.priority ? @rightItems[0].priority + 1
+  addRightTile: (options) ->
+    newItem = options.item
+    newPriority = options?.priority ? @rightTiles[0].priority + 1
     nextItem = null
-    for {priority, item}, index in @rightItems
+    for {priority, item}, index in @rightTiles
       if priority < newPriority
         nextItem = item
         break
 
-    prioritizedItem = {item: newItem, priority: newPriority}
-    @rightItems.splice(index, 0, prioritizedItem)
+    newTile = new Tile(newItem, newPriority, @rightTiles)
+    @rightTiles.splice(index, 0, newTile)
     newElement = atom.views.getView(newItem)
     nextElement = atom.views.getView(nextItem)
     @rightPanel.insertBefore(newElement, nextElement)
+    newTile
 
-    new Disposable =>
-      newElement.remove()
-      @rightItems.splice(@rightItems.indexOf(prioritizedItem), 1)
+  getLeftTiles: ->
+    @leftTiles
+
+  getRightTiles: ->
+    @rightTiles
 
   # Public: Append the view to the left side of the status bar.
   appendLeft: (view) ->
