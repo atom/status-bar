@@ -34,4 +34,4 @@ The status bar element has 4 methods:
   * `getRightTiles()` - Retrieve all of the tiles on the right side of the status bar
 
 The `item` parameter to these methods can be a DOM element, a [jQuery object](http://jquery.com), or a model object for which a view provider has been
-registered in the [the view registry](https://atom.io/docs/api/v0.155.0/ViewRegistry).
+registered in the [the view registry](https://atom.io/docs/api/latest/ViewRegistry).
