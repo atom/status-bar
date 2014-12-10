@@ -18,14 +18,14 @@ module.exports =
     atom.views.getView(@statusBarPanel).classList.add("tool-panel", "panel-bottom")
 
     # Wrap status bar element in a jQuery wrapper for backwards compatibility
-    wrappedStatusBar = $(@statusBar)
-    wrappedStatusBar.appendLeft        = (view) => @statusBar.appendLeft(view)
-    wrappedStatusBar.appendRight       = (view) => @statusBar.appendRight(view)
-    wrappedStatusBar.prependLeft       = (view) => @statusBar.prependLeft(view)
-    wrappedStatusBar.prependRight      = (view) => @statusBar.prependRight(view)
-    wrappedStatusBar.getActiveBuffer   = => @statusBar.getActiveBuffer()
-    wrappedStatusBar.getActiveItem     = => @statusBar.getActiveItem()
-    wrappedStatusBar.subscribeToBuffer = (event, callback) => @statusBar.subscribeToBuffer(event, callback)
+    wrappedStatusBar = $.extend $(@statusBar),
+      appendLeft: (view) => @statusBar.appendLeft(view)
+      appendRight: (view) => @statusBar.appendRight(view)
+      prependLeft: (view) => @statusBar.prependLeft(view)
+      prependRight: (view) => @statusBar.prependRight(view)
+      getActiveBuffer: => @statusBar.getActiveBuffer()
+      getActiveItem: => @statusBar.getActiveItem()
+      subscribeToBuffer: (event, callback) => @statusBar.subscribeToBuffer(event, callback)
 
     if atom.__workspaceView?
       Object.defineProperty atom.__workspaceView, 'statusBar',
@@ -52,23 +52,23 @@ module.exports =
       DevModeView = require './dev-mode-view'
       devModeView = new DevModeView()
       devModeView.initialize()
-      @statusBar.appendLeft(devModeView)
+      @statusBar.addLeftTile(item: devModeView, priority: -1)
 
     @fileInfo = new FileInfoView()
     @fileInfo.initialize()
-    @statusBar.appendLeft(@fileInfo)
+    @statusBar.addLeftTile(item: @fileInfo, priority: 0)
 
     @cursorPosition = new CursorPositionView()
     @cursorPosition.initialize()
-    @statusBar.appendLeft(@cursorPosition)
+    @statusBar.addLeftTile(item: @cursorPosition, priority: 1)
 
     @selectionCount = new SelectionCountView()
     @selectionCount.initialize()
-    @statusBar.appendLeft(@selectionCount)
+    @statusBar.addLeftTile(item: @selectionCount, priority: 2)
 
     @git = new GitView()
     @git.initialize()
-    @statusBar.appendRight(@git)
+    @statusBar.addRightTile(item: @git, priority: 0)
 
   deactivate: ->
     @git?.destroy()
