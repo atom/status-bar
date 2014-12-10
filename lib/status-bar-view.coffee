@@ -1,4 +1,5 @@
 {$} = require 'space-pen'
+Grim = require 'grim'
 {Disposable} = require 'atom'
 Tile = require './tile'
 
@@ -77,34 +78,33 @@ class StatusBarView extends HTMLElement
   getRightTiles: ->
     @rightTiles
 
-  # Public: Append the view to the left side of the status bar.
+  # Deprecated
+
   appendLeft: (view) ->
+    Grim.deprecate("Use ::addLeftTile({item, priority}) instead.")
     $(@leftPanel).append(view)
 
-  # Public: Prepend the view to the left side of the status bar.
   prependLeft: (view) ->
+    Grim.deprecate("Use ::addLeftTile({item, priority}) instead.")
     $(@leftPanel).prepend(view)
 
-  # Public: Append the view to the right side of the status bar.
   appendRight: (view) ->
+    Grim.deprecate("Use ::addRightTile({item, priority}) instead.")
     $(@rightPanel).append(view)
 
-  # Public: Prepend the view to the right side of the status bar.
   prependRight: (view) ->
+    Grim.deprecate("Use ::addRightTile({item, priority}) instead.")
     $(@rightPanel).prepend(view)
 
-  # Public:
   getActiveBuffer: ->
     @buffer
 
-  # Public:
   getActiveItem: ->
     atom.workspace.getActivePaneItem()
 
   storeActiveBuffer: ->
     @buffer = @getActiveItem()?.getBuffer?()
 
-  # Public:
   subscribeToBuffer: (event, callback) ->
     @bufferSubscriptions.push([event, callback])
     @buffer.on(event, callback) if @buffer
