@@ -7,8 +7,7 @@ grammar, current branch, ahead/behind commit counts, and line diff count.
 
 ## API
 
-The status bar exposes a `atom.workspaceView.statusBar` global that exposes an
-API to add views to the status bar.
+This package adds a `status-bar` element to the atom workspace.
 
 You can access it from your package by doing the following:
 
@@ -16,19 +15,23 @@ You can access it from your package by doing the following:
 module.exports =
   activate: ->
     atom.packages.once 'activated', ->
-      atom.workspaceView.statusBar?.appendLeft('<span>hi!</span>')
+      statusBar = document.querySelector("status-bar")
+      if statusBar?
+        @statusBarTile = statusBar.addLeftTile(item: myElement, priority: 100)
+  
+  deactivate: ->
+    @statusBarTile?.destroy()
 ```
 
-It is important to guard against the `atom.workspaceView.statusBar` property
-being `null` since the status bar package could be disabled or not installed.
+It is important to check that the `status-bar` element is present,
+since the status bar package could be disabled or not installed.
 
-The status bar API has 4 methods:
+The status bar element has 4 methods:
 
-  * `appendLeft(view)` - Append a view to the left side of the status bar
-  * `prependLeft(view)` - Prepend a view to the left side of the status bar
-  * `appendRight(view)` - Append a view to the right side of the status bar
-  * `prependRight(view)` - Prepend a view to the right side of the status bar
+  * `addLeftTile({ item, priority })` - Add a tile to the left side of the status bar. Lower priority tiles are placed further to the left. 
+  * `addRightTile({ item, priority })` - Add a tile to the right side of the status bar. Lower priority tiles are placed further to the right. 
+  * `getLeftTiles()` - Retrieve all of the tiles on the left side of the status bar.
+  * `getRightTiles()` - Retrieve all of the tiles on the right side of the status bar
 
-The `view` parameter to all these methods can be a [jQuery](http://jquery.com)
-selector, [Space Pen](https://github.com/atom/space-pen) view, string of HTML,
-or DOM element.
+The `item` parameter to these methods can be a DOM element, a [jQuery object](http://jquery.com), or a model object for which a view provider has been
+registered in the [the view registry](https://atom.io/docs/api/v0.155.0/ViewRegistry).
