@@ -52,23 +52,23 @@ module.exports =
       DevModeView = require './dev-mode-view'
       devModeView = new DevModeView()
       devModeView.initialize()
-      @statusBar.appendLeft(devModeView)
+      @statusBar.addLeftTile(item: devModeView, priority: -1)
 
     @fileInfo = new FileInfoView()
     @fileInfo.initialize()
-    @statusBar.appendLeft(@fileInfo)
+    @statusBar.addLeftItem(@fileInfo, priority: 0)
 
     @cursorPosition = new CursorPositionView()
     @cursorPosition.initialize()
-    @statusBar.appendLeft(@cursorPosition)
+    @statusBar.addLeftItem(@cursorPosition, priority: 1)
 
     @selectionCount = new SelectionCountView()
     @selectionCount.initialize()
-    @statusBar.appendLeft(@selectionCount)
+    @statusBar.addLeftItem(@selectionCount, priority: 2)
 
     @git = new GitView()
     @git.initialize()
-    @statusBar.appendRight(@git)
+    @statusBar.addRightItem(@git, priority: 0)
 
   deactivate: ->
     @git?.destroy()
