@@ -48,11 +48,12 @@ module.exports =
       else
         @statusBarPanel.show()
 
-    if atom.getLoadSettings().devMode
-      DevModeView = require './dev-mode-view'
-      devModeView = new DevModeView()
-      devModeView.initialize()
-      @statusBar.addLeftTile(item: devModeView, priority: -1)
+    {safeMode, devMode} = atom.getLoadSettings()
+    if safeMode or devMode
+      LaunchModeView = require './launch-mode-view'
+      launchModeView = new LaunchModeView()
+      launchModeView.initialize({safeMode, devMode})
+      @statusBar.addLeftTile(item: launchModeView, priority: -1)
 
     @fileInfo = new FileInfoView()
     @fileInfo.initialize()
