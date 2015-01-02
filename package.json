@@ -9,8 +9,8 @@
     "atom": "*"
   },
   "dependencies": {
-    "grim": "^0.12.0",
     "fs-plus": "^2.0.0",
+    "grim": "^1.0.0",
     "space-pen": "^4.2.2"
   }
 }
