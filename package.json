@@ -11,6 +11,6 @@
   "dependencies": {
     "fs-plus": "^2.0.0",
     "grim": "^1.0.0",
-    "space-pen": "^4.2.2"
+    "space-pen": "^5.0.0"
   }
 }
