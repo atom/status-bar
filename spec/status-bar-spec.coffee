@@ -166,7 +166,7 @@ describe "Status Bar package", ->
       jasmine.attachToDOM(workspaceElement)
 
     it "displays the current branch for files in repositories", ->
-      atom.project.setPaths([atom.project.resolve('git/master.git')])
+      atom.project.setPaths([atom.project.getDirectories()[0].resolve('git/master.git')])
 
       waitsForPromise ->
         atom.workspace.open('HEAD')
@@ -202,11 +202,11 @@ describe "Status Bar package", ->
     [repo, filePath, originalPathText, newPath, ignorePath, ignoredPath, projectPath] = []
 
     beforeEach ->
-      projectPath = atom.project.resolve('git/working-dir')
+      projectPath = atom.project.getDirectories()[0].resolve('git/working-dir')
       fs.moveSync(path.join(projectPath, 'git.git'), path.join(projectPath, '.git'))
       atom.project.setPaths([projectPath])
-      filePath = atom.project.resolve('a.txt')
-      newPath = atom.project.resolve('new.txt')
+      filePath = atom.project.getDirectories()[0].resolve('a.txt')
+      newPath = atom.project.getDirectories()[0].resolve('new.txt')
       fs.writeFileSync(newPath, "I'm new here")
       ignorePath = path.join(projectPath, '.gitignore')
       fs.writeFileSync(ignorePath, 'ignored.txt')
