@@ -1,6 +1,6 @@
 class GitView extends HTMLElement
   initialize: ->
-    @classList.add('git-view', 'inline-block')
+    @classList.add('git-view')
 
     @createBranchArea()
     @createCommitsArea()
