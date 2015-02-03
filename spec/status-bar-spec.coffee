@@ -15,9 +15,9 @@ describe "Status Bar package", ->
 
   describe "@activate", ->
     it "appends only one status bar", ->
-      expect(workspaceElement.querySelectorAll('.status-bar').length).toBe 1
+      expect(workspaceElement.querySelectorAll('status-bar').length).toBe 1
       atom.workspace.getActivePane().splitRight(copyActiveItem: true)
-      expect(workspaceElement.querySelectorAll('.status-bar').length).toBe 1
+      expect(workspaceElement.querySelectorAll('status-bar').length).toBe 1
 
     it "makes the status bar available as a deprecated property on atom.workspaceView", ->
       spyOn(Grim, 'deprecate')
@@ -28,7 +28,7 @@ describe "Status Bar package", ->
   describe "@deactivate()", ->
     it "removes the status bar view", ->
       atom.packages.deactivatePackage("status-bar")
-      expect(workspaceElement.querySelector('.status-bar')).toBeNull()
+      expect(workspaceElement.querySelector('status-bar')).toBeNull()
       expect(atom.__workspaceView.statusBar).toBeFalsy()
 
   describe "when status-bar:toggle is triggered", ->
@@ -37,6 +37,6 @@ describe "Status Bar package", ->
 
     it "hides or shows the status bar", ->
       atom.commands.dispatch(workspaceElement, 'status-bar:toggle')
-      expect(workspaceElement.querySelector('.status-bar').parentNode).not.toBeVisible()
+      expect(workspaceElement.querySelector('status-bar').parentNode).not.toBeVisible()
       atom.commands.dispatch(workspaceElement, 'status-bar:toggle')
-      expect(workspaceElement.querySelector('.status-bar').parentNode).toBeVisible()
+      expect(workspaceElement.querySelector('status-bar').parentNode).toBeVisible()
