@@ -7,29 +7,41 @@ grammar, current branch, ahead/behind commit counts, and line diff count.
 
 ## API
 
-This package adds a `status-bar` element to the atom workspace.
+This package provides a service that you can use in other Atom packages. To use
+it, include `status-bar` in the `consumedServices` section of your `package.json`:
 
-You can access it from your package by doing the following:
+```json
+{
+  "name": "my-package",
+  "consumedServices": {
+    "status-bar": {
+      "versions": {
+        "^0.57.0": "consumeStatusBar"
+      }
+    }
+  }
+}
+```
+
+Then, in your package's main module, call methods on the service:
 
 ```coffee
 module.exports =
-  activate: ->
-    atom.packages.once 'activated', ->
-      statusBar = document.querySelector("status-bar")
-      if statusBar?
-        @statusBarTile = statusBar.addLeftTile(item: myElement, priority: 100)
-  
+  activate: -> # ...
+
+  consumeStatusBar: (statusBar) ->
+    @statusBarTile = statusBar.addLeftTile(item: myElement, priority: 100)
+
   deactivate: ->
+    # ...
     @statusBarTile?.destroy()
+    @statusBarTile = null
 ```
 
-It is important to check that the `status-bar` element is present,
-since the status bar package could be disabled or not installed.
+The `status-bar` API has four methods:
 
-The `status-bar` element has four methods:
-
-  * `addLeftTile({ item, priority })` - Add a tile to the left side of the status bar. Lower priority tiles are placed further to the left. 
-  * `addRightTile({ item, priority })` - Add a tile to the right side of the status bar. Lower priority tiles are placed further to the right. 
+  * `addLeftTile({ item, priority })` - Add a tile to the left side of the status bar. Lower priority tiles are placed further to the left.
+  * `addRightTile({ item, priority })` - Add a tile to the right side of the status bar. Lower priority tiles are placed further to the right.
 
 The `item` parameter to these methods can be a DOM element, a [jQuery object](http://jquery.com), or a model object for which a view provider has been
 registered in the [the view registry](https://atom.io/docs/api/latest/ViewRegistry).

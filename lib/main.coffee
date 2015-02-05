@@ -91,3 +91,9 @@ module.exports =
     @statusBar = null
 
     delete atom.__workspaceView.statusBar if atom.__workspaceView?
+
+  provideStatusBar: ->
+    addLeftTile: @statusBar.addLeftTile.bind(@statusBar)
+    addRightTile: @statusBar.addRightTile.bind(@statusBar)
+    getLeftTiles: @statusBar.getLeftTiles.bind(@statusBar)
+    getRightTiles: @statusBar.getRightTiles.bind(@statusBar)

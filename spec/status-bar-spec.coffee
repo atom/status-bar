@@ -4,14 +4,16 @@ path = require 'path'
 os = require 'os'
 
 describe "Status Bar package", ->
-  [editor, statusBar, buffer, workspaceElement] = []
+  [editor, statusBar, statusBarService, workspaceElement] = []
 
   beforeEach ->
     workspaceElement = atom.views.getView(atom.workspace)
     atom.__workspaceView = {}
 
     waitsForPromise ->
-      atom.packages.activatePackage('status-bar')
+      atom.packages.activatePackage('status-bar').then (pack) ->
+        statusBar = workspaceElement.querySelector("status-bar")
+        statusBarService = pack.mainModule.provideStatusBar()
 
   describe "@activate", ->
     it "appends only one status bar", ->
@@ -40,3 +42,21 @@ describe "Status Bar package", ->
       expect(workspaceElement.querySelector('status-bar').parentNode).not.toBeVisible()
       atom.commands.dispatch(workspaceElement, 'status-bar:toggle')
       expect(workspaceElement.querySelector('status-bar').parentNode).toBeVisible()
+
+  describe "the 'status-bar' service", ->
+    it "allows tiles to be added, removed, and retrieved", ->
+      dummyView = document.createElement("div")
+      tile = statusBarService.addLeftTile(item: dummyView)
+      expect(statusBar).toContain(dummyView)
+      expect(statusBarService.getLeftTiles()).toContain(tile)
+      tile.destroy()
+      expect(statusBar).not.toContain(dummyView)
+      expect(statusBarService.getLeftTiles()).not.toContain(tile)
+
+      dummyView = document.createElement("div")
+      tile = statusBarService.addRightTile(item: dummyView)
+      expect(statusBar).toContain(dummyView)
+      expect(statusBarService.getRightTiles()).toContain(tile)
+      tile.destroy()
+      expect(statusBar).not.toContain(dummyView)
+      expect(statusBarService.getRightTiles()).not.toContain(tile)
