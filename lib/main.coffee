@@ -14,9 +14,6 @@ module.exports =
     @statusBar.initialize(state)
     @statusBarPanel = atom.workspace.addBottomPanel(item: @statusBar, priority: 0)
 
-    # Remove when legacy panel classes PR (atom/atom#4305) has been released
-    atom.views.getView(@statusBarPanel).classList.add("tool-panel", "panel-bottom")
-
     # Wrap status bar element in a jQuery wrapper for backwards compatibility
     wrappedStatusBar = $.extend $(@statusBar),
       appendLeft: (view) => @statusBar.appendLeft(view)
