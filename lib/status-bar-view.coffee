@@ -1,4 +1,4 @@
-{$} = require 'space-pen'
+{$} = require 'atom-space-pen-views'
 Grim = require 'grim'
 {Disposable} = require 'atom'
 Tile = require './tile'
