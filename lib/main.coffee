@@ -1,20 +1,14 @@
-{$} = require 'atom-space-pen-views'
-Grim = require 'grim'
-StatusBarView = require './status-bar-view'
-FileInfoView = require './file-info-view'
-CursorPositionView = require './cursor-position-view'
-SelectionCountView = require './selection-count-view'
-GitView = require './git-view'
-
 module.exports =
   activate: (state = {}) ->
     state.attached ?= true
 
+    StatusBarView = require './status-bar-view'
     @statusBar = new StatusBarView()
     @statusBar.initialize(state)
     @statusBarPanel = atom.workspace.addBottomPanel(item: @statusBar, priority: 0)
 
     # Wrap status bar element in a jQuery wrapper for backwards compatibility
+    {$} = require 'atom-space-pen-views'
     wrappedStatusBar = $.extend $(@statusBar),
       appendLeft: (view) => @statusBar.appendLeft(view)
       appendRight: (view) => @statusBar.appendRight(view)
@@ -27,6 +21,7 @@ module.exports =
     if atom.__workspaceView?
       Object.defineProperty atom.__workspaceView, 'statusBar',
         get: ->
+          Grim = require 'grim'
           Grim.deprecate """
             The atom.workspaceView.statusBar global is deprecated. The global was
             previously being assigned by the status-bar package, but Atom packages
@@ -52,18 +47,22 @@ module.exports =
       launchModeView.initialize({safeMode, devMode})
       @statusBar.addLeftTile(item: launchModeView, priority: -1)
 
+    FileInfoView = require './file-info-view'
     @fileInfo = new FileInfoView()
     @fileInfo.initialize()
     @statusBar.addLeftTile(item: @fileInfo, priority: 0)
 
+    CursorPositionView = require './cursor-position-view'
     @cursorPosition = new CursorPositionView()
     @cursorPosition.initialize()
     @statusBar.addLeftTile(item: @cursorPosition, priority: 1)
 
+    SelectionCountView = require './selection-count-view'
     @selectionCount = new SelectionCountView()
     @selectionCount.initialize()
     @statusBar.addLeftTile(item: @selectionCount, priority: 2)
 
+    GitView = require './git-view'
     @git = new GitView()
     @git.initialize()
     @statusBar.addRightTile(item: @git, priority: 0)
