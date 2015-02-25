@@ -99,4 +99,4 @@ module.exports =
   # versioning that matched package version.
   legacyProvideStatusBar: ->
      Grim.deprecate("Use at least version 1.0.0 of status-bar Service API.")
-     provideStatusBar()
+     @provideStatusBar()
