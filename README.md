@@ -1,4 +1,4 @@
-# Status Bar package
+# Status Bar package [![Build Status](https://travis-ci.org/atom/status-bar.svg?branch=master)](https://travis-ci.org/atom/status-bar)
 
 Display information about the current editor such as cursor position, file path,
 grammar, current branch, ahead/behind commit counts, and line diff count.
