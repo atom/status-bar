@@ -98,7 +98,5 @@ module.exports =
   # Depreciated method associated with previous Services API
   # versioning that matched package version.
   legacyProvideStatusBar: ->
-    addLeftTile: @statusBar.addLeftTile.bind(@statusBar)
-    addRightTile: @statusBar.addRightTile.bind(@statusBar)
-    getLeftTiles: @statusBar.getLeftTiles.bind(@statusBar)
-    getRightTiles: @statusBar.getRightTiles.bind(@statusBar)
+     Grim.deprecate("Use at least version 1.0.0 of status-bar Service API.")
+     provideStatusBar()
