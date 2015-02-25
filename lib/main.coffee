@@ -94,3 +94,11 @@ module.exports =
     addRightTile: @statusBar.addRightTile.bind(@statusBar)
     getLeftTiles: @statusBar.getLeftTiles.bind(@statusBar)
     getRightTiles: @statusBar.getRightTiles.bind(@statusBar)
+
+  # Depreciated method associated with previous Services API
+  # versioning that matched package version.
+  legacyProvideStatusBar: ->
+    addLeftTile: @statusBar.addLeftTile.bind(@statusBar)
+    addRightTile: @statusBar.addRightTile.bind(@statusBar)
+    getLeftTiles: @statusBar.getLeftTiles.bind(@statusBar)
+    getRightTiles: @statusBar.getRightTiles.bind(@statusBar)
