@@ -181,12 +181,13 @@ describe "Built-in Status Bar Tiles", ->
           atom.workspace.open('HEAD')
 
         runs ->
+          currentBranch = atom.project.getRepositories()[0].getShortHead()
           expect(gitView.branchArea).toBeVisible()
-          expect(gitView.branchLabel.textContent).toBe 'master'
+          expect(gitView.branchLabel.textContent).toBe currentBranch
 
           atom.workspace.getActivePane().destroyItems()
           expect(gitView.branchArea).toBeVisible()
-          expect(gitView.branchLabel.textContent).toBe 'master'
+          expect(gitView.branchLabel.textContent).toBe currentBranch
 
         atom.workspace.getActivePane().activateItem(dummyView)
         expect(gitView.branchArea).not.toBeVisible()
