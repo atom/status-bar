@@ -1,3 +1,5 @@
+{CompositeDisposable} = require "atom"
+
 class GitView extends HTMLElement
   initialize: ->
     @classList.add('git-view')
@@ -9,8 +11,8 @@ class GitView extends HTMLElement
     @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
       @subscribeToActiveItem()
     @projectPathSubscription = atom.project.onDidChangePaths =>
-      @subscribeToRepo()
-    @subscribeToRepo()
+      @subscribeToRepositories()
+    @subscribeToRepositories()
     @subscribeToActiveItem()
 
   createBranchArea: ->
@@ -56,39 +58,47 @@ class GitView extends HTMLElement
 
     @update()
 
-  subscribeToRepo: ->
-    @statusChangedSubscription?.dispose()
-    @statusesChangedSubscription?.dispose()
+  subscribeToRepositories: ->
+    @repositorySubscriptions?.dispose()
+    @repositorySubscriptions = new CompositeDisposable
 
-    if repo = atom.project.getRepositories()[0]
-      @statusChangedSubscription = repo.onDidChangeStatus ({path, status}) =>
+    for repo in atom.project.getRepositories() when repo?
+      @repositorySubscriptions.add repo.onDidChangeStatus ({path, status}) =>
         @update() if path is @getActiveItemPath()
-      @statusesChangedSubscription = repo.onDidChangeStatuses =>
+      @repositorySubscriptions.add repo.onDidChangeStatuses =>
         @update()
 
   destroy: ->
     @activeItemSubscription?.dispose()
     @projectPathSubscription?.dispose()
-
     @savedSubscription?.dispose()
-    @statusChangedSubscription?.dispose()
-    @statusesChangedSubscription?.dispose()
+    @repositorySubscriptions?.dispose()
 
   getActiveItemPath: ->
     @getActiveItem()?.getPath?()
+
+  getRepositoryForActiveItem: ->
+    [rootDir] = atom.project.relativizePath(@getActiveItemPath())
+    rootDirIndex = atom.project.getPaths().indexOf(rootDir)
+    if rootDirIndex >= 0
+      atom.project.getRepositories()[rootDirIndex]
+    else
+      for repo in atom.project.getRepositories() when repo
+        return repo
 
   getActiveItem: ->
     atom.workspace.getActivePaneItem()
 
   update: ->
-    @updateBranchText()
-    @updateAheadBehindCount()
-    @updateStatusText()
+    repo = @getRepositoryForActiveItem()
+    @updateBranchText(repo)
+    @updateAheadBehindCount(repo)
+    @updateStatusText(repo)
 
-  updateBranchText: ->
+  updateBranchText: (repo) ->
     @branchArea.style.display = 'none'
     if @showBranchInformation()
-      head = atom.project.getRepositories()[0]?.getShortHead(@getActiveItemPath()) or ''
+      head = repo?.getShortHead(@getActiveItemPath()) or ''
       @branchLabel.textContent = head
       @branchArea.style.display = '' if head
 
@@ -98,9 +108,8 @@ class GitView extends HTMLElement
     else
       not @getActiveItem()?
 
-  updateAheadBehindCount: ->
+  updateAheadBehindCount: (repo) ->
     itemPath = @getActiveItemPath()
-    repo = atom.project.getRepositories()[0]
 
     if repo? and @showBranchInformation()
       {ahead, behind} = repo.getCachedUpstreamAheadBehindCount(itemPath) ? {}
@@ -122,9 +131,8 @@ class GitView extends HTMLElement
     else
       @commitsArea.style.display = 'none'
 
-  updateStatusText: ->
+  updateStatusText: (repo) ->
     itemPath = @getActiveItemPath()
-    repo = atom.project.getRepositories()[0]
 
     status = repo?.getCachedPathStatus(itemPath) ? 0
     @gitStatusIcon.classList.remove('icon-diff-modified', 'status-modified', 'icon-diff-added', 'status-added', 'icon-diff-ignored', 'status-ignored')
