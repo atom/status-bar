@@ -98,5 +98,5 @@ module.exports =
   # Depreciated method associated with previous Services API
   # versioning that matched package version.
   legacyProvideStatusBar: ->
-     Grim.deprecate("Use versions ^1.0.0 of status-bar Service API.")
+     # Grim.deprecate("Use versions ^1.0.0 of status-bar Service API.")
      @provideStatusBar()
