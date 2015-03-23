@@ -16,7 +16,7 @@ it, include `status-bar` in the `consumedServices` section of your `package.json
   "consumedServices": {
     "status-bar": {
       "versions": {
-        "^0.57.0": "consumeStatusBar"
+        "^1.0.0": "consumeStatusBar"
       }
     }
   }
