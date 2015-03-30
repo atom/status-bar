@@ -104,14 +104,14 @@ module.exports =
     sb = @provideStatusBar()
 
     addLeftTile: (args...) ->
-      Grim.deprecate("Use versions ^1.0.0 of status-bar Service API.")
+      Grim.deprecate("Use version ^1.0.0 of the status-bar Service API.")
       sb.addLeftTile(args...)
     addRightTile: (args...) ->
-      Grim.deprecate("Use versions ^1.0.0 of status-bar Service API.")
+      Grim.deprecate("Use version ^1.0.0 of the status-bar Service API.")
       sb.addRightTile(args...)
     getLeftTiles: () ->
-      Grim.deprecate("Use versions ^1.0.0 of status-bar Service API.")
+      Grim.deprecate("Use version ^1.0.0 of the status-bar Service API.")
       sb.getLeftTiles()
     getRightTiles: () ->
-      Grim.deprecate("Use versions ^1.0.0 of status-bar Service API.")
+      Grim.deprecate("Use version ^1.0.0 of the status-bar Service API.")
       sb.getRightTiles()
