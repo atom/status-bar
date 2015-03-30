@@ -95,8 +95,23 @@ module.exports =
     getLeftTiles: @statusBar.getLeftTiles.bind(@statusBar)
     getRightTiles: @statusBar.getRightTiles.bind(@statusBar)
 
-  # Depreciated method associated with previous Services API
-  # versioning that matched package version.
+  # Depreciated
+  #
+  # Wrap deprecation calls on the methods returned rather than
+  # Services API method which would be registered and trigger
+  # a deprecation call
   legacyProvideStatusBar: ->
-     Grim.deprecate("Use versions ^1.0.0 of status-bar Service API.")
-     @provideStatusBar()
+    statusbar = @provideStatusBar()
+
+    addLeftTile: (args...) ->
+      Grim.deprecate("Use version ^1.0.0 of the status-bar Service API.")
+      statusbar.addLeftTile(args...)
+    addRightTile: (args...) ->
+      Grim.deprecate("Use version ^1.0.0 of the status-bar Service API.")
+      statusbar.addRightTile(args...)
+    getLeftTiles: ->
+      Grim.deprecate("Use version ^1.0.0 of the status-bar Service API.")
+      statusbar.getLeftTiles()
+    getRightTiles: ->
+      Grim.deprecate("Use version ^1.0.0 of the status-bar Service API.")
+      statusbar.getRightTiles()
