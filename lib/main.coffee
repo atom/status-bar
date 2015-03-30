@@ -101,17 +101,17 @@ module.exports =
   # Services API method which would be registered and trigger
   # a deprecation call
   legacyProvideStatusBar: ->
-    sb = @provideStatusBar()
+    statusbar = @provideStatusBar()
 
     addLeftTile: (args...) ->
       Grim.deprecate("Use version ^1.0.0 of the status-bar Service API.")
-      sb.addLeftTile(args...)
+      statusbar.addLeftTile(args...)
     addRightTile: (args...) ->
       Grim.deprecate("Use version ^1.0.0 of the status-bar Service API.")
-      sb.addRightTile(args...)
+      statusbar.addRightTile(args...)
     getLeftTiles: ->
       Grim.deprecate("Use version ^1.0.0 of the status-bar Service API.")
-      sb.getLeftTiles()
+      statusbar.getLeftTiles()
     getRightTiles: ->
       Grim.deprecate("Use version ^1.0.0 of the status-bar Service API.")
-      sb.getRightTiles()
+      statusbar.getRightTiles()
