@@ -11,13 +11,13 @@ class StatusBarView extends HTMLElement
     flexboxHackElement.classList.add('flexbox-repaint-hack')
     @appendChild(flexboxHackElement)
 
-    @rightPanel = document.createElement('div')
-    @rightPanel.classList.add('status-bar-right', 'pull-right')
-    flexboxHackElement.appendChild(@rightPanel)
-
     @leftPanel = document.createElement('div')
     @leftPanel.classList.add('status-bar-left')
     flexboxHackElement.appendChild(@leftPanel)
+
+    @rightPanel = document.createElement('div')
+    @rightPanel.classList.add('status-bar-right', 'pull-right')
+    flexboxHackElement.appendChild(@rightPanel)
 
     @leftTiles = []
     @rightTiles = []
