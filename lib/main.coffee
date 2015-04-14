@@ -6,11 +6,9 @@ SelectionCountView = require './selection-count-view'
 GitView = require './git-view'
 
 module.exports =
-  activate: (state = {}) ->
-    state.attached ?= true
-
+  activate: ->
     @statusBar = new StatusBarView()
-    @statusBar.initialize(state)
+    @statusBar.initialize()
     @statusBarPanel = atom.workspace.addBottomPanel(item: @statusBar, priority: 0)
 
     if Grim.includeDeprecatedAPIs

@@ -22,7 +22,7 @@ class StatusBarView extends HTMLElement
     @leftTiles = []
     @rightTiles = []
 
-  initialize: (state) ->
+  initialize: ->
     @bufferSubscriptions = []
 
     @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
