@@ -1,4 +1,3 @@
-{$} = require 'atom-space-pen-views'
 Grim = require 'grim'
 StatusBarView = require './status-bar-view'
 FileInfoView = require './file-info-view'
@@ -14,30 +13,32 @@ module.exports =
     @statusBar.initialize(state)
     @statusBarPanel = atom.workspace.addBottomPanel(item: @statusBar, priority: 0)
 
-    # Wrap status bar element in a jQuery wrapper for backwards compatibility
-    wrappedStatusBar = $.extend $(@statusBar),
-      appendLeft: (view) => @statusBar.appendLeft(view)
-      appendRight: (view) => @statusBar.appendRight(view)
-      prependLeft: (view) => @statusBar.prependLeft(view)
-      prependRight: (view) => @statusBar.prependRight(view)
-      getActiveBuffer: => @statusBar.getActiveBuffer()
-      getActiveItem: => @statusBar.getActiveItem()
-      subscribeToBuffer: (event, callback) => @statusBar.subscribeToBuffer(event, callback)
+    if Grim.includeDeprecatedAPIs
+      {$} = require 'atom-space-pen-views'
+      # Wrap status bar element in a jQuery wrapper for backwards compatibility
+      wrappedStatusBar = $.extend $(@statusBar),
+        appendLeft: (view) => @statusBar.appendLeft(view)
+        appendRight: (view) => @statusBar.appendRight(view)
+        prependLeft: (view) => @statusBar.prependLeft(view)
+        prependRight: (view) => @statusBar.prependRight(view)
+        getActiveBuffer: => @statusBar.getActiveBuffer()
+        getActiveItem: => @statusBar.getActiveItem()
+        subscribeToBuffer: (event, callback) => @statusBar.subscribeToBuffer(event, callback)
 
-    if atom.__workspaceView?
-      Object.defineProperty atom.__workspaceView, 'statusBar',
-        get: ->
-          Grim.deprecate """
-            The atom.workspaceView.statusBar global is deprecated. The global was
-            previously being assigned by the status-bar package, but Atom packages
-            should never assign globals.
+      if atom.__workspaceView?
+        Object.defineProperty atom.__workspaceView, 'statusBar',
+          get: ->
+            Grim.deprecate """
+              The atom.workspaceView.statusBar global is deprecated. The global was
+              previously being assigned by the status-bar package, but Atom packages
+              should never assign globals.
 
-            In the future, this problem will be solved by an inter-package communication
-            API available on `atom.services`. For now, you can get a reference to the
-            `status-bar` element via `document.querySelector('status-bar')`.
-          """
-          wrappedStatusBar
-        configurable: true
+              In the future, this problem will be solved by an inter-package communication
+              API available on `atom.services`. For now, you can get a reference to the
+              `status-bar` element via `document.querySelector('status-bar')`.
+            """
+            wrappedStatusBar
+          configurable: true
 
     atom.commands.add 'atom-workspace', 'status-bar:toggle', =>
       if @statusBarPanel.isVisible()
