@@ -15,10 +15,22 @@ module.exports =
       {$} = require 'atom-space-pen-views'
       # Wrap status bar element in a jQuery wrapper for backwards compatibility
       wrappedStatusBar = $.extend $(@statusBar),
-        appendLeft: (view) => @statusBar.appendLeft(view)
-        appendRight: (view) => @statusBar.appendRight(view)
-        prependLeft: (view) => @statusBar.prependLeft(view)
-        prependRight: (view) => @statusBar.prependRight(view)
+        appendLeft: (view) =>
+          Grim.deprecate("Use ::addLeftTile({item, priority}) instead.")
+          @statusBar.appendLeft(view)
+
+        appendRight: (view) =>
+          Grim.deprecate("Use ::addRightTile({item, priority}) instead.")
+          @statusBar.appendRight(view)
+
+        prependLeft: (view) =>
+          Grim.deprecate("Use ::addLeftTile({item, priority}) instead.")
+          @statusBar.prependLeft(view)
+
+        prependRight: (view) =>
+          Grim.deprecate("Use ::addRightTile({item, priority}) instead.")
+          @statusBar.prependRight(view)
+
         getActiveBuffer: => @statusBar.getActiveBuffer()
         getActiveItem: => @statusBar.getActiveItem()
         subscribeToBuffer: (event, callback) => @statusBar.subscribeToBuffer(event, callback)
