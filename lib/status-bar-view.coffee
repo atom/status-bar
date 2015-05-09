@@ -15,7 +15,7 @@ class StatusBarView extends HTMLElement
     flexboxHackElement.appendChild(@leftPanel)
 
     @rightPanel = document.createElement('div')
-    @rightPanel.classList.add('status-bar-right', 'pull-right')
+    @rightPanel.classList.add('status-bar-right')
     flexboxHackElement.appendChild(@rightPanel)
 
     @leftTiles = []
