@@ -31,9 +31,17 @@ module.exports =
           Grim.deprecate("Use ::addRightTile({item, priority}) instead.")
           @statusBar.prependRight(view)
 
-        getActiveBuffer: => @statusBar.getActiveBuffer()
-        getActiveItem: => @statusBar.getActiveItem()
-        subscribeToBuffer: (event, callback) => @statusBar.subscribeToBuffer(event, callback)
+        getActiveBuffer: =>
+          Grim.deprecate("Use atom.workspace.getActiveTextEditor() instead.")
+          @statusBar.getActiveBuffer()
+
+        getActiveItem: =>
+          Grim.deprecate("Use atom.workspace.getActivePaneItem() instead.")
+          @statusBar.getActiveItem()
+
+        subscribeToBuffer: (event, callback) =>
+          Grim.deprecate("Subscribe to TextEditor events instead.")
+          @statusBar.subscribeToBuffer(event, callback)
 
       if atom.__workspaceView?
         Object.defineProperty atom.__workspaceView, 'statusBar',
