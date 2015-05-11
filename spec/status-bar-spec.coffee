@@ -8,7 +8,6 @@ describe "Status Bar package", ->
 
   beforeEach ->
     workspaceElement = atom.views.getView(atom.workspace)
-    atom.__workspaceView = {}
 
     waitsForPromise ->
       atom.packages.activatePackage('status-bar').then (pack) ->
@@ -21,17 +20,10 @@ describe "Status Bar package", ->
       atom.workspace.getActivePane().splitRight(copyActiveItem: true)
       expect(workspaceElement.querySelectorAll('status-bar').length).toBe 1
 
-    it "makes the status bar available as a deprecated property on atom.workspaceView", ->
-      spyOn(Grim, 'deprecate')
-      expect(atom.__workspaceView.statusBar[0]).toBe(workspaceElement.querySelector(".status-bar"))
-      expect(atom.__workspaceView.statusBar[0]).toBe(workspaceElement.querySelector("status-bar"))
-      expect(Grim.deprecate).toHaveBeenCalled()
-
   describe "@deactivate()", ->
     it "removes the status bar view", ->
       atom.packages.deactivatePackage("status-bar")
       expect(workspaceElement.querySelector('status-bar')).toBeNull()
-      expect(atom.__workspaceView.statusBar).toBeFalsy()
 
   describe "when status-bar:toggle is triggered", ->
     beforeEach ->
