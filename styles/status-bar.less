@@ -27,19 +27,26 @@ status-bar {
   // Use 1/3 of space -> will get cut-off first when narrow
   .status-bar-left {
     flex: 1 1 33%;
-    overflow-x: auto;
   }
 
   // Use 2/3 of space
   .status-bar-right {
     padding-left: @component-padding;
-    overflow-x: auto;
     .inline-block {
       margin-right: 0;
       margin-left: @component-padding;
       & > .inline-block {
         margin-left: 0;
       }
+    }
+  }
+
+  // Add horizontal overflow scrolling
+  .status-bar-left,
+  .status-bar-right {
+    overflow-x: auto;
+    &::-webkit-scrollbar {
+      display: none;
     }
   }
 
