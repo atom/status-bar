@@ -37,7 +37,7 @@ describe "Built-in Status Bar Tiles", ->
 
         runs ->
           expect(fileInfo.currentPath.textContent).toBe 'untitled'
-          expect(cursorPosition.textContent).toBe '1,1'
+          expect(cursorPosition.textContent).toBe '1:1'
           expect(selectionCount).toBeHidden()
 
     describe "when the associated editor's path changes", ->
@@ -120,7 +120,7 @@ describe "Built-in Status Bar Tiles", ->
       it "updates the cursor position in the status bar", ->
         jasmine.attachToDOM(workspaceElement)
         editor.setCursorScreenPosition([1, 2])
-        expect(cursorPosition.textContent).toBe '2,3'
+        expect(cursorPosition.textContent).toBe '2:3'
 
     describe "when the associated editor's selection changes", ->
       it "updates the selection count in the status bar", ->
