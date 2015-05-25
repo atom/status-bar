@@ -6,6 +6,11 @@ SelectionCountView = require './selection-count-view'
 GitView = require './git-view'
 
 module.exports =
+  config:
+    cursorPositionFormat:
+      type: 'string'
+      default: '%L:%C'
+
   activate: ->
     @statusBar = new StatusBarView()
     @statusBar.initialize()
