@@ -22,7 +22,7 @@ class CursorPositionView extends HTMLElement
 
   updatePosition: ->
     if position = @getActiveTextEditor()?.getCursorBufferPosition()
-      @textContent = "#{position.row + 1} • #{position.column + 1}"
+      @textContent = "#{position.row + 1}:#{position.column + 1}"
     else
       @textContent = ''
 
