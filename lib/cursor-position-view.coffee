@@ -7,9 +7,12 @@ class CursorPositionView extends HTMLElement
 
     @subscribeToActiveTextEditor()
 
+    @tooltip = atom.tooltips.add(this, title: "Line x, Column y")
+
   destroy: ->
     @activeItemSubscription.dispose()
     @cursorSubscription?.dispose()
+    @tooltip.dispose()
 
   subscribeToActiveTextEditor: ->
     @cursorSubscription?.dispose()
@@ -22,8 +25,13 @@ class CursorPositionView extends HTMLElement
 
   updatePosition: ->
     if position = @getActiveTextEditor()?.getCursorBufferPosition()
-      @textContent = "#{position.row + 1}:#{position.column + 1}"
+      row = position.row + 1
+      column = position.column + 1
+      @textContent = "#{row}:#{column}"
+      @tooltip?.dispose()
+      @tooltip = atom.tooltips.add(this, title: "Line #{row}, Column #{column}")
     else
       @textContent = ''
+      @tooltip?.dispose()
 
 module.exports = document.registerElement('status-bar-cursor', prototype: CursorPositionView.prototype, extends: 'div')
