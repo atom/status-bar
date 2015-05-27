@@ -1,5 +1,5 @@
 class LaunchModeView extends HTMLElement
-  initialize: ({safeMode, devMode}={})->
+  initialize: ({safeMode, devMode}={}) ->
     @classList.add('inline-block', 'icon', 'icon-color-mode')
     if devMode
       @classList.add('text-error')
