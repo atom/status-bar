@@ -21,5 +21,8 @@
         "0.58.0": "legacyProvideStatusBar"
       }
     }
+  },
+  "devDependencies": {
+    "coffeelint": "^1.9.7"
   }
 }
