@@ -138,7 +138,7 @@ describe "Built-in Status Bar Tiles", ->
     describe "when the active pane item implements getTitle() but not getPath()", ->
       it "displays the title", ->
         jasmine.attachToDOM(workspaceElement)
-        dummyView.getTitle = => 'View Title'
+        dummyView.getTitle = -> 'View Title'
         atom.workspace.getActivePane().activateItem(dummyView)
         expect(fileInfo.currentPath.textContent).toBe 'View Title'
         expect(fileInfo.currentPath).toBeVisible()
@@ -162,6 +162,23 @@ describe "Built-in Status Bar Tiles", ->
         dummyView.getTitle = -> 'New Title'
         callback() for callback in callbacks
         expect(fileInfo.currentPath.textContent).toBe 'New Title'
+
+    describe 'the cursor position tile', ->
+      beforeEach ->
+        atom.config.set('status-bar.cursorPositionFormat', 'foo %L bar %C')
+
+      it 'respects a format string', ->
+        jasmine.attachToDOM(workspaceElement)
+        editor.setCursorScreenPosition([1, 2])
+        expect(cursorPosition.textContent).toBe 'foo 2 bar 3'
+
+      it 'updates when the configuration changes', ->
+        jasmine.attachToDOM(workspaceElement)
+        editor.setCursorScreenPosition([1, 2])
+        expect(cursorPosition.textContent).toBe 'foo 2 bar 3'
+
+        atom.config.set('status-bar.cursorPositionFormat', 'baz %C quux %L')
+        expect(cursorPosition.textContent).toBe 'baz 3 quux 2'
 
   describe "the git tile", ->
     gitView = null

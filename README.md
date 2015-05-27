@@ -5,6 +5,12 @@ grammar, current branch, ahead/behind commit counts, and line diff count.
 
 ![](https://f.cloud.github.com/assets/671378/2241819/f8418cb8-9ce5-11e3-87e5-109e965986d0.png)
 
+## Configuration
+
+The status-bar package accepts the following configuration values:
+
+* `status-bar.cursorPositionFormat` &mdash; A string that describes the format to use for the cursor position status bar tile. It defaults to `%L:%C`. In the format string, `%L` represents the 1-based line number and `%C` represents the 1-based column number.
+
 ## API
 
 This package provides a service that you can use in other Atom packages. To use
