@@ -155,7 +155,9 @@ describe "Built-in Status Bar Tiles", ->
         callbacks = []
         dummyView.onDidChangeTitle = (fn) ->
           callbacks.push(fn)
-          {dispose: ->}
+          {
+            dispose: ->
+          }
         dummyView.getTitle = -> 'View Title'
         atom.workspace.getActivePane().activateItem(dummyView)
         expect(fileInfo.currentPath.textContent).toBe 'View Title'
