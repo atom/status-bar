@@ -34,9 +34,11 @@ class CursorPositionView extends HTMLElement
     atom.workspace.getActiveTextEditor()
 
   updatePosition: ->
-    if position = @getActiveTextEditor()?.getCursorBufferPosition()
-      @row = position.row + 1
-      @column = position.column + 1
+    if editor = @getActiveTextEditor()
+      screenpos = editor.getCursorScreenPosition()
+      bufpos = editor.getCursorBufferPosition()
+      @row = bufpos.row + 1
+      @column = screenpos.column + 1
       @textContent = @formatString.replace('%L', @row).replace('%C', @column)
     else
       @textContent = ''
