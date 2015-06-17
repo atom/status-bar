@@ -33,13 +33,26 @@ class CursorPositionView extends HTMLElement
   getActiveTextEditor: ->
     atom.workspace.getActiveTextEditor()
 
-  updatePosition: ->
+  getStats: ->
     if editor = @getActiveTextEditor()
       screenpos = editor.getCursorScreenPosition()
       bufpos = editor.getCursorBufferPosition()
-      @row = bufpos.row + 1
-      @column = screenpos.column + 1
-      @textContent = @formatString.replace('%L', @row).replace('%C', @column)
+      buffer = editor.getBuffer()
+      stats =
+        line: bufpos.row + 1
+        column: screenpos.column + 1
+        lineCount: editor.getLineCount()
+        percent: 100 * (bufpos.row + 1) / editor.getLineCount()
+
+  updatePosition: ->
+    if stats = @getStats()
+      @row = stats.line
+      @column = stats.column
+      @textContent = @formatString
+        .replace('%L', stats.line)
+        .replace('%C', stats.column)
+        .replace('%l', stats.lineCount)
+        .replace('%p', Math.round(stats.percent))
     else
       @textContent = ''
 
