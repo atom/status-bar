@@ -10,7 +10,11 @@ module.exports =
     cursorPositionFormat:
       type: 'string'
       default: '%L:%C'
-      description: 'Format for the cursor position status bar element, where %L is the line number and %C is the column number'
+      description: 'Format for the cursor position indicator'
+    cursorPositionTooltipFormat:
+      type: 'string'
+      default: 'Line %L, Column %C'
+      description: 'Format for the cursor position tooltip'
 
   activate: ->
     @statusBar = new StatusBarView()

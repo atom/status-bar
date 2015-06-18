@@ -2,15 +2,16 @@ class CursorPositionView extends HTMLElement
   initialize: ->
     @classList.add('cursor-position', 'inline-block')
 
-    @formatString = atom.config.get('status-bar.cursorPositionFormat') ? '%L:%C'
+    @statusFormat = atom.config.get('status-bar.cursorPositionFormat')
+    @tooltipFormat = atom.config.get('status-bar.cursorPositionTooltipFormat')
     @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem (activeItem) =>
       @subscribeToActiveTextEditor()
 
     @subscribeToConfig()
     @subscribeToActiveTextEditor()
 
-    @tooltip = atom.tooltips.add(this, title: ->
-      "Line #{@row}, Column #{@column}")
+    @tooltip = atom.tooltips.add(this,
+      title: -> @formatString(@tooltipFormat))
 
   destroy: ->
     @activeItemSubscription.dispose()
@@ -27,7 +28,7 @@ class CursorPositionView extends HTMLElement
   subscribeToConfig: ->
     @configSubscription?.dispose()
     @configSubscription = atom.config.observe 'status-bar.cursorPositionFormat', (value) =>
-      @formatString = value ? '%L:%C'
+      @statusFormat = value ? '%L:%C'
       @updatePosition()
 
   getActiveTextEditor: ->
@@ -43,14 +44,17 @@ class CursorPositionView extends HTMLElement
       @length = editor.getText().length
       @offset = editor.getTextInBufferRange([[0,1], bufpos]).length
       @percent = Math.round(100 * @offset / @length)
-      @textContent = @formatString
-        .replace('%L', @row)
-        .replace('%C', @column)
-        .replace('%l', @lineCount)
-        .replace('%z', @length)
-        .replace('%o', @offset)
-        .replace('%p', @percent)
+      @textContent = @formatString(@statusFormat)
     else
       @textContent = ''
+
+  formatString: (str) ->
+    str
+      .replace('%L', @row)
+      .replace('%C', @column)
+      .replace('%l', @lineCount)
+      .replace('%z', @length)
+      .replace('%o', @offset)
+      .replace('%p', @percent)
 
 module.exports = document.registerElement('status-bar-cursor', prototype: CursorPositionView.prototype, extends: 'div')
