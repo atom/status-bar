@@ -37,18 +37,19 @@ class CursorPositionView extends HTMLElement
     if editor = @getActiveTextEditor()
       screenpos = editor.getCursorScreenPosition()
       bufpos = editor.getCursorBufferPosition()
-      buffer = editor.getBuffer()
       @row = bufpos.row + 1
       @column = screenpos.column + 1
       @lineCount = editor.getLineCount()
-      @percent = Math.round(100 * @row / @lineCount)
-      @length = buffer.getText().length # BUG: doesn't update on backspace
+      @length = editor.getText().length
+      @offset = editor.getTextInBufferRange([[0,1], bufpos]).length
+      @percent = Math.round(100 * @offset / @length)
       @textContent = @formatString
         .replace('%L', @row)
         .replace('%C', @column)
         .replace('%l', @lineCount)
-        .replace('%p', @percent)
         .replace('%z', @length)
+        .replace('%o', @offset)
+        .replace('%p', @percent)
     else
       @textContent = ''
 
