@@ -43,6 +43,7 @@ class CursorPositionView extends HTMLElement
         column: screenpos.column + 1
         lineCount: editor.getLineCount()
         percent: 100 * (bufpos.row + 1) / editor.getLineCount()
+        length: buffer.getText().length
 
   updatePosition: ->
     if stats = @getStats()
@@ -53,6 +54,7 @@ class CursorPositionView extends HTMLElement
         .replace('%C', stats.column)
         .replace('%l', stats.lineCount)
         .replace('%p', Math.round(stats.percent))
+        .replace('%z', stats.length) # BUG: doesn't update on backspace
     else
       @textContent = ''
 
