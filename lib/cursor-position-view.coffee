@@ -43,7 +43,7 @@ class CursorPositionView extends HTMLElement
       @column = screenpos.column + 1
       @lineCount = editor.getLineCount()
       @length = editor.getText().length
-      @offset = editor.getTextInBufferRange([[0,1], bufpos]).length
+      @offset = editor.getTextInBufferRange([[0, 1], bufpos]).length
       @percent = Math.round(100 * @offset / @length)
       @textContent = @formatString(@statusFormat)
     else
