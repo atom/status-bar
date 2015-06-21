@@ -11,7 +11,8 @@ class CursorPositionView extends HTMLElement
     @subscribeToActiveTextEditor()
 
     @tooltip = atom.tooltips.add(this,
-      title: -> @formatString(@tooltipFormat))
+      title: -> @formatString(@tooltipFormat)
+      html: true)
 
   destroy: ->
     @activeItemSubscription.dispose()
@@ -56,5 +57,6 @@ class CursorPositionView extends HTMLElement
       .replace('%z', @length)
       .replace('%o', @offset)
       .replace('%p', @percent)
+      .replace('\\n', '<br/>')
 
 module.exports = document.registerElement('status-bar-cursor', prototype: CursorPositionView.prototype, extends: 'div')
