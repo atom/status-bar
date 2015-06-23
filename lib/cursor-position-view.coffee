@@ -36,27 +36,25 @@ class CursorPositionView extends HTMLElement
     atom.workspace.getActiveTextEditor()
 
   updatePosition: ->
-    if editor = @getActiveTextEditor()
-      screenpos = editor.getCursorScreenPosition()
-      bufpos = editor.getCursorBufferPosition()
-      @row = bufpos.row + 1
-      @column = screenpos.column + 1
-      @lineCount = editor.getLineCount()
-      @length = editor.getText().length
-      @offset = editor.getTextInBufferRange([[0, 1], bufpos]).length
-      @percent = Math.round(100 * @offset / @length)
-      @textContent = @formatString(@statusFormat)
-    else
-      @textContent = ''
+    @textContent = @formatString(@statusFormat)
 
   formatString: (str) ->
-    str
-      .replace('%L', @row)
-      .replace('%C', @column)
-      .replace('%l', @lineCount)
-      .replace('%z', @length)
-      .replace('%o', @offset)
-      .replace('%p', @percent)
-      .replace('\\n', '<br/>')
+    if editor = @getActiveTextEditor()
+      pos = editor.getCursorBufferPosition()
+      size = null
+      offset = null
+      str
+        .replace(/\\n/g, '<br/>')
+        .replace('%L', -> pos.row + 1)
+        .replace('%C', -> editor.getCursorScreenPosition().column + 1)
+        .replace('%l', -> editor.getLineCount())
+        .replace('%z', -> size = editor.getText().length)
+        .replace('%o', -> offset = editor.getTextInBufferRange([[0, 1], pos]).length)
+        .replace('%p', ->
+          size = size || editor.getText().length
+          offset = offset || editor.getTextInBufferRange([[0, 1], pos]).length
+          percent = Math.round(100 * offset / size))
+    else
+      ''
 
 module.exports = document.registerElement('status-bar-cursor', prototype: CursorPositionView.prototype, extends: 'div')
