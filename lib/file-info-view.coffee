@@ -14,25 +14,31 @@ class FileInfoView extends HTMLElement
 
     @absolutePath = @getActiveItem()?.getPath?()
 
-
-    clickHandler = ->
-      @tempTip = atom.tooltips.add(this,
-        title: 'Copied: '+atom.clipboard.read(),
-        trigger: 'click',
-        delay:
-          show: 0
-          hide: 1000
-      )
-      killTip = => @tempTip.dispose()
-      atom.clipboard.write(@absolutePath)
-      setTimeout(killTip, 1000)
-
-    @addEventListener('click', clickHandler)
-    @clickSubscription = new Disposable => @removeEventListener('click', clickHandler)
+    @myTip = atom.tooltips.add(this,
+      title: 'Copied: '+@absolutePath
+      trigger: 'click'
+      delay:
+        show: 0
+    )
 
     @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
       @subscribeToActiveItem()
     @subscribeToActiveItem()
+
+    clickHandler = ->
+      atom.clipboard.write(@absolutePath)
+      setTimeout =>
+        @myTip.dispose()
+        @myTip = atom.tooltips.add(this,
+          title: 'Copied: '+@absolutePath
+          trigger: 'click'
+          delay:
+            show: 0
+        )
+      , 1000
+
+    @addEventListener('click', clickHandler)
+    @clickSubscription = new Disposable => @removeEventListener('click', clickHandler)
 
   subscribeToActiveItem: ->
     @modifiedSubscription?.dispose()
