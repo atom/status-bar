@@ -12,8 +12,20 @@ class FileInfoView extends HTMLElement
     @bufferModified.classList.add('buffer-modified')
     @appendChild(@bufferModified)
 
+    @absolutePath = @getActiveItem()?.getPath?()
+
+
     clickHandler = ->
-      atom.clipboard.write('helloworld')
+      @tempTip = atom.tooltips.add(this,
+        title: 'Copied: '+atom.clipboard.read(),
+        trigger: 'click',
+        delay:
+          show: 0
+          hide: 1000
+      )
+      killTip = => @tempTip.dispose()
+      atom.clipboard.write(@absolutePath)
+      setTimeout(killTip, 1000)
 
     @addEventListener('click', clickHandler)
     @clickSubscription = new Disposable => @removeEventListener('click', clickHandler)
@@ -46,6 +58,7 @@ class FileInfoView extends HTMLElement
     @titleSubscription?.dispose()
     @modifiedSubscription?.dispose()
     @clickSubscription?.dispose()
+    @tempTip?.dispose()
 
   getActiveItem: ->
     atom.workspace.getActivePaneItem()
