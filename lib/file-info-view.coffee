@@ -1,3 +1,5 @@
+{Disposable} = require 'atom'
+
 class FileInfoView extends HTMLElement
   initialize: ->
     @classList.add('file-info', 'inline-block')
@@ -9,6 +11,12 @@ class FileInfoView extends HTMLElement
     @bufferModified = document.createElement('span')
     @bufferModified.classList.add('buffer-modified')
     @appendChild(@bufferModified)
+
+    clickHandler = ->
+      atom.clipboard.write('helloworld')
+
+    @addEventListener('click', clickHandler)
+    @clickSubscription = new Disposable => @removeEventListener('click', clickHandler)
 
     @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
       @subscribeToActiveItem()
@@ -37,6 +45,7 @@ class FileInfoView extends HTMLElement
     @activeItemSubscription.dispose()
     @titleSubscription?.dispose()
     @modifiedSubscription?.dispose()
+    @clickSubscription?.dispose()
 
   getActiveItem: ->
     atom.workspace.getActivePaneItem()
