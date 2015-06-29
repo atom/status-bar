@@ -2,9 +2,14 @@ class FileInfoView extends HTMLElement
   initialize: ->
     @classList.add('file-info', 'inline-block')
 
-    @currentPath = document.createElement('span')
+    @currentPath = document.createElement('a')
     @currentPath.classList.add('current-path')
+    @currentPath.href = '#'
     @appendChild(@currentPath)
+
+    @currentPath.addEventListener 'click', =>
+      if path = @getActiveItem()?.getPath?()
+        atom.clipboard.write(path)
 
     @bufferModified = document.createElement('span')
     @bufferModified.classList.add('buffer-modified')
