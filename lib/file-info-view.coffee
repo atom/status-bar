@@ -4,7 +4,7 @@ class FileInfoView extends HTMLElement
   initialize: ->
     @classList.add('file-info', 'inline-block')
 
-    @currentPath = document.createElement('span')
+    @currentPath = document.createElement('a')
     @currentPath.classList.add('current-path')
     @appendChild(@currentPath)
 
