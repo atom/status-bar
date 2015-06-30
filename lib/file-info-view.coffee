@@ -35,7 +35,6 @@ class FileInfoView extends HTMLElement
       delay:
         show: 0
 
-
   subscribeToActiveItem: ->
     @modifiedSubscription?.dispose()
     @titleSubscription?.dispose()
