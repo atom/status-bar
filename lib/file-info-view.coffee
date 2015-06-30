@@ -19,7 +19,8 @@ class FileInfoView extends HTMLElement
     @subscribeToActiveItem()
 
     clickHandler = ->
-      atom.clipboard.write(@getActiveItem()?.getPath?() or '')
+      text = @getActiveItem()?.getPath?() or @getActiveItem()?.getTitle?() or ''
+      atom.clipboard.write(text)
       setTimeout =>
         @newTooltip()
       , 2000
@@ -29,8 +30,9 @@ class FileInfoView extends HTMLElement
 
   newTooltip: ->
     @myTip?.dispose()
+    text = @getActiveItem()?.getPath?() or @getActiveItem()?.getTitle?() or ''
     @myTip = atom.tooltips.add this,
-      title: 'Copied: '+(@getActiveItem()?.getPath?() or '')
+      title: 'Copied: '+text
       trigger: 'click'
       delay:
         show: 0
