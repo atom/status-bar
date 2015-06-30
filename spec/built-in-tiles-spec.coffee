@@ -48,6 +48,24 @@ describe "Built-in Status Bar Tiles", ->
         runs ->
           expect(fileInfo.currentPath.textContent).toBe 'sample.txt'
 
+    describe "when buffer's path is clicked", ->
+      it "copies the absolute path into the clipboard if available", ->
+        waitsForPromise ->
+          atom.workspace.open('sample.txt')
+
+        runs ->
+          fileInfo.currentPath.click()
+          expect(atom.clipboard.read()).toBe fileInfo.getActiveItem().getPath()
+
+    describe "when path of an unsaved buffer is clicked", ->
+      it "copies the 'untitled' into clipboard", ->
+        waitsForPromise ->
+          atom.workspace.open()
+
+        runs ->
+          fileInfo.currentPath.click()
+          expect(atom.clipboard.read()).toBe 'untitled'
+
     describe "when the associated editor's buffer's content changes", ->
       it "enables the buffer modified indicator", ->
         expect(fileInfo.bufferModified.textContent).toBe ''
