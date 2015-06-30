@@ -18,14 +18,14 @@ class FileInfoView extends HTMLElement
       @subscribeToActiveItem()
     @subscribeToActiveItem()
 
-    clickHandler = ->
+    clickHandler = =>
       text = @getActiveItem()?.getPath?() or @getActiveItem()?.getTitle?() or ''
       atom.clipboard.write(text)
       setTimeout =>
         @newTooltip()
       , 2000
 
-    @addEventListener('click', clickHandler)
+    @currentPath.addEventListener('click', clickHandler)
     @clickSubscription = new Disposable => @removeEventListener('click', clickHandler)
 
   newTooltip: ->
