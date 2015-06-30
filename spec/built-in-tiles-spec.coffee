@@ -66,6 +66,47 @@ describe "Built-in Status Bar Tiles", ->
           fileInfo.currentPath.click()
           expect(atom.clipboard.read()).toBe 'untitled'
 
+    describe "when buffer's path is not clicked", ->
+      it "doesn't display a path tooltip", ->
+        jasmine.attachToDOM(workspaceElement)
+        waitsForPromise ->
+          atom.workspace.open()
+
+        runs ->
+          expect(document.querySelector('.tooltip')).not.toExist()
+
+    describe "when buffer's path is clicked", ->
+      it "it displays path tooltip and the tooltip disappears after 2 seconds", ->
+        jasmine.attachToDOM(workspaceElement)
+        waitsForPromise ->
+          atom.workspace.open()
+
+        runs ->
+          fileInfo.currentPath.click()
+          expect(document.querySelector('.tooltip')).toBeVisible()
+          advanceClock(2000)
+          expect(document.querySelector('.tooltip')).not.toExist()
+
+    describe "when saved buffer's path is clicked", ->
+      it "it displays a tooltip containing text 'Copied:' and an absolute path", ->
+        jasmine.attachToDOM(workspaceElement)
+        waitsForPromise ->
+          atom.workspace.open('sample.txt')
+
+        runs ->
+          fileInfo.currentPath.click()
+          expect(document.querySelector('.tooltip')).toHaveText "Copied: #{fileInfo.getActiveItem().getPath()}"
+
+    describe "when unsaved buffer's path is clicked", ->
+      it "it displays a tooltip containing text 'Copied: untitled", ->
+        jasmine.attachToDOM(workspaceElement)
+        waitsForPromise ->
+          atom.workspace.open()
+
+        runs ->
+          fileInfo.currentPath.click()
+          expect(document.querySelector('.tooltip')).toHaveText "Copied: untitled"
+
     describe "when the associated editor's buffer's content changes", ->
       it "enables the buffer modified indicator", ->
         expect(fileInfo.bufferModified.textContent).toBe ''
