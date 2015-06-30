@@ -12,7 +12,7 @@ class FileInfoView extends HTMLElement
     @bufferModified.classList.add('buffer-modified')
     @appendChild(@bufferModified)
 
-    @newTooltip()
+    @handleCopiedTooltip()
 
     @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
       @subscribeToActiveItem()
@@ -22,17 +22,17 @@ class FileInfoView extends HTMLElement
       text = @getActiveItem()?.getPath?() or @getActiveItem()?.getTitle?() or ''
       atom.clipboard.write(text)
       setTimeout =>
-        @newTooltip()
+        @handleCopiedTooltip()
       , 2000
 
     @currentPath.addEventListener('click', clickHandler)
     @clickSubscription = new Disposable => @removeEventListener('click', clickHandler)
 
-  newTooltip: ->
+  handleCopiedTooltip: ->
     @myTip?.dispose()
     text = @getActiveItem()?.getPath?() or @getActiveItem()?.getTitle?() or ''
     @myTip = atom.tooltips.add this,
-      title: 'Copied: '+text
+      title: "Copied: #{text}"
       trigger: 'click'
       delay:
         show: 0
@@ -68,7 +68,7 @@ class FileInfoView extends HTMLElement
 
   update: ->
     @updatePathText()
-    @newTooltip()
+    @handleCopiedTooltip()
     @updateBufferHasModifiedText(@getActiveItem()?.isModified?())
 
   updateBufferHasModifiedText: (isModified) ->
