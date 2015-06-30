@@ -76,7 +76,7 @@ describe "Built-in Status Bar Tiles", ->
           expect(document.querySelector('.tooltip')).not.toExist()
 
     describe "when buffer's path is clicked", ->
-      it "displays path tooltip and the tooltip disappears after 2 seconds", ->
+      it "displays path tooltip and the tooltip disappears after ~2 seconds", ->
         jasmine.attachToDOM(workspaceElement)
         waitsForPromise ->
           atom.workspace.open()
@@ -84,7 +84,8 @@ describe "Built-in Status Bar Tiles", ->
         runs ->
           fileInfo.currentPath.click()
           expect(document.querySelector('.tooltip')).toBeVisible()
-          advanceClock(2000)
+          # extra leeway so test won't fail because tooltip disappeared few milliseconds too late
+          advanceClock(2100)
           expect(document.querySelector('.tooltip')).not.toExist()
 
     describe "when saved buffer's path is clicked", ->
