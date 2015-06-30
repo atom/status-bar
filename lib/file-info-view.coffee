@@ -29,9 +29,9 @@ class FileInfoView extends HTMLElement
     @clickSubscription = new Disposable => @removeEventListener('click', clickHandler)
 
   handleCopiedTooltip: ->
-    @myTip?.dispose()
+    @copiedTooltip?.dispose()
     text = @getActiveItem()?.getPath?() or @getActiveItem()?.getTitle?() or ''
-    @myTip = atom.tooltips.add this,
+    @copiedTooltip = atom.tooltips.add this,
       title: "Copied: #{text}"
       trigger: 'click'
       delay:
@@ -61,7 +61,7 @@ class FileInfoView extends HTMLElement
     @titleSubscription?.dispose()
     @modifiedSubscription?.dispose()
     @clickSubscription?.dispose()
-    @myTip?.dispose()
+    @copiedTooltip?.dispose()
 
   getActiveItem: ->
     atom.workspace.getActivePaneItem()
