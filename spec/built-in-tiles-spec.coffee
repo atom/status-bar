@@ -76,7 +76,7 @@ describe "Built-in Status Bar Tiles", ->
           expect(document.querySelector('.tooltip')).not.toExist()
 
     describe "when buffer's path is clicked", ->
-      it "it displays path tooltip and the tooltip disappears after 2 seconds", ->
+      it "displays path tooltip and the tooltip disappears after 2 seconds", ->
         jasmine.attachToDOM(workspaceElement)
         waitsForPromise ->
           atom.workspace.open()
@@ -88,7 +88,7 @@ describe "Built-in Status Bar Tiles", ->
           expect(document.querySelector('.tooltip')).not.toExist()
 
     describe "when saved buffer's path is clicked", ->
-      it "it displays a tooltip containing text 'Copied:' and an absolute path", ->
+      it "displays a tooltip containing text 'Copied:' and an absolute path", ->
         jasmine.attachToDOM(workspaceElement)
         waitsForPromise ->
           atom.workspace.open('sample.txt')
@@ -98,7 +98,7 @@ describe "Built-in Status Bar Tiles", ->
           expect(document.querySelector('.tooltip')).toHaveText "Copied: #{fileInfo.getActiveItem().getPath()}"
 
     describe "when unsaved buffer's path is clicked", ->
-      it "it displays a tooltip containing text 'Copied: untitled", ->
+      it "displays a tooltip containing text 'Copied: untitled", ->
         jasmine.attachToDOM(workspaceElement)
         waitsForPromise ->
           atom.workspace.open()
