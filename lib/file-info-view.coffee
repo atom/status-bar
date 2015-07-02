@@ -1,8 +1,10 @@
+{Disposable} = require 'atom'
+
 class FileInfoView extends HTMLElement
   initialize: ->
     @classList.add('file-info', 'inline-block')
 
-    @currentPath = document.createElement('span')
+    @currentPath = document.createElement('a')
     @currentPath.classList.add('current-path')
     @appendChild(@currentPath)
 
@@ -10,9 +12,30 @@ class FileInfoView extends HTMLElement
     @bufferModified.classList.add('buffer-modified')
     @appendChild(@bufferModified)
 
+    @handleCopiedTooltip()
+
     @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
       @subscribeToActiveItem()
     @subscribeToActiveItem()
+
+    clickHandler = =>
+      text = @getActiveItem()?.getPath?() or @getActiveItem()?.getTitle?() or ''
+      atom.clipboard.write(text)
+      setTimeout =>
+        @handleCopiedTooltip()
+      , 2000
+
+    @currentPath.addEventListener('click', clickHandler)
+    @clickSubscription = new Disposable => @removeEventListener('click', clickHandler)
+
+  handleCopiedTooltip: ->
+    @copiedTooltip?.dispose()
+    text = @getActiveItem()?.getPath?() or @getActiveItem()?.getTitle?() or ''
+    @copiedTooltip = atom.tooltips.add this,
+      title: "Copied: #{text}"
+      trigger: 'click'
+      delay:
+        show: 0
 
   subscribeToActiveItem: ->
     @modifiedSubscription?.dispose()
@@ -37,12 +60,15 @@ class FileInfoView extends HTMLElement
     @activeItemSubscription.dispose()
     @titleSubscription?.dispose()
     @modifiedSubscription?.dispose()
+    @clickSubscription?.dispose()
+    @copiedTooltip?.dispose()
 
   getActiveItem: ->
     atom.workspace.getActivePaneItem()
 
   update: ->
     @updatePathText()
+    @handleCopiedTooltip()
     @updateBufferHasModifiedText(@getActiveItem()?.isModified?())
 
   updateBufferHasModifiedText: (isModified) ->
