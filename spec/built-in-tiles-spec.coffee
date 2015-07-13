@@ -110,10 +110,10 @@ describe "Built-in Status Bar Tiles", ->
 
     describe "when the associated editor's buffer's content changes", ->
       it "enables the buffer modified indicator", ->
-        expect(fileInfo.bufferModified.textContent).toBe ''
+        expect(fileInfo.classList.contains('buffer-modified')).toBe(false)
         editor.insertText("\n")
         advanceClock(buffer.stoppedChangingDelay)
-        expect(fileInfo.bufferModified.textContent).toBe '*'
+        expect(fileInfo.classList.contains('buffer-modified')).toBe(true)
         editor.backspace()
 
     describe "when the buffer content has changed from the content on disk", ->
@@ -126,34 +126,34 @@ describe "Built-in Status Bar Tiles", ->
 
         runs ->
           editor = atom.workspace.getActiveTextEditor()
-          expect(fileInfo.bufferModified.textContent).toBe ''
+          expect(fileInfo.classList.contains('buffer-modified')).toBe(false)
           editor.insertText("\n")
           advanceClock(buffer.stoppedChangingDelay)
-          expect(fileInfo.bufferModified.textContent).toBe '*'
+          expect(fileInfo.classList.contains('buffer-modified')).toBe(true)
           editor.getBuffer().save()
-          expect(fileInfo.bufferModified.textContent).toBe ''
+          expect(fileInfo.classList.contains('buffer-modified')).toBe(false)
 
       it "disables the buffer modified indicator if the content matches again", ->
-        expect(fileInfo.bufferModified.textContent).toBe ''
+        expect(fileInfo.classList.contains('buffer-modified')).toBe(false)
         editor.insertText("\n")
         advanceClock(buffer.stoppedChangingDelay)
-        expect(fileInfo.bufferModified.textContent).toBe '*'
+        expect(fileInfo.classList.contains('buffer-modified')).toBe(true)
         editor.backspace()
         advanceClock(buffer.stoppedChangingDelay)
-        expect(fileInfo.bufferModified.textContent).toBe ''
+        expect(fileInfo.classList.contains('buffer-modified')).toBe(false)
 
       it "disables the buffer modified indicator when the change is undone", ->
-        expect(fileInfo.bufferModified.textContent).toBe ''
+        expect(fileInfo.classList.contains('buffer-modified')).toBe(false)
         editor.insertText("\n")
         advanceClock(buffer.stoppedChangingDelay)
-        expect(fileInfo.bufferModified.textContent).toBe '*'
+        expect(fileInfo.classList.contains('buffer-modified')).toBe(true)
         editor.undo()
         advanceClock(buffer.stoppedChangingDelay)
-        expect(fileInfo.bufferModified.textContent).toBe ''
+        expect(fileInfo.classList.contains('buffer-modified')).toBe(false)
 
     describe "when the buffer changes", ->
       it "updates the buffer modified indicator for the new buffer", ->
-        expect(fileInfo.bufferModified.textContent).toBe ''
+        expect(fileInfo.classList.contains('buffer-modified')).toBe(false)
 
         waitsForPromise ->
           atom.workspace.open('sample.txt')
@@ -162,11 +162,11 @@ describe "Built-in Status Bar Tiles", ->
           editor = atom.workspace.getActiveTextEditor()
           editor.insertText("\n")
           advanceClock(buffer.stoppedChangingDelay)
-          expect(fileInfo.bufferModified.textContent).toBe '*'
+          expect(fileInfo.classList.contains('buffer-modified')).toBe(true)
 
       it "doesn't update the buffer modified indicator for the old buffer", ->
         oldBuffer = editor.getBuffer()
-        expect(fileInfo.bufferModified.textContent).toBe ''
+        expect(fileInfo.classList.contains('buffer-modified')).toBe(false)
 
         waitsForPromise ->
           atom.workspace.open('sample.txt')
@@ -174,7 +174,7 @@ describe "Built-in Status Bar Tiles", ->
         runs ->
           oldBuffer.setText("new text")
           advanceClock(buffer.stoppedChangingDelay)
-          expect(fileInfo.bufferModified.textContent).toBe ''
+          expect(fileInfo.classList.contains('buffer-modified')).toBe(false)
 
     describe "when the associated editor's cursor position changes", ->
       it "updates the cursor position in the status bar", ->

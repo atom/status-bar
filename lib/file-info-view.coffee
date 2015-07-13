@@ -8,10 +8,6 @@ class FileInfoView extends HTMLElement
     @currentPath.classList.add('current-path')
     @appendChild(@currentPath)
 
-    @bufferModified = document.createElement('span')
-    @bufferModified.classList.add('buffer-modified')
-    @appendChild(@bufferModified)
-
     @handleCopiedTooltip()
 
     @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
@@ -73,10 +69,10 @@ class FileInfoView extends HTMLElement
 
   updateBufferHasModifiedText: (isModified) ->
     if isModified
-      @bufferModified.textContent = '*' unless @isModified
+      @classList.add('buffer-modified')
       @isModified = true
     else
-      @bufferModified.textContent = '' if @isModified
+      @classList.remove('buffer-modified')
       @isModified = false
 
   updatePathText: ->
