@@ -67,6 +67,10 @@ status-bar {
     max-width: none;
   }
 
+  .file-info.buffer-modified::after {
+    content: '*';
+  }
+
   // All icons are smaller than normal (normal is 16px)
   .icon:before {
     .icon-size(14px);
@@ -81,7 +85,6 @@ status-bar {
     margin-right: -1px;
   }
 
-  .buffer-modified:empty,
   .current-path:empty,
   .cursor-position:empty,
   .selection-count:empty {
