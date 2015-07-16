@@ -97,6 +97,7 @@ class BranchListView extends SelectListView
               buttons:
                 [{text: 'Checkout Anyways',
                 onDidClick: ->
+                  notification.dismiss()
                   git
                     args: ['stash']
                     cwd: cwd
@@ -104,7 +105,8 @@ class BranchListView extends SelectListView
                       git
                         args: ['checkout',branch.full]
                         cwd: cwd
-                  emitter.emit 'on-change-branch', branch.name}]
+                        exit: (code) ->
+                          emitter.emit 'on-change-branch', branch.name}]
               dismissable: true
             notification = atom.notifications.addError("You have uncommitted changes", options)
         if code == 0
