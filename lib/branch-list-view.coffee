@@ -62,9 +62,7 @@ class BranchListView extends SelectListView
   viewForItem: (branch) ->
     element = document.createElement('li')
     element.classList.add('active') if branch.current
-    # element.textContent = branch.name
-    element.innerHTML = branch.name
-    console.log(element)
+    element.textContent = branch.name
     element
 
   toggle: ->

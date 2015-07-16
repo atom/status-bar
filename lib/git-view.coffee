@@ -112,7 +112,6 @@ class GitView extends HTMLElement
     atom.workspace.getActivePaneItem()
 
   update: ->
-    console.log("updating")
     repo = @getRepositoryForActiveItem()
     @updateBranchText(repo)
     @updateAheadBehindCount(repo)
