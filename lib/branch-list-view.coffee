@@ -18,19 +18,20 @@ class BranchListView extends SelectListView
 
 
   setRepository: (@repo) ->
-    git
-      cwd: @repo.getWorkingDirectory()
-      args: ["branch", "-a"]
-      stdout: (data) ->
-        branches = []
-        for branch in data.toString().split('\n')
-          if branch.length > 0
-            full = branch.replace("* ", "").trim()
-            name = full.replace("remotes/", "")
-            remote = branch.includes("remotes/")
-            current = branch.startsWith("* ")
-            unless full.includes("->")
-              branches.push({name: name, remote: remote, current: current, full: full})
+    if @repo
+      git
+        cwd: @repo.getWorkingDirectory()
+        args: ["branch", "-a"]
+        stdout: (data) ->
+          branches = []
+          for branch in data.toString().split('\n')
+            if branch.length > 0
+              full = branch.replace("* ", "").trim()
+              name = full.replace("remotes/", "")
+              remote = branch.includes("remotes/")
+              current = branch.startsWith("* ")
+              unless full.includes("->")
+                branches.push({name: name, remote: remote, current: current, full: full})
 
   getFilterKey: ->
     'name'
