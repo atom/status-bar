@@ -1,4 +1,5 @@
 {CompositeDisposable} = require "atom"
+BranchListView = require './branch-list-view'
 
 class GitView extends HTMLElement
   initialize: ->
@@ -14,6 +15,11 @@ class GitView extends HTMLElement
       @subscribeToRepositories()
     @subscribeToRepositories()
     @subscribeToActiveItem()
+    @handleEvents()
+    atom.commands.add 'atom-text-editor', 'branch-selector:show', =>
+      unless @branchSelector?
+        @branchSelector = new BranchListView()
+      @branchSelector.toggle()
 
   createBranchArea: ->
     @branchArea = document.createElement('div')
@@ -24,9 +30,22 @@ class GitView extends HTMLElement
     branchIcon.classList.add('icon', 'icon-git-branch')
     @branchArea.appendChild(branchIcon)
 
-    @branchLabel = document.createElement('span')
+    @branchLabel = document.createElement('a')
+    @branchLabel.href = '#'
     @branchLabel.classList.add('branch-label')
     @branchArea.appendChild(@branchLabel)
+
+  handleEvents: ->
+    @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
+      @subscribeToActiveItem()
+
+    clickHandler = =>
+      atom.commands.dispatch(atom.views.getView(@getActiveItem()), 'branch-selector:show')
+      false
+    @addEventListener('click', clickHandler)
+    @clickSubscription = dispose: => @removeEventListener('click', clickHandler)
+
+    @subscribeToActiveItem()
 
   createCommitsArea: ->
     @commitsArea = document.createElement('div')
@@ -94,6 +113,7 @@ class GitView extends HTMLElement
     @updateBranchText(repo)
     @updateAheadBehindCount(repo)
     @updateStatusText(repo)
+    @updateBranchSelector(repo)
 
   updateBranchText: (repo) ->
     @branchArea.style.display = 'none'
@@ -101,6 +121,12 @@ class GitView extends HTMLElement
       head = repo?.getShortHead(@getActiveItemPath()) or ''
       @branchLabel.textContent = head
       @branchArea.style.display = '' if head
+
+  updateBranchSelector: (repo) ->
+    unless @branchSelector?
+      @branchSelector = new BranchListView()
+      console.log("making a new view")
+    @branchSelector.setRepository(repo)
 
   showBranchInformation: ->
     if itemPath = @getActiveItemPath()
