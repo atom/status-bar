@@ -1,5 +1,6 @@
 @import "ui-variables";
 @import "octicon-mixins";
+@import "variables";
 
 status-bar {
   display: block;
@@ -18,13 +19,13 @@ status-bar {
     -webkit-user-drag: none;
   }
 
-  a:active, a:focus {
-    background-color: transparent !important;
+  a:active {
+    background-color: @tile-action-bg-highlight-color !important;
     text-decoration: none;
   }
 
   a:hover, .tile-action:hover {
-    background-color: contrast(@app-background-color, darken(@app-background-color, 4%), lighten(@app-background-color, 4%));
+    background-color: @tile-action-bg-color;
     text-decoration: none;
   }
 
