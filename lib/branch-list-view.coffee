@@ -25,11 +25,12 @@ class BranchListView extends SelectListView
         branches = []
         for branch in data.toString().split('\n')
           if branch.length > 0
-            name = branch.split("/").reverse()[0]
-            remote = branch.indexOf("remotes/") >= 0
+            full = branch.replace("* ", "").trim()
+            name = full.replace("remotes/","")
+            remote = branch.includes("remotes/")
             current = branch.startsWith("* ")
-            name = name.replace("* ", "").trim()
-            branches.push({name: name, remote: remote, current: current})
+            unless full.includes("->")
+              branches.push({name: name, remote: remote, current: current, full: full})
 
   getFilterKey: ->
     'name'
@@ -61,7 +62,9 @@ class BranchListView extends SelectListView
   viewForItem: (branch) ->
     element = document.createElement('li')
     element.classList.add('active') if branch.current
-    element.textContent = branch.name
+    # element.textContent = branch.name
+    element.innerHTML = branch.name
+    console.log(element)
     element
 
   toggle: ->
@@ -79,7 +82,7 @@ class BranchListView extends SelectListView
   confirmed: (branch) ->
     @cancel()
     git
-      args: ["checkout", branch.name]
+      args: ["checkout", branch.full]
       cwd: @repo.getWorkingDirectory()
       stderr: (data) ->
         console.log(data.toString())
