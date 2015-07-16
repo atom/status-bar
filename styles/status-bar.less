@@ -15,6 +15,16 @@ status-bar {
 
   a, a:hover {
     color: @text-color;
+    -webkit-user-drag: none;
+  }
+
+  a:active {
+    background-color: transparent !important;
+  }
+
+  a:hover, .tile-action:hover {
+    background-color: contrast(@app-background-color, darken(@app-background-color, 4%), lighten(@app-background-color, 4%));
+    text-decoration: none;
   }
 
   .flexbox-repaint-hack {
