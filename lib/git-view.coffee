@@ -41,7 +41,7 @@ class GitView extends HTMLElement
       @subscribeToActiveItem()
 
     clickHandler = (e) =>
-      if e.target == @branchLabel
+      if e.target is @branchLabel
         atom.commands.dispatch(atom.views.getView(@getActiveItem()), 'branch-selector:show')
         @branchSelector.setRepository(@getRepositoryForActiveItem())
       false
@@ -128,7 +128,7 @@ class GitView extends HTMLElement
   updateBranchSelector: (repo) ->
     unless @branchSelector?
       @branchSelector = new BranchListView()
-      @branchSelector.onChangeBranch (branch)=>
+      @branchSelector.onChangeBranch (branch) =>
         @branchLabel.textContent = branch
     @branchSelector.setRepository(repo)
 

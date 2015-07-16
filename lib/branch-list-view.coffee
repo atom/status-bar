@@ -26,7 +26,7 @@ class BranchListView extends SelectListView
         for branch in data.toString().split('\n')
           if branch.length > 0
             full = branch.replace("* ", "").trim()
-            name = full.replace("remotes/","")
+            name = full.replace("remotes/", "")
             remote = branch.includes("remotes/")
             current = branch.startsWith("* ")
             unless full.includes("->")
@@ -88,7 +88,7 @@ class BranchListView extends SelectListView
         @error = data.toString()
       exit: (data) ->
         code = parseInt(data)
-        if code != 0
+        unless code is 0
           if @error.includes("error: Your local changes to the following files would be overwritten by checkout:")
             options=
               detail: "You must stash or commit your changes before attempting\n to checkout a new branch"
@@ -101,13 +101,13 @@ class BranchListView extends SelectListView
                     cwd: cwd
                     exit: (code) ->
                       git
-                        args: ['checkout',branch.full]
+                        args: ['checkout', branch.full]
                         cwd: cwd
                         exit: (code) ->
                           emitter.emit 'on-change-branch', branch.name}]
               dismissable: true
             notification = atom.notifications.addError("You have uncommitted changes", options)
-        if code == 0
+        else
           emitter.emit 'on-change-branch', branch.name
   attach: ->
     @storeFocusedElement()
