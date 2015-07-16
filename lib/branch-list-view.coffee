@@ -54,7 +54,7 @@ class BranchListView extends SelectListView
         stderr: stderr
         exit: exit
     catch error
-      console.error('Git Plus is unable to locate git command. Please ensure process.env.PATH can access git.')
+      console.error('unable to locate git')
 
   addBranches: ->
     @setItems(branches)
