@@ -81,9 +81,10 @@ class BranchListView extends SelectListView
 
   confirmed: (branch) ->
     @cancel()
+    cwd = @repo.getWorkingDirectory()
     git
       args: ["checkout", branch.full]
-      cwd: @repo.getWorkingDirectory()
+      cwd: cwd
       stderr: (data) ->
         console.log(data.toString())
         @error = data.toString()
@@ -98,8 +99,12 @@ class BranchListView extends SelectListView
                 onDidClick: ->
                   git
                     args: ['stash']
-                  git
-                    args: ['checkout',branch.name]}]
+                    cwd: cwd
+                    exit: (code) ->
+                      git
+                        args: ['checkout',branch.full]
+                        cwd: cwd
+                  emitter.emit 'on-change-branch', branch.name}]
               dismissable: true
             notification = atom.notifications.addError("You have uncommitted changes", options)
         if code == 0
