@@ -15,8 +15,6 @@ class BranchListView extends SelectListView
     @addClass('branch-selector')
     @list.addClass('mark-active')
 
-
-
   setRepository: (@repo) ->
     if @repo
       git
@@ -110,6 +108,7 @@ class BranchListView extends SelectListView
             notification = atom.notifications.addError("You have uncommitted changes", options)
         else
           emitter.emit 'on-change-branch', branch.name
+          
   attach: ->
     @storeFocusedElement()
     @addBranches()
