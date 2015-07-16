@@ -39,8 +39,9 @@ class GitView extends HTMLElement
     @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
       @subscribeToActiveItem()
 
-    clickHandler = =>
-      atom.commands.dispatch(atom.views.getView(@getActiveItem()), 'branch-selector:show')
+    clickHandler = (e) =>
+      if e.target == @branchLabel
+        atom.commands.dispatch(atom.views.getView(@getActiveItem()), 'branch-selector:show')
       false
     @addEventListener('click', clickHandler)
     @clickSubscription = dispose: => @removeEventListener('click', clickHandler)
