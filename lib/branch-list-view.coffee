@@ -1,11 +1,16 @@
 {SelectListView} = require 'atom-space-pen-views'
 {BufferedProcess} = require 'atom'
+{Emitter} = require 'atom'
 branches = []
+emitter = null
 module.exports =
 class BranchListView extends SelectListView
   initialize: ->
     super
 
+    emitter = new Emitter
+    emitter.on 'on-change-branch', (branch) ->
+      atom.workspace.getActivePaneItem().save()
     @panel = atom.workspace.addModalPanel(item: this, visible: false)
     @addClass('branch-selector')
     @list.addClass('mark-active')
@@ -13,38 +18,32 @@ class BranchListView extends SelectListView
 
 
   setRepository: (@repo) ->
-    console.log(@repo)
-    stdout = (data) ->
-      branches = []
-      for branch in data.toString().split('\n')
-        if branch.length > 0
-          name = branch.split("/").reverse()[0]
-          remote = branch.indexOf("remotes/") >= 0
-          current = branch.startsWith("* ")
-          name = name.replace("* ", "").trim()
-          branches.push({name: name, remote: remote, current: current})
-    try
-      new BufferedProcess
-        command: "git"
-        args: ["branch", "-a"]
-        options: {cwd: @repo.getWorkingDirectory()}
-        stdout: stdout
-        stderr: (data) -> console.error data.toString()
-        exit: null
-    catch error
-      console.error('Git Plus is unable to locate git command. Please ensure process.env.PATH can access git.')
+    git
+      cwd: @repo.getWorkingDirectory()
+      args: ["branch", "-a"]
+      stdout: (data) ->
+        branches = []
+        for branch in data.toString().split('\n')
+          if branch.length > 0
+            name = branch.split("/").reverse()[0]
+            remote = branch.indexOf("remotes/") >= 0
+            current = branch.startsWith("* ")
+            name = name.replace("* ", "").trim()
+            branches.push({name: name, remote: remote, current: current})
 
   getFilterKey: ->
     'name'
 
-  git: (args) ->
+  git = ({args, cwd, options, stdout, stderr, exit}={}) ->
     command = "git"
-    options = {}
-    options.cwd = @repo.getWorkingDirectory()
-    stderr = (data) -> console.error data.toString()
-    stdout = (data) -> console.log data.toString()
-    exit = (exit) ->
-      console.log exit
+    options ?= {}
+    options.cwd ?= cwd
+    stderr ?= (data) ->
+      console.error(data.toString())
+      @error = data.toString()
+    stdout ?= (data) -> console.log data.toString()
+    exit ?= (exit) ->
+      console.log(exit)
     try
       new BufferedProcess
         command: command
@@ -79,55 +78,34 @@ class BranchListView extends SelectListView
 
   confirmed: (branch) ->
     @cancel()
-    stdout = (data) ->
-      branches = []
-      for branch in data.toString().split('\n')
-        if branch.length > 0
-          name = branch.split("/").reverse()[0]
-          remote = branch.indexOf("remotes/") >= 0
-          current = branch.startsWith("* ")
-          name = name.replace("* ", "").trim()
-          branches.push({name: name, remote: remote, current: current})
-    exit = (data) ->
-      code = parseInt(data)
-      if code == 1
-        message = @error.toString().split("\n")
-        detailedMessage = "The following files will be affected"
-        for i in [1..message.length-3]
-          detailedMessage += "\n" + message[i]
-        atom.confirm
-          message: "Your local changes will be overwritten by a checkout"
-          detailedMessage: detailedMessage
-          buttons:
-            'Cancel': ->
-            'Checkout Anyways': ->
-              git(['git','stash'])
-              git(['checkout',branch.name])
-
-    try
-      new BufferedProcess
-        command: "git"
-        args: ["checkout",branch.name]
-        options: {cwd: @repo.getWorkingDirectory()}
-        stdout: stdout
-        stderr: (data) -> @error = data.toString()
-        exit: exit
-    catch error
-      console.error('Git Plus is unable to locate git command. Please ensure process.env.PATH can access git.')
-
-  addEncodings: ->
-    @currentEncoding = @editor.getEncoding()
-    encodingItems = []
-
-    if fs.existsSync(@editor.getPath())
-      encodingItems.push({id: 'detect', name: 'Auto Detect'})
-
-    for id, names of @encodings
-      encodingItems.push({id, name: names.list})
-    @setItems(encodingItems)
-
+    git
+      args: ["checkout", branch.name]
+      cwd: @repo.getWorkingDirectory()
+      stderr: (data) ->
+        console.log(data.toString())
+        @error = data.toString()
+      exit: (data) ->
+        code = parseInt(data)
+        if code != 0
+          if @error.includes("error: Your local changes to the following files would be overwritten by checkout:")
+            options=
+              detail: "You must stash or commit your changes before attempting\n to checkout a new branch"
+              buttons:
+                [{text: 'Checkout Anyways',
+                onDidClick: ->
+                  git
+                    args: ['stash']
+                  git
+                    args: ['checkout',branch.name]}]
+              dismissable: true
+            notification = atom.notifications.addError("You have uncommitted changes", options)
+        if code == 0
+          emitter.emit 'on-change-branch', branch.name
   attach: ->
     @storeFocusedElement()
     @addBranches()
     @panel.show()
     @focusFilterEditor()
+
+  onChangeBranch: (callback) ->
+    emitter.on 'on-change-branch', callback

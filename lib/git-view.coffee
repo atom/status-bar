@@ -19,6 +19,7 @@ class GitView extends HTMLElement
     atom.commands.add 'atom-text-editor', 'branch-selector:show', =>
       unless @branchSelector?
         @branchSelector = new BranchListView()
+        @branchSelector.onChangeBranch(@update)
       @branchSelector.toggle()
 
   createBranchArea: ->
@@ -42,6 +43,7 @@ class GitView extends HTMLElement
     clickHandler = (e) =>
       if e.target == @branchLabel
         atom.commands.dispatch(atom.views.getView(@getActiveItem()), 'branch-selector:show')
+        @branchSelector.setRepository(@getRepositoryForActiveItem())
       false
     @addEventListener('click', clickHandler)
     @clickSubscription = dispose: => @removeEventListener('click', clickHandler)
@@ -110,6 +112,7 @@ class GitView extends HTMLElement
     atom.workspace.getActivePaneItem()
 
   update: ->
+    console.log("updating")
     repo = @getRepositoryForActiveItem()
     @updateBranchText(repo)
     @updateAheadBehindCount(repo)
@@ -126,7 +129,8 @@ class GitView extends HTMLElement
   updateBranchSelector: (repo) ->
     unless @branchSelector?
       @branchSelector = new BranchListView()
-      console.log("making a new view")
+      @branchSelector.onChangeBranch (branch)=>
+        @branchLabel.textContent = branch
     @branchSelector.setRepository(repo)
 
   showBranchInformation: ->
