@@ -186,8 +186,13 @@ describe "Built-in Status Bar Tiles", ->
       it "updates the selection count in the status bar", ->
         jasmine.attachToDOM(workspaceElement)
 
+        editor.setSelectedBufferRange([[0, 0], [0, 0]])
+        expect(selectionCount.textContent).toBe ''
         editor.setSelectedBufferRange([[0, 0], [0, 2]])
-        expect(selectionCount.textContent).toBe '(2)'
+        expect(selectionCount.textContent).toBe '(1, 2)'
+        editor.setSelectedBufferRange([[0, 0], [1, 30]])
+        expect(selectionCount.textContent).toBe '(2, 60)'
+
 
     describe "when the active pane item does not implement getCursorBufferPosition()", ->
       it "hides the cursor position view", ->
