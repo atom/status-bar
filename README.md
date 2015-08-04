@@ -9,7 +9,13 @@ grammar, current branch, ahead/behind commit counts, and line diff count.
 
 The status-bar package accepts the following configuration values:
 
-* `status-bar.cursorPositionFormat` &mdash; A string that describes the format to use for the cursor position status bar tile. It defaults to `%L:%C`. In the format string, `%L` represents the 1-based line number and `%C` represents the 1-based column number.
+* `status-bar.cursorPositionFormat` and `status-bar.cursorPositionTooltipFormat` &mdash; These strings describe the format to use for the cursor position status bar tile and tooltip. The format strings accept the following interpolations
+    * `%L` is replaced by the 1-based line number.
+    * `%C` is replaced by the 1-based column number.
+    * `%l` is replaced by the number of lines in the file.
+    * `%z` is replaced by the size (number of characters) of the file.
+    * `%o` is replaced by the character offset of the cursor.
+    * `%p` is replaced by the offset divided the size as a percent.
 
 ## API
 
