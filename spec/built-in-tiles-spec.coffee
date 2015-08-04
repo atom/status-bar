@@ -247,6 +247,23 @@ describe "Built-in Status Bar Tiles", ->
         atom.config.set('status-bar.cursorPositionFormat', 'baz %C quux %L')
         expect(cursorPosition.textContent).toBe 'baz 3 quux 2'
 
+    describe 'the selection count tile', ->
+      beforeEach ->
+        atom.config.set('status-bar.selectionCountFormat', '%L foo %C bar selected')
+
+      it 'respects a format string', ->
+        jasmine.attachToDOM(workspaceElement)
+        editor.setSelectedBufferRange([[0, 0], [1, 30]])
+        expect(selectionCount.textContent).toBe '2 foo 60 bar selected'
+
+      it 'updates when the configuration changes', ->
+        jasmine.attachToDOM(workspaceElement)
+        editor.setSelectedBufferRange([[0, 0], [1, 30]])
+        expect(selectionCount.textContent).toBe '2 foo 60 bar selected'
+
+        atom.config.set('status-bar.selectionCountFormat', 'Selection: baz %C quux %L')
+        expect(selectionCount.textContent).toBe 'Selection: baz 60 quux 2'
+
   describe "the git tile", ->
     gitView = null
 
