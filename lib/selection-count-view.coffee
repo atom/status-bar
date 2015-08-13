@@ -1,7 +1,6 @@
 _ = require 'underscore-plus'
 
 class SelectionCountView extends HTMLElement
-  toolTipDisposable: null
 
   initialize: ->
     @classList.add('selection-count', 'inline-block')
