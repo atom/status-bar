@@ -248,7 +248,13 @@ describe "Built-in Status Bar Tiles", ->
         atom.config.set('status-bar.cursorPositionFormat', 'baz %C quux %L')
         expect(cursorPosition.textContent).toBe 'baz 3 quux 2'
 
-<<<<<<< HEAD
+      describe "when clicked", ->
+        it "triggers the go-to-line toggle event", ->
+          eventHandler = jasmine.createSpy('eventHandler')
+          atom.commands.add('atom-text-editor', 'go-to-line:toggle', eventHandler)
+          cursorPosition.click()
+          expect(eventHandler).toHaveBeenCalled()
+
     describe 'the selection count tile', ->
       beforeEach ->
         atom.config.set('status-bar.selectionCountFormat', '%L foo %C bar selected')
@@ -265,14 +271,6 @@ describe "Built-in Status Bar Tiles", ->
 
         atom.config.set('status-bar.selectionCountFormat', 'Selection: baz %C quux %L')
         expect(selectionCount.textContent).toBe 'Selection: baz 60 quux 2'
-=======
-      describe "when clicked", ->
-        it "triggers the go-to-line toggle event", ->
-          eventHandler = jasmine.createSpy('eventHandler')
-          atom.commands.add('atom-text-editor', 'go-to-line:toggle', eventHandler)
-          cursorPosition.click()
-          expect(eventHandler).toHaveBeenCalled()
->>>>>>> upstream/master
 
   describe "the git tile", ->
     gitView = null

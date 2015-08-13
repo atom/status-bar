@@ -35,7 +35,7 @@ class SelectionCountView extends HTMLElement
 
   updateCount: ->
     count = @getActiveTextEditor()?.getSelectedText().length
-    lineCount = @getActiveTextEditor()?.getSelectedText().split(/\r\n|\r|\n/).length
+    lineCount = @getActiveTextEditor()?.getSelectedBufferRange().getRowCount()
     if count > 0
       @textContent = @formatString.replace('%L', lineCount).replace('%C', count)
       title = "#{_.pluralize(lineCount, 'line')}, #{_.pluralize(count, 'character')} selected"
