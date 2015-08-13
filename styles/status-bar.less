@@ -85,6 +85,7 @@ status-bar {
     margin-right: -1px;
   }
 
+  .hide,
   .current-path:empty,
   .cursor-position:empty,
   .selection-count:empty {
@@ -93,5 +94,10 @@ status-bar {
 
   .git-view {
     display: inline-block;
+  }
+
+  .cursor-position a,
+  .cursor-position a:hover {
+    color: @text-color;
   }
 }

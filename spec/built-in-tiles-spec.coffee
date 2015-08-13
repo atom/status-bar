@@ -2,6 +2,7 @@ Grim = require 'grim'
 fs = require 'fs-plus'
 path = require 'path'
 os = require 'os'
+{$} = require 'atom-space-pen-views'
 
 describe "Built-in Status Bar Tiles", ->
   [statusBar, workspaceElement, dummyView] = []
@@ -241,6 +242,13 @@ describe "Built-in Status Bar Tiles", ->
 
         atom.config.set('status-bar.cursorPositionFormat', 'baz %C quux %L')
         expect(cursorPosition.textContent).toBe 'baz 3 quux 2'
+
+      describe "when clicked", ->
+        it "triggers the go-to-line toggle event", ->
+          eventHandler = jasmine.createSpy('eventHandler')
+          atom.commands.add('atom-text-editor', 'go-to-line:toggle', eventHandler)
+          cursorPosition.click()
+          expect(eventHandler).toHaveBeenCalled()
 
   describe "the git tile", ->
     gitView = null
