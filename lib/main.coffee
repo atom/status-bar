@@ -11,6 +11,10 @@ module.exports =
       type: 'string'
       default: '%L:%C'
       description: 'Format for the cursor position status bar element, where %L is the line number and %C is the column number'
+    selectionCountFormat:
+      type: 'string'
+      default: '(%L, %C)'
+      description: 'Format for the selection count status bar element, where %L is the line count and %C is the character count'
 
   activate: ->
     @statusBar = new StatusBarView()
