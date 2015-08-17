@@ -3,6 +3,7 @@ StatusBarView = require './status-bar-view'
 FileInfoView = require './file-info-view'
 CursorPositionView = require './cursor-position-view'
 SelectionCountView = require './selection-count-view'
+IndentationStatusView = require './indentation-status-view'
 GitView = require './git-view'
 
 module.exports =
@@ -96,6 +97,10 @@ module.exports =
     @git = new GitView()
     @git.initialize()
     @statusBar.addRightTile(item: @git, priority: 0)
+
+    @indent = new IndentationStatusView()
+    @indent.initialize(@statusbar)
+    @statusBar.addRightTile(item: @indent, priority: 1)
 
   deactivate: ->
     @git?.destroy()
