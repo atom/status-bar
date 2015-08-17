@@ -26,7 +26,9 @@ class IndentationStatusView extends HTMLDivElement
     this
 
   handleEvents: ->
-    @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
+    @activePaneSubscription = atom.workspace.onDidChangeActivePaneItem =>
+      if @getActiveTextEditor()
+        @show()
       @subscribeToPotentialEvents()
 
     @tabTypeLink.addEventListener('click', @tabTypeToggle.bind(this))
@@ -37,8 +39,15 @@ class IndentationStatusView extends HTMLDivElement
 
     @subscribeToPotentialEvents()
 
+  hide: ->
+    @style.display = 'none'
+
+  show: ->
+    @style.display = ''
+
   destroy: ->
-    @activeItemSubscription?.dispose()
+    @activePaneSubscription?.dispose()
+    @destroyPaneSubscription?.dispose()
     @userChangeSubscription?.dispose()
     @tabTypeLinkClickSubscription?.dispose()
     @tabLengthLinkClickSubscription?.dispose()
@@ -88,12 +97,21 @@ class IndentationStatusView extends HTMLDivElement
     @updateTabWidthText()
 
   updateTabTypeText: ->
-    softTabs = @getActiveTextEditor()?.getSoftTabs()
-    @tabTypeLink.textContent = 'tab'
-    @tabTypeLink.textContent = 'space' if softTabs
+    editor = @getActiveTextEditor()
+    if editor
+      softTabs = editor.getSoftTabs()
+      tabType = 'tab'
+      tabType = 'space' if softTabs
+    else
+      @hide()
+    @tabTypeLink.textContent = tabType
 
   updateTabWidthText: ->
-    tabwidth = @getActiveTextEditor()?.getTabLength()
+    editor = @getActiveTextEditor()
+    if editor
+      tabwidth = editor.getTabLength()
+    else
+      @hide()
     # console.log 'update to ' + tabwidth
     @tabLengthLink.textContent = tabwidth
 
