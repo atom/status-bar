@@ -276,7 +276,7 @@ describe "Built-in Status Bar Tiles", ->
     gitView = null
 
     beforeEach ->
-      [gitView] = statusBar.getRightTiles().map (tile) -> tile.getItem()
+      gitView = statusBar.querySelector('.git-view')
 
     describe "the git branch label", ->
       beforeEach ->
@@ -410,3 +410,145 @@ describe "Built-in Status Bar Tiles", ->
 
         runs ->
           expect(gitView.gitStatusIcon).toBeHidden()
+
+  describe "indentation status tile", ->
+    [editor, editorView, workspaceElement] =  []
+    [indentationStatus, tabTypeSelector, tabLengthSelector, locateElements] = []
+
+    locateElements = ->
+      indentationStatus = statusBar.querySelector('.indentation-status')
+      tabTypeSelector = indentationStatus.querySelector('.tabtype-selector')
+      tabLengthSelector = indentationStatus.querySelector('.tabwidth-selector')
+
+    beforeEach ->
+      workspaceElement = atom.views.getView(atom.workspace)
+
+      waitsForPromise ->
+        atom.packages.activatePackage('language-text')
+
+      waitsForPromise ->
+        atom.packages.activatePackage('language-javascript')
+
+      waitsForPromise ->
+        atom.workspace.open('sample.js')
+
+      runs ->
+        editor = atom.workspace.getActiveTextEditor()
+        editorView = atom.views.getView(editor)
+        textGrammar = atom.grammars.grammarForScopeName('text.plain')
+        expect(textGrammar).toBeTruthy()
+        jsGrammar = atom.grammars.grammarForScopeName('source.js')
+        expect(jsGrammar).toBeTruthy()
+        expect(editor.getGrammar()).toBe jsGrammar
+
+    describe "when first displayed on status bar", ->
+
+      beforeEach ->
+        locateElements()
+
+      describe "when editor.tabType is auto", ->
+        beforeEach ->
+          atom.config.set('editor.tabType', 'auto')
+
+        it "display indentation type based on auto detection", ->
+          expect(tabTypeSelector.textContent).toBe 'space'
+
+      describe "when editor.tabType is not auto", ->
+        it "display indentation type specified in config", ->
+          # Soft configured
+          atom.config.set('editor.tabType', 'soft')
+          expect(tabTypeSelector.textContent).toBe 'space'
+
+          # Hard configured
+          atom.config.set('editor.tabType', 'hard')
+          expect(tabTypeSelector.textContent).toBe 'tab'
+
+      it "display current tabLength value", ->
+        tabLengthFromConfig = atom.config.get('editor.tabLength').toString()
+        expect(tabLengthSelector.textContent).toBe tabLengthFromConfig
+
+    describe "when softTabs toggled by user", ->
+      beforeEach ->
+        locateElements()
+
+      it "displays the current state", ->
+        atom.config.set('editor.tabType', 'hard', scope: editor.getRootScopeDescriptor())
+
+        expect(tabTypeSelector.textContent).toBe 'tab'
+
+        editor.toggleSoftTabs()
+        # FIXME: Signal emitted only when editor changed it's content
+        editor.insertText(' ')
+        editor.delete()
+        expect(tabTypeSelector.textContent).toBe 'space'
+
+        editor.toggleSoftTabs()
+        # FIXME: Signal emitted only when editor changed it's content
+        editor.insertText(' ')
+        editor.delete()
+        expect(tabTypeSelector.textContent).toBe 'tab'
+
+    describe "when tabLength config changed by user", ->
+      beforeEach ->
+        locateElements()
+
+      it "display correct tabLength state", ->
+        atom.config.set('editor.tabLength', 2)
+        expect(tabLengthSelector.textContent).toBe editor.getTabLength().toString()
+
+        atom.config.set('editor.tabLength', 4)
+        expect(tabLengthSelector.textContent).toBe editor.getTabLength().toString()
+
+        atom.config.set('editor.tabLength', 8)
+        expect(tabLengthSelector.textContent).toBe editor.getTabLength().toString()
+
+    describe "when tabLength modified through setTabLength()", ->
+      beforeEach ->
+        locateElements()
+
+      it "display correct tabLength state", ->
+        editor.setTabLength(2)
+        expect(tabLengthSelector.textContent).toBe editor.getTabLength().toString()
+
+        editor.setTabLength(4)
+        expect(tabLengthSelector.textContent).toBe editor.getTabLength().toString()
+
+        editor.setTabLength(8)
+        expect(tabLengthSelector.textContent).toBe editor.getTabLength().toString()
+
+    describe "when indentation-selector toggled", ->
+      beforeEach ->
+        locateElements()
+
+      describe "when tabTypeSelector toggled", ->
+        it "change the displayed info", ->
+          tabTypeSelector.click()
+          expect(tabTypeSelector.textContent).toBe 'tab'
+
+          tabTypeSelector.click()
+          expect(tabTypeSelector.textContent).toBe 'space'
+
+        it "change editor softTabs property", ->
+          tabTypeSelector.click()
+          expect(editor.getSoftTabs()).toBe false
+
+          tabTypeSelector.click()
+          expect(editor.getSoftTabs()).toBe true
+
+      describe "when tabLengthSelector toggled", ->
+        it "change the displayed info", ->
+          tabLengthSelector.click()
+          expect(tabLengthSelector.textContent).toBe '4'
+
+          tabLengthSelector.click()
+          expect(tabLengthSelector.textContent).toBe '6'
+
+          tabLengthSelector.click()
+          expect(tabLengthSelector.textContent).toBe '8'
+
+        it "change editor softTabs property", ->
+          tabTypeSelector.click()
+          expect(editor.getSoftTabs()).toBe false
+
+          tabTypeSelector.click()
+          expect(editor.getSoftTabs()).toBe true
