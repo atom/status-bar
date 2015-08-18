@@ -1,8 +1,3 @@
-Grim = require 'grim'
-fs = require 'fs-plus'
-path = require 'path'
-os = require 'os'
-
 describe "Status Bar package", ->
   [editor, statusBar, statusBarService, workspaceElement] = []
 
@@ -14,7 +9,7 @@ describe "Status Bar package", ->
         statusBar = workspaceElement.querySelector("status-bar")
         statusBarService = pack.mainModule.provideStatusBar()
 
-  describe "@activate", ->
+  describe "@activate()", ->
     it "appends only one status bar", ->
       expect(workspaceElement.querySelectorAll('status-bar').length).toBe 1
       atom.workspace.getActivePane().splitRight(copyActiveItem: true)

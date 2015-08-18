@@ -59,7 +59,7 @@ describe "StatusBarElement", ->
         expect(leftPanel.children[1].model).toBe(testItem2)
 
   describe "::addRightTile({item, priority})", ->
-    it "appends the view for the given item to its left side", ->
+    it "appends the view for the given item to its right side", ->
       testItem1 = new TestItem(1)
       testItem2 = new TestItem(2)
       testItem3 = new TestItem(3)
