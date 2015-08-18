@@ -1,4 +1,3 @@
-Grim = require 'grim'
 fs = require 'fs-plus'
 path = require 'path'
 os = require 'os'
