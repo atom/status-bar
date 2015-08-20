@@ -5,13 +5,8 @@ class IndentationStatusView extends HTMLDivElement
   initialize: (@statusBar) ->
     @classList.add('indentation-status', 'inline-block')
 
-    @icon = document.createElement('span')
-    @icon.classList.add('inline-block')
-    @icon.style.marginRight = '5px'
-    @icon.textContent = '»'
-
     @tabTypeLink = document.createElement('a')
-    @tabTypeLink.classList.add('inline-block', 'tabtype-selector')
+    @tabTypeLink.classList.add('inline-block', 'icon', 'tabtype-selector')
     @tabTypeLink.style.marginRight = '5px'
     @tabTypeLink.href = '#'
 
@@ -19,7 +14,6 @@ class IndentationStatusView extends HTMLDivElement
     @tabLengthLink.classList.add('inline-block', 'tabwidth-selector')
     @tabLengthLink.href = '#'
 
-    @appendChild(@icon)
     @appendChild(@tabTypeLink)
     @appendChild(@tabLengthLink)
     @handleEvents()
@@ -100,11 +94,16 @@ class IndentationStatusView extends HTMLDivElement
     editor = @getActiveTextEditor()
     if editor
       softTabs = editor.getSoftTabs()
-      tabType = 'tab'
-      tabType = 'space' if softTabs
+      if softTabs
+        @tabTypeLink.classList.remove('icon-chevron-right')
+        @tabTypeLink.classList.add('icon-primitive-dot')
+        @tabTypeLink.textContent = 'Space'
+      else
+        @tabTypeLink.classList.remove('icon-primitive-dot')
+        @tabTypeLink.classList.add('icon-chevron-right')
+        @tabTypeLink.textContent = 'Tab'
     else
       @hide()
-    @tabTypeLink.textContent = tabType
 
   updateTabWidthText: ->
     editor = @getActiveTextEditor()
@@ -113,6 +112,6 @@ class IndentationStatusView extends HTMLDivElement
     else
       @hide()
     # console.log 'update to ' + tabwidth
-    @tabLengthLink.textContent = tabwidth
+    @tabLengthLink.textContent = '[ ' + tabwidth + ' ]'
 
 module.exports = document.registerElement('indentation-status', prototype: IndentationStatusView.prototype)

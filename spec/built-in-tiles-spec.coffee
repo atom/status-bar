@@ -420,6 +420,12 @@ describe "Built-in Status Bar Tiles", ->
       tabTypeSelector = indentationStatus.querySelector('.tabtype-selector')
       tabLengthSelector = indentationStatus.querySelector('.tabwidth-selector')
 
+    formatTabTypeInfo = (tabType) ->
+      return tabType[0].toUpperCase() + tabType.substr(1)
+
+    formatTabLengthInfo = (tabLength) ->
+      return '[ ' + tabLength.toString() + ' ]'
+
     beforeEach ->
       workspaceElement = atom.views.getView(atom.workspace)
 
@@ -451,21 +457,21 @@ describe "Built-in Status Bar Tiles", ->
           atom.config.set('editor.tabType', 'auto')
 
         it "display indentation type based on auto detection", ->
-          expect(tabTypeSelector.textContent).toBe 'space'
+          expect(tabTypeSelector.textContent).toBe formatTabTypeInfo('space')
 
       describe "when editor.tabType is not auto", ->
         it "display indentation type specified in config", ->
           # Soft configured
           atom.config.set('editor.tabType', 'soft')
-          expect(tabTypeSelector.textContent).toBe 'space'
+          expect(tabTypeSelector.textContent).toBe formatTabTypeInfo('space')
 
           # Hard configured
           atom.config.set('editor.tabType', 'hard')
-          expect(tabTypeSelector.textContent).toBe 'tab'
+          expect(tabTypeSelector.textContent).toBe formatTabTypeInfo('tab')
 
       it "display current tabLength value", ->
         tabLengthFromConfig = atom.config.get('editor.tabLength').toString()
-        expect(tabLengthSelector.textContent).toBe tabLengthFromConfig
+        expect(tabLengthSelector.textContent).toBe formatTabLengthInfo(tabLengthFromConfig)
 
     describe "when softTabs toggled by user", ->
       beforeEach ->
@@ -474,19 +480,19 @@ describe "Built-in Status Bar Tiles", ->
       it "displays the current state", ->
         atom.config.set('editor.tabType', 'hard', scope: editor.getRootScopeDescriptor())
 
-        expect(tabTypeSelector.textContent).toBe 'tab'
+        expect(tabTypeSelector.textContent).toBe formatTabTypeInfo('tab')
 
         editor.toggleSoftTabs()
         # FIXME: Signal emitted only when editor changed it's content
         editor.insertText(' ')
         editor.delete()
-        expect(tabTypeSelector.textContent).toBe 'space'
+        expect(tabTypeSelector.textContent).toBe formatTabTypeInfo('space')
 
         editor.toggleSoftTabs()
         # FIXME: Signal emitted only when editor changed it's content
         editor.insertText(' ')
         editor.delete()
-        expect(tabTypeSelector.textContent).toBe 'tab'
+        expect(tabTypeSelector.textContent).toBe formatTabTypeInfo('tab')
 
     describe "when tabLength config changed by user", ->
       beforeEach ->
@@ -494,13 +500,13 @@ describe "Built-in Status Bar Tiles", ->
 
       it "display correct tabLength state", ->
         atom.config.set('editor.tabLength', 2)
-        expect(tabLengthSelector.textContent).toBe editor.getTabLength().toString()
+        expect(tabLengthSelector.textContent).toBe formatTabLengthInfo(editor.getTabLength())
 
         atom.config.set('editor.tabLength', 4)
-        expect(tabLengthSelector.textContent).toBe editor.getTabLength().toString()
+        expect(tabLengthSelector.textContent).toBe formatTabLengthInfo(editor.getTabLength())
 
         atom.config.set('editor.tabLength', 8)
-        expect(tabLengthSelector.textContent).toBe editor.getTabLength().toString()
+        expect(tabLengthSelector.textContent).toBe formatTabLengthInfo(editor.getTabLength())
 
     describe "when tabLength modified through setTabLength()", ->
       beforeEach ->
@@ -508,13 +514,13 @@ describe "Built-in Status Bar Tiles", ->
 
       it "display correct tabLength state", ->
         editor.setTabLength(2)
-        expect(tabLengthSelector.textContent).toBe editor.getTabLength().toString()
+        expect(tabLengthSelector.textContent).toBe formatTabLengthInfo(editor.getTabLength())
 
         editor.setTabLength(4)
-        expect(tabLengthSelector.textContent).toBe editor.getTabLength().toString()
+        expect(tabLengthSelector.textContent).toBe formatTabLengthInfo(editor.getTabLength())
 
         editor.setTabLength(8)
-        expect(tabLengthSelector.textContent).toBe editor.getTabLength().toString()
+        expect(tabLengthSelector.textContent).toBe formatTabLengthInfo(editor.getTabLength())
 
     describe "when indentation-selector toggled", ->
       beforeEach ->
@@ -523,10 +529,10 @@ describe "Built-in Status Bar Tiles", ->
       describe "when tabTypeSelector toggled", ->
         it "change the displayed info", ->
           tabTypeSelector.click()
-          expect(tabTypeSelector.textContent).toBe 'tab'
+          expect(tabTypeSelector.textContent).toBe formatTabTypeInfo('tab')
 
           tabTypeSelector.click()
-          expect(tabTypeSelector.textContent).toBe 'space'
+          expect(tabTypeSelector.textContent).toBe formatTabTypeInfo('space')
 
         it "change editor softTabs property", ->
           tabTypeSelector.click()
@@ -538,13 +544,13 @@ describe "Built-in Status Bar Tiles", ->
       describe "when tabLengthSelector toggled", ->
         it "change the displayed info", ->
           tabLengthSelector.click()
-          expect(tabLengthSelector.textContent).toBe '4'
+          expect(tabLengthSelector.textContent).toBe formatTabLengthInfo(4)
 
           tabLengthSelector.click()
-          expect(tabLengthSelector.textContent).toBe '6'
+          expect(tabLengthSelector.textContent).toBe formatTabLengthInfo(6)
 
           tabLengthSelector.click()
-          expect(tabLengthSelector.textContent).toBe '8'
+          expect(tabLengthSelector.textContent).toBe formatTabLengthInfo(8)
 
         it "change editor softTabs property", ->
           tabTypeSelector.click()
