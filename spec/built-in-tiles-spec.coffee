@@ -48,6 +48,24 @@ describe "Built-in Status Bar Tiles", ->
         runs ->
           expect(fileInfo.currentPath.textContent).toBe 'sample.txt'
 
+    describe "when associated with remote file path", ->
+      [remotePath] = []
+
+      beforeEach ->
+        remotePath = 'remote://server:123/folder/remote_file.txt'
+        jasmine.attachToDOM(workspaceElement)
+        dummyView.getPath = -> remotePath
+        atom.workspace.getActivePane().activateItem(dummyView)
+
+      it "updates the path in the status bar", ->
+        # The remote path isn't relativized in the test because no remote directory provider is registered.
+        expect(fileInfo.currentPath.textContent).toBe remotePath
+        expect(fileInfo.currentPath).toBeVisible()
+
+      it "when the path is clicked", ->
+        fileInfo.currentPath.click()
+        expect(atom.clipboard.read()).toBe '/folder/remote_file.txt'
+
     describe "when buffer's path is clicked", ->
       it "copies the absolute path into the clipboard if available", ->
         waitsForPromise ->
