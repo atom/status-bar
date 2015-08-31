@@ -49,17 +49,14 @@ describe "Built-in Status Bar Tiles", ->
           expect(fileInfo.currentPath.textContent).toBe 'sample.txt'
 
     describe "when associated with remote file path", ->
-      [remotePath] = []
-
       beforeEach ->
-        remotePath = 'remote://server:123/folder/remote_file.txt'
         jasmine.attachToDOM(workspaceElement)
-        dummyView.getPath = -> remotePath
+        dummyView.getPath = -> 'remote://server:123/folder/remote_file.txt'
         atom.workspace.getActivePane().activateItem(dummyView)
 
       it "updates the path in the status bar", ->
         # The remote path isn't relativized in the test because no remote directory provider is registered.
-        expect(fileInfo.currentPath.textContent).toBe remotePath
+        expect(fileInfo.currentPath.textContent).toBe 'remote://server:123/folder/remote_file.txt'
         expect(fileInfo.currentPath).toBeVisible()
 
       it "when the path is clicked", ->

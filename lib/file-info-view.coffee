@@ -1,4 +1,5 @@
 {Disposable} = require 'atom'
+url = require 'url'
 
 class FileInfoView extends HTMLElement
   initialize: ->
@@ -34,8 +35,9 @@ class FileInfoView extends HTMLElement
         show: 0
 
   getActiveItemCopyText: ->
+    activeItem = @getActiveItem()
     # An item path could be a url, but we only want to copy the `path` part of it.
-    require('url').parse(@getActiveItem()?.getPath?() or '').path or @getActiveItem()?.getTitle?() or ''
+    url.parse(activeItem?.getPath?() or '').path or activeItem?.getTitle?() or ''
 
   subscribeToActiveItem: ->
     @modifiedSubscription?.dispose()
