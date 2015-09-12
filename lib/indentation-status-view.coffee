@@ -95,12 +95,8 @@ class IndentationStatusView extends HTMLDivElement
     if editor
       softTabs = editor.getSoftTabs()
       if softTabs
-        @tabTypeLink.classList.remove('icon-chevron-right')
-        @tabTypeLink.classList.add('icon-primitive-dot')
         @tabTypeLink.textContent = 'Space'
       else
-        @tabTypeLink.classList.remove('icon-primitive-dot')
-        @tabTypeLink.classList.add('icon-chevron-right')
         @tabTypeLink.textContent = 'Tab'
     else
       @hide()
