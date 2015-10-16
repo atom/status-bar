@@ -147,7 +147,7 @@ class GitView extends HTMLElement
     status = repo?.getCachedPathStatus(itemPath) ? 0
     @gitStatusIcon.classList.remove('icon-diff-modified', 'status-modified', 'icon-diff-added', 'status-added', 'icon-diff-ignored', 'status-ignored')
 
-    tooltipText = null;
+    tooltipText = null
 
     if repo?.isStatusModified(status)
       @gitStatusIcon.classList.add('icon-diff-modified', 'status-modified')
