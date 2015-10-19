@@ -1,4 +1,3 @@
-{$} = require 'atom-space-pen-views'
 {Disposable} = require 'atom'
 Tile = require './tile'
 
@@ -76,13 +75,6 @@ class StatusBarView extends HTMLElement
 
   getRightTiles: ->
     @rightTiles
-
-  # Deprecated
-
-  appendLeft: (view) -> $(@leftPanel).append(view)
-  prependLeft: (view) -> $(@leftPanel).prepend(view)
-  appendRight: (view) -> $(@rightPanel).append(view)
-  prependRight: (view) -> $(@rightPanel).prepend(view)
 
   getActiveBuffer: ->
     @buffer
