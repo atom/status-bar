@@ -11,7 +11,6 @@
   "dependencies": {
     "fs-plus": "^2.0.0",
     "grim": "^1.0.0",
-    "atom-space-pen-views": "^2.0.0",
     "underscore-plus": "^1.0.0"
   },
   "providedServices": {
@@ -24,6 +23,7 @@
     }
   },
   "devDependencies": {
+    "atom-space-pen-views": "^2.0.0",
     "coffeelint": "^1.9.7"
   }
 }
