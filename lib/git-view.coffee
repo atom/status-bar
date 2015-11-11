@@ -116,12 +116,14 @@ class GitView extends HTMLElement
 
       if ahead > 0
         @commitsAhead.textContent = ahead
+        @commitsAhead.title = "#{ahead} commits ahead"
         @commitsAhead.style.display = ''
       else
         @commitsAhead.style.display = 'none'
 
       if behind > 0
         @commitsBehind.textContent = behind
+        @commitsBehind.title = "#{behind} commits behind"
         @commitsBehind.style.display = ''
       else
         @commitsBehind.style.display = 'none'
