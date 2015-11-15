@@ -125,7 +125,7 @@ class GitView extends HTMLElement
         @commitsAhead.textContent = ahead
         @commitsAhead.style.display = ''
         @commitsAheadTooltipDisposable?.dispose()
-        @commitsAheadTooltipDisposable = atom.tooltips.add @commitsAhead, title: "#{_.pluralize(ahead, 'commit')} commits ahead of upstream"
+        @commitsAheadTooltipDisposable = atom.tooltips.add @commitsAhead, title: "#{_.pluralize(ahead, 'commit')} ahead of upstream"
       else
         @commitsAhead.style.display = 'none'
 
@@ -161,7 +161,7 @@ class GitView extends HTMLElement
         tooltipText = "#{_.pluralize(stats.added, 'line')} added to this file not yet committed"
       else if stats.deleted
         @gitStatusIcon.textContent = "-#{stats.deleted}"
-        tooltipText = "#{_.pluralize(stats.deleted, 'line')} lines added from this file not yet committed"
+        tooltipText = "#{_.pluralize(stats.deleted, 'line')} added from this file not yet committed"
       else
         @gitStatusIcon.textContent = ''
       @gitStatus.style.display = ''
