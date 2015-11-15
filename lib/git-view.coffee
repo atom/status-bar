@@ -1,3 +1,4 @@
+_ = require "underscore-plus"
 {CompositeDisposable} = require "atom"
 
 class GitView extends HTMLElement
@@ -124,7 +125,7 @@ class GitView extends HTMLElement
         @commitsAhead.textContent = ahead
         @commitsAhead.style.display = ''
         @commitsAheadTooltipDisposable?.dispose()
-        @commitsAheadTooltipDisposable = atom.tooltips.add @commitsAhead, title: "#{ahead} commits ahead of upstream"
+        @commitsAheadTooltipDisposable = atom.tooltips.add @commitsAhead, title: "#{_.pluralize(ahead, 'commit')} commits ahead of upstream"
       else
         @commitsAhead.style.display = 'none'
 
@@ -132,7 +133,7 @@ class GitView extends HTMLElement
         @commitsBehind.textContent = behind
         @commitsBehind.style.display = ''
         @commitsBehindTooltipDisposable?.dispose()
-        @commitsBehindTooltipDisposable = atom.tooltips.add @commitsBehind, title: "#{behind} commits behind upstream"
+        @commitsBehindTooltipDisposable = atom.tooltips.add @commitsBehind, title: "#{_.pluralize(behind, 'commit')} behind upstream"
       else
         @commitsBehind.style.display = 'none'
 
@@ -154,13 +155,13 @@ class GitView extends HTMLElement
       stats = repo.getDiffStats(itemPath)
       if stats.added and stats.deleted
         @gitStatusIcon.textContent = "+#{stats.added}, -#{stats.deleted}"
-        tooltipText = "#{stats.added} lines added and -#{stats.deleted} lines deleted in this file not yet committed"
+        tooltipText = "#{_.pluralize(stats.added, 'line')} added and #{_.pluralize(stats.deleted, 'line')} deleted in this file not yet committed"
       else if stats.added
         @gitStatusIcon.textContent = "+#{stats.added}"
-        tooltipText = "#{stats.added} lines added to this file not yet committed"
+        tooltipText = "#{_.pluralize(stats.added, 'line')} added to this file not yet committed"
       else if stats.deleted
         @gitStatusIcon.textContent = "-#{stats.deleted}"
-        tooltipText = "#{stats.added} lines added from this file not yet committed"
+        tooltipText = "#{_.pluralize(stats.deleted, 'line')} lines added from this file not yet committed"
       else
         @gitStatusIcon.textContent = ''
       @gitStatus.style.display = ''
@@ -168,7 +169,7 @@ class GitView extends HTMLElement
       @gitStatusIcon.classList.add('icon-diff-added', 'status-added')
       if textEditor = atom.workspace.getActiveTextEditor()
         @gitStatusIcon.textContent = "+#{textEditor.getLineCount()}"
-        tooltipText = "#{textEditor.getLineCount()} lines in this new file not yet committed"
+        tooltipText = "#{_.pluralize(textEditor.getLineCount(), 'line')} in this new file not yet committed"
       else
         @gitStatusIcon.textContent = ''
       @gitStatus.style.display = ''
