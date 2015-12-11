@@ -63,9 +63,9 @@ class GitView extends HTMLElement
     @repositorySubscriptions = new CompositeDisposable
 
     for repo in atom.project.getRepositories() when repo?
-      @repositorySubscriptions.add repo.onDidChangeStatus ({path, status}) =>
+      @repositorySubscriptions.add repo.async.onDidChangeStatus ({path, status}) =>
         @update() if path is @getActiveItemPath()
-      @repositorySubscriptions.add repo.onDidChangeStatuses =>
+      @repositorySubscriptions.add repo.async.onDidChangeStatuses =>
         @update()
 
   destroy: ->
