@@ -8,7 +8,7 @@ class GitView extends HTMLElement
     @createCommitsArea()
     @createStatusArea()
 
-    @updatePromise = Promise.resolve()
+    @updateStatusPromise = Promise.resolve()
 
     @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
       @subscribeToActiveItem()
@@ -176,7 +176,7 @@ class GitView extends HTMLElement
   updateStatusText: (repo) ->
     itemPath = @getActiveItemPath()
 
-    @updatePromise = @updatePromise
+    @updateStatusPromise = @updateStatusPromise
       .then (_) => repo?.getCachedPathStatus(itemPath)
       .then (status) =>
         status = status || 0
