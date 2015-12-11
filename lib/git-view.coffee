@@ -98,7 +98,7 @@ class GitView extends HTMLElement
   updateBranchText: (repo) ->
     @branchArea.style.display = 'none'
     if @showBranchInformation()
-      repo?.async.getShortHead(@getActiveItemPath()).then (head) =>
+      repo?.getShortHead(@getActiveItemPath()).then (head) =>
         @branchLabel.textContent = head
         @branchArea.style.display = '' if head
 
@@ -131,36 +131,50 @@ class GitView extends HTMLElement
     else
       @commitsArea.style.display = 'none'
 
+  clearStatus: ->
+    @gitStatusIcon.classList.remove('icon-diff-modified', 'status-modified', 'icon-diff-added', 'status-added', 'icon-diff-ignored', 'status-ignored')
+
   updateStatusText: (repo) ->
     itemPath = @getActiveItemPath()
 
-    status = repo?.getCachedPathStatus(itemPath) ? 0
-    @gitStatusIcon.classList.remove('icon-diff-modified', 'status-modified', 'icon-diff-added', 'status-added', 'icon-diff-ignored', 'status-ignored')
+    repo?.getCachedPathStatus(itemPath).then (status) =>
+      status = status || 0
 
-    if repo?.isStatusModified(status)
-      @gitStatusIcon.classList.add('icon-diff-modified', 'status-modified')
-      stats = repo.getDiffStats(itemPath)
-      if stats.added and stats.deleted
-        @gitStatusIcon.textContent = "+#{stats.added}, -#{stats.deleted}"
-      else if stats.added
-        @gitStatusIcon.textContent = "+#{stats.added}"
-      else if stats.deleted
-        @gitStatusIcon.textContent = "-#{stats.deleted}"
-      else
-        @gitStatusIcon.textContent = ''
-      @gitStatus.style.display = ''
-    else if repo?.isStatusNew(status)
-      @gitStatusIcon.classList.add('icon-diff-added', 'status-added')
-      if textEditor = atom.workspace.getActiveTextEditor()
-        @gitStatusIcon.textContent = "+#{textEditor.getLineCount()}"
-      else
-        @gitStatusIcon.textContent = ''
-      @gitStatus.style.display = ''
-    else if repo?.isPathIgnored(itemPath)
-      @gitStatusIcon.classList.add('icon-diff-ignored',  'status-ignored')
-      @gitStatusIcon.textContent = ''
-      @gitStatus.style.display = ''
-    else
-      @gitStatus.style.display = 'none'
+      if repo?.isStatusNew(status)
+        @clearStatus()
+
+        @gitStatusIcon.classList.add('icon-diff-added', 'status-added')
+        if textEditor = atom.workspace.getActiveTextEditor()
+          @gitStatusIcon.textContent = "+#{textEditor.getLineCount()}"
+        else
+          @gitStatusIcon.textContent = ''
+        @gitStatus.style.display = ''
+        return
+
+      if repo?.isStatusModified(status)
+        repo.getDiffStats(itemPath).then (stats) =>
+          @clearStatus()
+
+          @gitStatusIcon.classList.add('icon-diff-modified', 'status-modified')
+          if stats.added and stats.deleted
+            @gitStatusIcon.textContent = "+#{stats.added}, -#{stats.deleted}"
+          else if stats.added
+            @gitStatusIcon.textContent = "+#{stats.added}"
+          else if stats.deleted
+            @gitStatusIcon.textContent = "-#{stats.deleted}"
+          else
+            @gitStatusIcon.textContent = ''
+          @gitStatus.style.display = ''
+        return
+
+      repo?.isPathIgnored(itemPath).then (ignored) =>
+        @clearStatus()
+
+        if ignored
+          @gitStatusIcon.classList.add('icon-diff-ignored',  'status-ignored')
+          @gitStatusIcon.textContent = ''
+          @gitStatus.style.display = ''
+        else
+          @gitStatus.style.display = 'none'
 
 module.exports = document.registerElement('status-bar-git', prototype: GitView.prototype, extends: 'div')
