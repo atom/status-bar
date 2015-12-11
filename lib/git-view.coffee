@@ -8,6 +8,8 @@ class GitView extends HTMLElement
     @createCommitsArea()
     @createStatusArea()
 
+    @updatePromise = Promise.resolve()
+
     @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
       @subscribeToActiveItem()
     @projectPathSubscription = atom.project.onDidChangePaths =>
@@ -135,47 +137,61 @@ class GitView extends HTMLElement
   clearStatus: ->
     @gitStatusIcon.classList.remove('icon-diff-modified', 'status-modified', 'icon-diff-added', 'status-added', 'icon-diff-ignored', 'status-ignored')
 
+  updateAsNewFile: ->
+    @clearStatus()
+
+    @gitStatusIcon.classList.add('icon-diff-added', 'status-added')
+    if textEditor = atom.workspace.getActiveTextEditor()
+      @gitStatusIcon.textContent = "+#{textEditor.getLineCount()}"
+    else
+      @gitStatusIcon.textContent = ''
+    @gitStatus.style.display = ''
+
+    Promise.resolve()
+
+  updateAsModifiedFile: (repo, path) ->
+    repo.getDiffStats(path).then (stats) =>
+      @clearStatus()
+
+      @gitStatusIcon.classList.add('icon-diff-modified', 'status-modified')
+      if stats.added and stats.deleted
+        @gitStatusIcon.textContent = "+#{stats.added}, -#{stats.deleted}"
+      else if stats.added
+        @gitStatusIcon.textContent = "+#{stats.added}"
+      else if stats.deleted
+        @gitStatusIcon.textContent = "-#{stats.deleted}"
+      else
+        @gitStatusIcon.textContent = ''
+      @gitStatus.style.display = ''
+
+  updateAsIgnoredFile: ->
+    @clearStatus()
+
+    @gitStatusIcon.classList.add('icon-diff-ignored',  'status-ignored')
+    @gitStatusIcon.textContent = ''
+    @gitStatus.style.display = ''
+
+    Promise.resolve()
+
   updateStatusText: (repo) ->
     itemPath = @getActiveItemPath()
 
-    repo?.getCachedPathStatus(itemPath).then (status) =>
-      status = status || 0
+    @updatePromise = @updatePromise
+      .then (_) => repo?.getCachedPathStatus(itemPath)
+      .then (status) =>
+        status = status || 0
 
-      if repo?.isStatusNew(status)
-        @clearStatus()
+        if repo?.isStatusNew(status)
+          return @updateAsNewFile()
 
-        @gitStatusIcon.classList.add('icon-diff-added', 'status-added')
-        if textEditor = atom.workspace.getActiveTextEditor()
-          @gitStatusIcon.textContent = "+#{textEditor.getLineCount()}"
-        else
-          @gitStatusIcon.textContent = ''
-        @gitStatus.style.display = ''
-        return
+        if repo?.isStatusModified(status)
+          return @updateAsModifiedFile(repo, itemPath)
 
-      if repo?.isStatusModified(status)
-        repo.getDiffStats(itemPath).then (stats) =>
-          @clearStatus()
-
-          @gitStatusIcon.classList.add('icon-diff-modified', 'status-modified')
-          if stats.added and stats.deleted
-            @gitStatusIcon.textContent = "+#{stats.added}, -#{stats.deleted}"
-          else if stats.added
-            @gitStatusIcon.textContent = "+#{stats.added}"
-          else if stats.deleted
-            @gitStatusIcon.textContent = "-#{stats.deleted}"
+        return repo?.isPathIgnored(itemPath).then (ignored) =>
+          if ignored
+            return @updateAsIgnoredFile()
           else
-            @gitStatusIcon.textContent = ''
-          @gitStatus.style.display = ''
-        return
-
-      repo?.isPathIgnored(itemPath).then (ignored) =>
-        @clearStatus()
-
-        if ignored
-          @gitStatusIcon.classList.add('icon-diff-ignored',  'status-ignored')
-          @gitStatusIcon.textContent = ''
-          @gitStatus.style.display = ''
-        else
-          @gitStatus.style.display = 'none'
+            @gitStatus.style.display = 'none'
+            return Promise.resolve()
 
 module.exports = document.registerElement('status-bar-git', prototype: GitView.prototype, extends: 'div')
