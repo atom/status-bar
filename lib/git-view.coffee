@@ -81,10 +81,10 @@ class GitView extends HTMLElement
     [rootDir] = atom.project.relativizePath(@getActiveItemPath())
     rootDirIndex = atom.project.getPaths().indexOf(rootDir)
     if rootDirIndex >= 0
-      atom.project.getRepositories()[rootDirIndex]
+      atom.project.getRepositories()[rootDirIndex].async
     else
       for repo in atom.project.getRepositories() when repo
-        return repo
+        return repo.async
 
   getActiveItem: ->
     atom.workspace.getActivePaneItem()
