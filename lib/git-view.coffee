@@ -96,11 +96,12 @@ class GitView extends HTMLElement
     @updateStatusText(repo)
 
   updateBranchText: (repo) ->
-    @branchArea.style.display = 'none'
     if @showBranchInformation()
       repo?.getShortHead(@getActiveItemPath()).then (head) =>
         @branchLabel.textContent = head
         @branchArea.style.display = '' if head
+    else
+      @branchArea.style.display = 'none'
 
   showBranchInformation: ->
     if itemPath = @getActiveItemPath()
