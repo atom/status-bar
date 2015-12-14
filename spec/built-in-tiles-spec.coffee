@@ -315,15 +315,6 @@ describe "Built-in Status Bar Tiles", ->
         atom.workspace.getActivePane().activateItem(dummyView)
         expect(gitView.branchArea).not.toBeVisible()
 
-      it "doesn't display the current branch for a file not in a repository", ->
-        atom.project.setPaths([os.tmpdir()])
-
-        waitsForPromise ->
-          atom.workspace.open(path.join(os.tmpdir(), 'temp.txt'))
-
-        runs ->
-          expect(gitView.branchArea).toBeHidden()
-
       it "doesn't display the current branch for a file outside the current project", ->
         waitsForPromise ->
           atom.workspace.open(path.join(os.tmpdir(), 'atom-specs', 'not-in-project.txt'))
@@ -345,10 +336,12 @@ describe "Built-in Status Bar Tiles", ->
         fs.writeFileSync(ignorePath, 'ignored.txt')
         ignoredPath = path.join(projectPath, 'ignored.txt')
         fs.writeFileSync(ignoredPath, '')
-        atom.project.getRepositories()[0].getPathStatus(filePath)
-        atom.project.getRepositories()[0].getPathStatus(newPath)
-        originalPathText = fs.readFileSync(filePath, 'utf8')
         jasmine.attachToDOM(workspaceElement)
+
+        repo = atom.project.getRepositories()[0].async
+        originalPathText = fs.readFileSync(filePath, 'utf8')
+
+        waitsFor -> !repo._isRefreshing()
 
       afterEach ->
         fs.writeFileSync(filePath, originalPathText)
@@ -358,12 +351,12 @@ describe "Built-in Status Bar Tiles", ->
         fs.moveSync(path.join(projectPath, '.git'), path.join(projectPath, 'git.git'))
 
       it "displays the modified icon for a changed file", ->
-        fs.writeFileSync(filePath, "i've changed for the worse")
-        atom.project.getRepositories()[0].getPathStatus(filePath)
-
         waitsForPromise ->
           atom.workspace.open(filePath)
-
+            .then (_) ->
+              fs.writeFileSync(filePath, "i've changed for the worse")
+              repo.refreshStatusForPath(filePath)
+            .then (_) -> gitView.updateStatusPromise
         runs ->
           expect(gitView.gitStatusIcon).toHaveClass('icon-diff-modified')
 
@@ -377,6 +370,8 @@ describe "Built-in Status Bar Tiles", ->
       it "displays the new icon for a new file", ->
         waitsForPromise ->
           atom.workspace.open(newPath)
+            .then (_) -> repo.refreshStatusForPath(newPath)
+            .then (_) -> gitView.updateStatusPromise
 
         runs ->
           expect(gitView.gitStatusIcon).toHaveClass('icon-diff-added')
@@ -384,36 +379,45 @@ describe "Built-in Status Bar Tiles", ->
       it "displays the ignored icon for an ignored file", ->
         waitsForPromise ->
           atom.workspace.open(ignoredPath)
+            .then (_) -> gitView.updateStatusPromise
 
         runs ->
           expect(gitView.gitStatusIcon).toHaveClass('icon-diff-ignored')
 
       it "updates when a status-changed event occurs", ->
-        fs.writeFileSync(filePath, "i've changed for the worse")
-        atom.project.getRepositories()[0].getPathStatus(filePath)
-
         waitsForPromise ->
           atom.workspace.open(filePath)
-
+            .then (_) ->
+              fs.writeFileSync(filePath, "i've changed for the worse")
+              repo.refreshStatusForPath(filePath)
+            .then (_) -> gitView.updateStatusPromise
         runs ->
           expect(gitView.gitStatusIcon).toHaveClass('icon-diff-modified')
-          fs.writeFileSync(filePath, originalPathText)
-          atom.project.getRepositories()[0].getPathStatus(filePath)
-          expect(gitView.gitStatusIcon).not.toHaveClass('icon-diff-modified')
+
+          gitView.msgs = []
+
+          waitsForPromise ->
+            fs.writeFileSync(filePath, originalPathText)
+            repo.refreshStatusForPath(filePath)
+              .then (_) -> gitView.updateStatusPromise
+          runs ->
+            expect(gitView.gitStatusIcon).not.toHaveClass('icon-diff-modified')
 
       it "displays the diff stat for modified files", ->
-        fs.writeFileSync(filePath, "i've changed for the worse")
-        atom.project.getRepositories()[0].getPathStatus(filePath)
-
         waitsForPromise ->
           atom.workspace.open(filePath)
-
+            .then (_) ->
+              fs.writeFileSync(filePath, "i've changed for the worse")
+              repo.refreshStatusForPath(filePath)
+            .then (_) -> gitView.updateStatusPromise
         runs ->
           expect(gitView.gitStatusIcon).toHaveText('+1')
 
       it "displays the diff stat for new files", ->
         waitsForPromise ->
           atom.workspace.open(newPath)
+            .then (_) -> repo.refreshStatusForPath(newPath)
+            .then (_) -> gitView.updateStatusPromise
 
         runs ->
           expect(gitView.gitStatusIcon).toHaveText('+1')
@@ -421,6 +425,7 @@ describe "Built-in Status Bar Tiles", ->
       it "does not display for files not in the current project", ->
         waitsForPromise ->
           atom.workspace.open('/tmp/atom-specs/not-in-project.txt')
+            .then (_) -> gitView.updateStatusPromise
 
         runs ->
           expect(gitView.gitStatusIcon).toBeHidden()
