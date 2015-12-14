@@ -341,7 +341,7 @@ describe "Built-in Status Bar Tiles", ->
         repo = atom.project.getRepositories()[0].async
         originalPathText = fs.readFileSync(filePath, 'utf8')
 
-        waitsFor -> !repo._isRefreshing()
+        waitsFor -> not repo._isRefreshing()
 
       afterEach ->
         fs.writeFileSync(filePath, originalPathText)
