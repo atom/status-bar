@@ -301,7 +301,7 @@ describe "Built-in Status Bar Tiles", ->
         atom.project.setPaths([atom.project.getDirectories()[0].resolve('git/master.git')])
 
         waitsForPromise ->
-          atom.workspace.open('HEAD')
+          atom.workspace.open('HEAD').then (_) -> gitView.updateStatusPromise
 
         runs ->
           currentBranch = atom.project.getRepositories()[0].getShortHead()
@@ -393,8 +393,6 @@ describe "Built-in Status Bar Tiles", ->
             .then (_) -> gitView.updateStatusPromise
         runs ->
           expect(gitView.gitStatusIcon).toHaveClass('icon-diff-modified')
-
-          gitView.msgs = []
 
           waitsForPromise ->
             fs.writeFileSync(filePath, originalPathText)
