@@ -176,6 +176,7 @@ class GitView extends HTMLElement
 
   updateStatusText: (repo) ->
     itemPath = @getActiveItemPath()
+    return unless itemPath
 
     @updateStatusPromise = @updateStatusPromise
       .then (_) -> repo?.getCachedPathStatus(itemPath)
