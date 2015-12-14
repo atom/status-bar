@@ -193,6 +193,7 @@ class GitView extends HTMLElement
           if ignored
             @updateAsIgnoredFile()
           else
+            @clearStatus()
             @gitStatus.style.display = 'none'
             Promise.resolve()
 
