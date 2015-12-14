@@ -99,9 +99,10 @@ class GitView extends HTMLElement
 
   updateBranchText: (repo) ->
     if @showBranchInformation()
-      repo?.getShortHead(@getActiveItemPath()).then (head) =>
-        @branchLabel.textContent = head
-        @branchArea.style.display = '' if head
+      repo?.getShortHead(@getActiveItemPath())
+        .then (head) =>
+          @branchLabel.textContent = head
+          @branchArea.style.display = '' if head
     else
       @branchArea.style.display = 'none'
 
@@ -189,9 +190,9 @@ class GitView extends HTMLElement
 
         return repo?.isPathIgnored(itemPath).then (ignored) =>
           if ignored
-            return @updateAsIgnoredFile()
+            @updateAsIgnoredFile()
           else
             @gitStatus.style.display = 'none'
-            return Promise.resolve()
+            Promise.resolve()
 
 module.exports = document.registerElement('status-bar-git', prototype: GitView.prototype, extends: 'div')
