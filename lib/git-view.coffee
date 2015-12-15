@@ -179,7 +179,7 @@ class GitView extends HTMLElement
     return unless itemPath
 
     @updateStatusPromise = @updateStatusPromise
-      .then (_) -> repo?.getCachedPathStatus(itemPath)
+      .then -> repo?.getCachedPathStatus(itemPath)
       .then (status = 0) =>
         if repo?.isStatusNew(status)
           return @updateAsNewFile()
