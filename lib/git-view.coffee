@@ -187,7 +187,7 @@ class GitView extends HTMLElement
         if repo?.isStatusModified(status)
           return @updateAsModifiedFile(repo, itemPath)
 
-        return repo?.isPathIgnored(itemPath).then (ignored) =>
+        repo?.isPathIgnored(itemPath).then (ignored) =>
           if ignored
             @updateAsIgnoredFile()
           else
