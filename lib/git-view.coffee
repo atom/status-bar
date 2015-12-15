@@ -180,9 +180,7 @@ class GitView extends HTMLElement
 
     @updateStatusPromise = @updateStatusPromise
       .then (_) -> repo?.getCachedPathStatus(itemPath)
-      .then (status) =>
-        status = status or 0
-
+      .then (status = 0) =>
         if repo?.isStatusNew(status)
           return @updateAsNewFile()
 
