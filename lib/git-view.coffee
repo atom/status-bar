@@ -104,7 +104,8 @@ class GitView extends HTMLElement
           @branchLabel.textContent = head
           @branchArea.style.display = '' if head
         .catch (e) ->
-          console.log('Error getting short head: ' + e)
+          console.error('Error getting short head:')
+          console.error(e)
     else
       @branchArea.style.display = 'none'
 
@@ -170,7 +171,8 @@ class GitView extends HTMLElement
 
         @gitStatus.style.display = ''
       .catch (e) ->
-        console.log('Error getting diff stats for ' + path + ': ' + e)
+        console.error('Error getting diff stats for ' + path + ':')
+        console.error(e)
 
   updateAsIgnoredFile: ->
     @clearStatus()
@@ -202,6 +204,7 @@ class GitView extends HTMLElement
             @gitStatus.style.display = 'none'
             Promise.resolve()
       .catch (e) ->
-        console.log('Error getting status for ' + itemPath + ': ' + e)
+        console.error('Error getting status for ' + itemPath + ':')
+        console.error(e)
 
 module.exports = document.registerElement('status-bar-git', prototype: GitView.prototype, extends: 'div')
