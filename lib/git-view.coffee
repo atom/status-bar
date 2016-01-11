@@ -103,6 +103,8 @@ class GitView extends HTMLElement
         .then (head) =>
           @branchLabel.textContent = head
           @branchArea.style.display = '' if head
+        .catch (e) ->
+          console.log('Error getting short head: ' + e)
     else
       @branchArea.style.display = 'none'
 
@@ -152,19 +154,23 @@ class GitView extends HTMLElement
     Promise.resolve()
 
   updateAsModifiedFile: (repo, path) ->
-    repo.getDiffStats(path).then (stats) =>
-      @clearStatus()
+    repo.getDiffStats(path)
+      .then (stats) =>
+        @clearStatus()
 
-      @gitStatusIcon.classList.add('icon-diff-modified', 'status-modified')
-      if stats.added and stats.deleted
-        @gitStatusIcon.textContent = "+#{stats.added}, -#{stats.deleted}"
-      else if stats.added
-        @gitStatusIcon.textContent = "+#{stats.added}"
-      else if stats.deleted
-        @gitStatusIcon.textContent = "-#{stats.deleted}"
-      else
-        @gitStatusIcon.textContent = ''
-      @gitStatus.style.display = ''
+        @gitStatusIcon.classList.add('icon-diff-modified', 'status-modified')
+        if stats.added and stats.deleted
+          @gitStatusIcon.textContent = "+#{stats.added}, -#{stats.deleted}"
+        else if stats.added
+          @gitStatusIcon.textContent = "+#{stats.added}"
+        else if stats.deleted
+          @gitStatusIcon.textContent = "-#{stats.deleted}"
+        else
+          @gitStatusIcon.textContent = ''
+
+        @gitStatus.style.display = ''
+      .catch (e) ->
+        console.log('Error getting diff stats for ' + path + ': ' + e)
 
   updateAsIgnoredFile: ->
     @clearStatus()
@@ -195,5 +201,7 @@ class GitView extends HTMLElement
             @clearStatus()
             @gitStatus.style.display = 'none'
             Promise.resolve()
+      .catch (e) ->
+        console.log('Error getting status for ' + itemPath + ': ' + e)
 
 module.exports = document.registerElement('status-bar-git', prototype: GitView.prototype, extends: 'div')
