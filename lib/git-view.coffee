@@ -146,6 +146,7 @@ class GitView extends HTMLElement
       @gitStatusIcon.textContent = "+#{textEditor.getLineCount()}"
     else
       @gitStatusIcon.textContent = ''
+
     @gitStatus.style.display = ''
 
     Promise.resolve()
