@@ -9,35 +9,43 @@ class FileInfoView extends HTMLElement
     @currentPath.classList.add('current-path')
     @appendChild(@currentPath)
 
-    @handleCopiedTooltip()
-
     @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
       @subscribeToActiveItem()
     @subscribeToActiveItem()
 
-    clickHandler = =>
-      text = @getActiveItemCopyText()
+    clickHandler = (event) =>
+      altClick = if process.platform == 'darwin' then event.metaKey else event.ctrlKey
+      @showCopiedTooltip(altClick)
+      text = @getActiveItemCopyText(altClick)
       atom.clipboard.write(text)
       setTimeout =>
-        @handleCopiedTooltip()
+        @clearCopiedTooltip()
       , 2000
 
     @currentPath.addEventListener('click', clickHandler)
     @clickSubscription = new Disposable => @removeEventListener('click', clickHandler)
 
-  handleCopiedTooltip: ->
+  clearCopiedTooltip: ->
     @copiedTooltip?.dispose()
-    text = @getActiveItemCopyText()
+
+  showCopiedTooltip: (altClick) ->
+    @copiedTooltip?.dispose()
+    text = @getActiveItemCopyText(altClick)
     @copiedTooltip = atom.tooltips.add this,
       title: "Copied: #{text}"
       trigger: 'click'
       delay:
         show: 0
 
-  getActiveItemCopyText: ->
+  getActiveItemCopyText: (altClick) ->
     activeItem = @getActiveItem()
     # An item path could be a url, but we only want to copy the `path` part of it.
-    url.parse(activeItem?.getPath?() or '').path or activeItem?.getTitle?() or ''
+    path = url.parse(activeItem?.getPath?() or '').path or activeItem?.getTitle?() or ''
+
+    if altClick
+      atom.project.relativize(path)
+    else
+      path
 
   subscribeToActiveItem: ->
     @modifiedSubscription?.dispose()
@@ -70,7 +78,6 @@ class FileInfoView extends HTMLElement
 
   update: ->
     @updatePathText()
-    @handleCopiedTooltip()
     @updateBufferHasModifiedText(@getActiveItem()?.isModified?())
 
   updateBufferHasModifiedText: (isModified) ->
