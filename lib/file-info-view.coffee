@@ -14,7 +14,7 @@ class FileInfoView extends HTMLElement
     @subscribeToActiveItem()
 
     clickHandler = (event) =>
-      altClick = if process.platform == 'darwin' then event.metaKey else event.ctrlKey
+      altClick = if process.platform is 'darwin' then event.metaKey else event.ctrlKey
       @showCopiedTooltip(altClick)
       text = @getActiveItemCopyText(altClick)
       atom.clipboard.write(text)
