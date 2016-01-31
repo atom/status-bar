@@ -289,6 +289,15 @@ describe "Built-in Status Bar Tiles", ->
   describe "the git tile", ->
     gitView = null
 
+    hover = (element, fn) ->
+      element.dispatchEvent(new CustomEvent('mouseenter', bubbles: false))
+      element.dispatchEvent(new CustomEvent('mouseover', bubbles: true))
+      advanceClock(atom.tooltips.defaults.delay.show)
+      fn()
+      element.dispatchEvent(new CustomEvent('mouseleave', bubbles: false))
+      element.dispatchEvent(new CustomEvent('mouseout', bubbles: true))
+      advanceClock(atom.tooltips.defaults.delay.show)
+
     beforeEach ->
       [gitView] = statusBar.getRightTiles().map (tile) -> tile.getItem()
 
@@ -314,6 +323,18 @@ describe "Built-in Status Bar Tiles", ->
 
         atom.workspace.getActivePane().activateItem(dummyView)
         expect(gitView.branchArea).not.toBeVisible()
+
+      it "displays the current branch tooltip", ->
+        atom.project.setPaths([atom.project.getDirectories()[0].resolve('git/master.git')])
+
+        waitsForPromise ->
+          atom.workspace.open('HEAD')
+
+        runs ->
+          currentBranch = atom.project.getRepositories()[0].getShortHead()
+          hover gitView.branchArea, ->
+            expect(document.body.querySelector(".tooltip").innerText)
+              .toBe("On branch #{currentBranch}")
 
       it "doesn't display the current branch for a file not in a repository", ->
         atom.project.setPaths([os.tmpdir()])
@@ -367,6 +388,30 @@ describe "Built-in Status Bar Tiles", ->
         runs ->
           expect(gitView.gitStatusIcon).toHaveClass('icon-diff-modified')
 
+      it "displays the 1 line added and not committed tooltip", ->
+        fs.writeFileSync(filePath, "i've changed for the worse")
+        atom.project.getRepositories()[0].getPathStatus(filePath)
+
+        waitsForPromise ->
+          atom.workspace.open(filePath)
+
+        runs ->
+          hover gitView.gitStatusIcon, ->
+            expect(document.body.querySelector(".tooltip").innerText)
+              .toBe("1 line added to this file not yet committed")
+
+      it "displays the x lines added and not committed tooltip", ->
+        fs.writeFileSync(filePath, "i've changed#{os.EOL}for the worse")
+        atom.project.getRepositories()[0].getPathStatus(filePath)
+
+        waitsForPromise ->
+          atom.workspace.open(filePath)
+
+        runs ->
+          hover gitView.gitStatusIcon, ->
+            expect(document.body.querySelector(".tooltip").innerText)
+              .toBe("2 lines added to this file not yet committed")
+
       it "doesn't display the modified icon for an unchanged file", ->
         waitsForPromise ->
           atom.workspace.open(filePath)
@@ -380,6 +425,29 @@ describe "Built-in Status Bar Tiles", ->
 
         runs ->
           expect(gitView.gitStatusIcon).toHaveClass('icon-diff-added')
+          hover gitView.gitStatusIcon, ->
+            expect(document.body.querySelector(".tooltip").innerText)
+              .toBe("1 line in this new file not yet committed")
+
+      it "displays the 1 line added and not committed to new file tooltip", ->
+        waitsForPromise ->
+          atom.workspace.open(newPath)
+
+        runs ->
+          hover gitView.gitStatusIcon, ->
+            expect(document.body.querySelector(".tooltip").innerText)
+              .toBe("1 line in this new file not yet committed")
+
+      it "displays the x lines added and not committed to new file tooltip", ->
+        fs.writeFileSync(newPath, "I'm new#{os.EOL}here")
+
+        waitsForPromise ->
+          atom.workspace.open(newPath)
+
+        runs ->
+          hover gitView.gitStatusIcon, ->
+            expect(document.body.querySelector(".tooltip").innerText)
+              .toBe("2 lines in this new file not yet committed")
 
       it "displays the ignored icon for an ignored file", ->
         waitsForPromise ->
@@ -387,6 +455,9 @@ describe "Built-in Status Bar Tiles", ->
 
         runs ->
           expect(gitView.gitStatusIcon).toHaveClass('icon-diff-ignored')
+          hover gitView.gitStatusIcon, ->
+            expect(document.body.querySelector(".tooltip").innerText)
+              .toBe("File is ignored by git")
 
       it "updates when a status-changed event occurs", ->
         fs.writeFileSync(filePath, "i've changed for the worse")
