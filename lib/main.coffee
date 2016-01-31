@@ -21,53 +21,6 @@ module.exports =
     @statusBar.initialize()
     @statusBarPanel = atom.workspace.addBottomPanel(item: @statusBar, priority: 0)
 
-    if Grim.includeDeprecatedAPIs
-      {$} = require 'atom-space-pen-views'
-      # Wrap status bar element in a jQuery wrapper for backwards compatibility
-      wrappedStatusBar = $.extend $(@statusBar),
-        appendLeft: (view) =>
-          Grim.deprecate("Use ::addLeftTile({item, priority}) instead.")
-          @statusBar.appendLeft(view)
-
-        appendRight: (view) =>
-          Grim.deprecate("Use ::addRightTile({item, priority}) instead.")
-          @statusBar.appendRight(view)
-
-        prependLeft: (view) =>
-          Grim.deprecate("Use ::addLeftTile({item, priority}) instead.")
-          @statusBar.prependLeft(view)
-
-        prependRight: (view) =>
-          Grim.deprecate("Use ::addRightTile({item, priority}) instead.")
-          @statusBar.prependRight(view)
-
-        getActiveBuffer: =>
-          Grim.deprecate("Use atom.workspace.getActiveTextEditor() instead.")
-          @statusBar.getActiveBuffer()
-
-        getActiveItem: =>
-          Grim.deprecate("Use atom.workspace.getActivePaneItem() instead.")
-          @statusBar.getActiveItem()
-
-        subscribeToBuffer: (event, callback) =>
-          Grim.deprecate("Subscribe to TextEditor events instead.")
-          @statusBar.subscribeToBuffer(event, callback)
-
-      if atom.__workspaceView?
-        Object.defineProperty atom.__workspaceView, 'statusBar',
-          get: ->
-            Grim.deprecate """
-              The atom.workspaceView.statusBar global is deprecated. The global was
-              previously being assigned by the status-bar package, but Atom packages
-              should never assign globals.
-
-              In the future, this problem will be solved by an inter-package communication
-              API available on `atom.services`. For now, you can get a reference to the
-              `status-bar` element via `document.querySelector('status-bar')`.
-            """
-            wrappedStatusBar
-          configurable: true
-
     atom.commands.add 'atom-workspace', 'status-bar:toggle', =>
       if @statusBarPanel.isVisible()
         @statusBarPanel.hide()
