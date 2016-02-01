@@ -1,3 +1,4 @@
+_ = require "underscore-plus"
 {CompositeDisposable} = require "atom"
 
 class GitView extends HTMLElement
@@ -73,6 +74,10 @@ class GitView extends HTMLElement
     @projectPathSubscription?.dispose()
     @savedSubscription?.dispose()
     @repositorySubscriptions?.dispose()
+    @branchTooltipDisposable?.dispose()
+    @commitsAheadTooltipDisposable?.dispose()
+    @commitsBehindTooltipDisposable?.dispose()
+    @statusTooltipDisposable?.dispose()
 
   getActiveItemPath: ->
     @getActiveItem()?.getPath?()
@@ -101,6 +106,8 @@ class GitView extends HTMLElement
       head = repo?.getShortHead(@getActiveItemPath()) or ''
       @branchLabel.textContent = head
       @branchArea.style.display = '' if head
+      @branchTooltipDisposable?.dispose()
+      @branchTooltipDisposable = atom.tooltips.add @branchArea, title: "On branch #{head}"
 
   showBranchInformation: ->
     if itemPath = @getActiveItemPath()
@@ -117,12 +124,16 @@ class GitView extends HTMLElement
       if ahead > 0
         @commitsAhead.textContent = ahead
         @commitsAhead.style.display = ''
+        @commitsAheadTooltipDisposable?.dispose()
+        @commitsAheadTooltipDisposable = atom.tooltips.add @commitsAhead, title: "#{_.pluralize(ahead, 'commit')} ahead of upstream"
       else
         @commitsAhead.style.display = 'none'
 
       if behind > 0
         @commitsBehind.textContent = behind
         @commitsBehind.style.display = ''
+        @commitsBehindTooltipDisposable?.dispose()
+        @commitsBehindTooltipDisposable = atom.tooltips.add @commitsBehind, title: "#{_.pluralize(behind, 'commit')} behind upstream"
       else
         @commitsBehind.style.display = 'none'
 
@@ -137,15 +148,20 @@ class GitView extends HTMLElement
     status = repo?.getCachedPathStatus(itemPath) ? 0
     @gitStatusIcon.classList.remove('icon-diff-modified', 'status-modified', 'icon-diff-added', 'status-added', 'icon-diff-ignored', 'status-ignored')
 
+    tooltipText = null
+
     if repo?.isStatusModified(status)
       @gitStatusIcon.classList.add('icon-diff-modified', 'status-modified')
       stats = repo.getDiffStats(itemPath)
       if stats.added and stats.deleted
         @gitStatusIcon.textContent = "+#{stats.added}, -#{stats.deleted}"
+        tooltipText = "#{_.pluralize(stats.added, 'line')} added and #{_.pluralize(stats.deleted, 'line')} deleted in this file not yet committed"
       else if stats.added
         @gitStatusIcon.textContent = "+#{stats.added}"
+        tooltipText = "#{_.pluralize(stats.added, 'line')} added to this file not yet committed"
       else if stats.deleted
         @gitStatusIcon.textContent = "-#{stats.deleted}"
+        tooltipText = "#{_.pluralize(stats.deleted, 'line')} added from this file not yet committed"
       else
         @gitStatusIcon.textContent = ''
       @gitStatus.style.display = ''
@@ -153,14 +169,20 @@ class GitView extends HTMLElement
       @gitStatusIcon.classList.add('icon-diff-added', 'status-added')
       if textEditor = atom.workspace.getActiveTextEditor()
         @gitStatusIcon.textContent = "+#{textEditor.getLineCount()}"
+        tooltipText = "#{_.pluralize(textEditor.getLineCount(), 'line')} in this new file not yet committed"
       else
         @gitStatusIcon.textContent = ''
       @gitStatus.style.display = ''
     else if repo?.isPathIgnored(itemPath)
       @gitStatusIcon.classList.add('icon-diff-ignored',  'status-ignored')
+      tooltipText = "File is ignored by git"
       @gitStatusIcon.textContent = ''
       @gitStatus.style.display = ''
     else
       @gitStatus.style.display = 'none'
+
+    @statusTooltipDisposable?.dispose()
+    if tooltipText
+      @statusTooltipDisposable = atom.tooltips.add @gitStatusIcon, title: tooltipText
 
 module.exports = document.registerElement('status-bar-git', prototype: GitView.prototype, extends: 'div')
