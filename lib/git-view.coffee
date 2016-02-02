@@ -161,7 +161,7 @@ class GitView extends HTMLElement
         tooltipText = "#{_.pluralize(stats.added, 'line')} added to this file not yet committed"
       else if stats.deleted
         @gitStatusIcon.textContent = "-#{stats.deleted}"
-        tooltipText = "#{_.pluralize(stats.deleted, 'line')} added from this file not yet committed"
+        tooltipText = "#{_.pluralize(stats.deleted, 'line')} deleted from this file not yet committed"
       else
         @gitStatusIcon.textContent = ''
       @gitStatus.style.display = ''
