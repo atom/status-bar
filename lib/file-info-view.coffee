@@ -14,9 +14,9 @@ class FileInfoView extends HTMLElement
     @subscribeToActiveItem()
 
     clickHandler = (event) =>
-      altClick = if process.platform is 'darwin' then event.metaKey else event.ctrlKey
-      @showCopiedTooltip(altClick)
-      text = @getActiveItemCopyText(altClick)
+      isShiftClick = event.shiftKey
+      @showCopiedTooltip(isShiftClick)
+      text = @getActiveItemCopyText(isShiftClick)
       atom.clipboard.write(text)
       setTimeout =>
         @clearCopiedTooltip()
@@ -28,21 +28,21 @@ class FileInfoView extends HTMLElement
   clearCopiedTooltip: ->
     @copiedTooltip?.dispose()
 
-  showCopiedTooltip: (altClick) ->
+  showCopiedTooltip: (isShiftClick) ->
     @copiedTooltip?.dispose()
-    text = @getActiveItemCopyText(altClick)
+    text = @getActiveItemCopyText(isShiftClick)
     @copiedTooltip = atom.tooltips.add this,
       title: "Copied: #{text}"
       trigger: 'click'
       delay:
         show: 0
 
-  getActiveItemCopyText: (altClick) ->
+  getActiveItemCopyText: (isShiftClick) ->
     activeItem = @getActiveItem()
     # An item path could be a url, but we only want to copy the `path` part of it.
     path = url.parse(activeItem?.getPath?() or '').path or activeItem?.getTitle?() or ''
 
-    if altClick
+    if isShiftClick
       atom.project.relativize(path)
     else
       path

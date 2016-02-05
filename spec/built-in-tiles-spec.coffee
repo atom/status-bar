@@ -72,13 +72,13 @@ describe "Built-in Status Bar Tiles", ->
           fileInfo.currentPath.click()
           expect(atom.clipboard.read()).toBe fileInfo.getActiveItem().getPath()
 
-    describe "when buffer's path is ctrl/meta clicked", ->
+    describe "when buffer's path is shift-clicked", ->
       it "copies the relative path into the clipboard if available", ->
         waitsForPromise ->
           atom.workspace.open('sample.txt')
 
         runs ->
-          event = new MouseEvent('click', metaKey: true, ctrlKey: true)
+          event = new MouseEvent('click', shiftKey: true)
           fileInfo.currentPath.dispatchEvent(event)
           expect(atom.clipboard.read()).toBe 'sample.txt'
 
