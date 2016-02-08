@@ -28,21 +28,21 @@ class FileInfoView extends HTMLElement
   clearCopiedTooltip: ->
     @copiedTooltip?.dispose()
 
-  showCopiedTooltip: (isShiftClick) ->
+  showCopiedTooltip: (copyRelativePath) ->
     @copiedTooltip?.dispose()
-    text = @getActiveItemCopyText(isShiftClick)
+    text = @getActiveItemCopyText(copyRelativePath)
     @copiedTooltip = atom.tooltips.add this,
       title: "Copied: #{text}"
       trigger: 'click'
       delay:
         show: 0
 
-  getActiveItemCopyText: (isShiftClick) ->
+  getActiveItemCopyText: (copyRelativePath) ->
     activeItem = @getActiveItem()
     # An item path could be a url, but we only want to copy the `path` part of it.
     path = url.parse(activeItem?.getPath?() or '').path or activeItem?.getTitle?() or ''
 
-    if isShiftClick
+    if copyRelativePath
       atom.project.relativize(path)
     else
       path
