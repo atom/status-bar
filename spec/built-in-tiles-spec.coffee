@@ -320,7 +320,7 @@ describe "Built-in Status Bar Tiles", ->
         atom.project.setPaths([atom.project.getDirectories()[0].resolve('git/master.git')])
 
         waitsForPromise ->
-          atom.workspace.open('HEAD').then -> gitView.updateStatusPromise
+          atom.workspace.open('HEAD').then -> gitView.updateBranchPromise
 
         runs ->
           currentBranch = atom.project.getRepositories()[0].getShortHead()
@@ -339,7 +339,7 @@ describe "Built-in Status Bar Tiles", ->
 
         waitsForPromise ->
           atom.workspace.open('HEAD')
-            .then -> gitView.updateStatusPromise
+            .then -> gitView.updateBranchPromise
 
         runs ->
           currentBranch = atom.project.getRepositories()[0].getShortHead()

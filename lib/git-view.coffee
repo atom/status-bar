@@ -10,6 +10,7 @@ class GitView extends HTMLElement
     @createStatusArea()
 
     @updateStatusPromise = Promise.resolve()
+    @updateBranchPromise = Promise.resolve()
 
     @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
       @subscribeToActiveItem()
@@ -104,15 +105,16 @@ class GitView extends HTMLElement
 
   updateBranchText: (repo) ->
     if @showBranchInformation() and repo?
-      repo?.getShortHead(@getActiveItemPath())
-        .then (head) =>
-          @branchLabel.textContent = head
-          @branchArea.style.display = '' if head
-          @branchTooltipDisposable?.dispose()
-          @branchTooltipDisposable = atom.tooltips.add @branchArea, title: "On branch #{head}"
-        .catch (e) ->
-          console.error('Error getting short head:')
-          console.error(e)
+      @updateBranchPromise = @updateBranchPromise.then =>
+        repo?.getShortHead(@getActiveItemPath())
+          .then (head) =>
+            @branchLabel.textContent = head
+            @branchArea.style.display = '' if head
+            @branchTooltipDisposable?.dispose()
+            @branchTooltipDisposable = atom.tooltips.add @branchArea, title: "On branch #{head}"
+          .catch (e) ->
+            console.error('Error getting short head:')
+            console.error(e)
     else
       @branchArea.style.display = 'none'
 
