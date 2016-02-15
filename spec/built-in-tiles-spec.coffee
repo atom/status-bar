@@ -296,7 +296,7 @@ describe "Built-in Status Bar Tiles", ->
         expect(selectionCount.textContent).toBe 'Selection: baz 60 quux 2'
 
 
-  fdescribe "the git tile", ->
+  describe "the git tile", ->
     gitView = null
 
     hover = (element, fn) ->
