@@ -312,15 +312,20 @@ describe "Built-in Status Bar Tiles", ->
       [gitView] = statusBar.getRightTiles().map (tile) -> tile.getItem()
 
     describe "the git branch label", ->
+      projectPath = null
       beforeEach ->
-        fs.removeSync(path.join(os.tmpdir(), '.git'))
+        projectPath = atom.project.getDirectories()[0].resolve('git/working-dir')
+        fs.moveSync(path.join(projectPath, 'git.git'), path.join(projectPath, '.git'))
         jasmine.attachToDOM(workspaceElement)
 
+      afterEach ->
+        fs.moveSync(path.join(projectPath, '.git'), path.join(projectPath, 'git.git'))
+
       it "displays the current branch for files in repositories", ->
-        atom.project.setPaths([atom.project.getDirectories()[0].resolve('git/master.git')])
+        atom.project.setPaths([projectPath])
 
         waitsForPromise ->
-          atom.workspace.open('HEAD').then -> gitView.updateBranchPromise
+          atom.workspace.open('a.txt').then -> gitView.updateBranchPromise
 
         runs ->
           currentBranch = atom.project.getRepositories()[0].getShortHead()
@@ -335,10 +340,10 @@ describe "Built-in Status Bar Tiles", ->
         expect(gitView.branchArea).not.toBeVisible()
 
       it "displays the current branch tooltip", ->
-        atom.project.setPaths([atom.project.getDirectories()[0].resolve('git/master.git')])
+        atom.project.setPaths([projectPath])
 
         waitsForPromise ->
-          atom.workspace.open('HEAD')
+          atom.workspace.open('a.txt')
             .then -> gitView.updateBranchPromise
 
         runs ->
