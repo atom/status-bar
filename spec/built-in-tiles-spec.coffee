@@ -346,7 +346,7 @@ describe "Built-in Status Bar Tiles", ->
             expect(document.body.querySelector(".tooltip").innerText)
               .toBe("On branch #{currentBranch}")
 
-      xit "doesn't display the current branch for a file not in a repository", ->
+      it "doesn't display the current branch for a file not in a repository", ->
         atom.project.setPaths([os.tmpdir()])
 
         waitsForPromise ->
