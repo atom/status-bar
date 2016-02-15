@@ -339,6 +339,7 @@ describe "Built-in Status Bar Tiles", ->
 
         waitsForPromise ->
           atom.workspace.open('HEAD')
+            .then -> gitView.updateStatusPromise
 
         runs ->
           currentBranch = atom.project.getRepositories()[0].getShortHead()
@@ -427,6 +428,8 @@ describe "Built-in Status Bar Tiles", ->
       it "doesn't display the modified icon for an unchanged file", ->
         waitsForPromise ->
           atom.workspace.open(filePath)
+            .then -> repo.refreshStatusForPath(filePath)
+            .then -> gitView.updateStatusPromise
 
         runs ->
           expect(gitView.gitStatusIcon).toHaveText('')
