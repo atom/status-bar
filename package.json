@@ -1,6 +1,6 @@
 {
   "name": "status-bar",
-  "version": "0.80.0",
+  "version": "0.83.1",
   "main": "./lib/main",
   "description": "Display information about the current editor such as cursor position, file path, grammar, current branch, ahead/behind commits counts, and line diff count.",
   "repository": "https://github.com/atom/status-bar",
@@ -20,6 +20,18 @@
         "1.0.0": "provideStatusBar",
         "0.58.0": "legacyProvideStatusBar"
       }
+    }
+  },
+  "configSchema": {
+    "cursorPositionFormat": {
+      "type": "string",
+      "default": "%L:%C",
+      "description": "Format for the cursor position status bar element, where %L is the line number and %C is the column number"
+    },
+    "selectionCountFormat": {
+      "type": "string",
+      "default": "(%L, %C)",
+      "description": "Format for the selection count status bar element, where %L is the line count and %C is the character count"
     }
   },
   "devDependencies": {

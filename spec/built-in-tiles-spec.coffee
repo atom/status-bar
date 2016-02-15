@@ -72,6 +72,16 @@ describe "Built-in Status Bar Tiles", ->
           fileInfo.currentPath.click()
           expect(atom.clipboard.read()).toBe fileInfo.getActiveItem().getPath()
 
+    describe "when buffer's path is shift-clicked", ->
+      it "copies the relative path into the clipboard if available", ->
+        waitsForPromise ->
+          atom.workspace.open('sample.txt')
+
+        runs ->
+          event = new MouseEvent('click', shiftKey: true)
+          fileInfo.currentPath.dispatchEvent(event)
+          expect(atom.clipboard.read()).toBe 'sample.txt'
+
     describe "when path of an unsaved buffer is clicked", ->
       it "copies the 'untitled' into clipboard", ->
         waitsForPromise ->
@@ -286,8 +296,17 @@ describe "Built-in Status Bar Tiles", ->
         expect(selectionCount.textContent).toBe 'Selection: baz 60 quux 2'
 
 
-  describe "the git tile", ->
+  fdescribe "the git tile", ->
     gitView = null
+
+    hover = (element, fn) ->
+      element.dispatchEvent(new CustomEvent('mouseenter', bubbles: false))
+      element.dispatchEvent(new CustomEvent('mouseover', bubbles: true))
+      advanceClock(atom.tooltips.defaults.delay.show)
+      fn()
+      element.dispatchEvent(new CustomEvent('mouseleave', bubbles: false))
+      element.dispatchEvent(new CustomEvent('mouseout', bubbles: true))
+      advanceClock(atom.tooltips.defaults.delay.show)
 
     beforeEach ->
       [gitView] = statusBar.getRightTiles().map (tile) -> tile.getItem()
@@ -315,6 +334,27 @@ describe "Built-in Status Bar Tiles", ->
         atom.workspace.getActivePane().activateItem(dummyView)
         expect(gitView.branchArea).not.toBeVisible()
 
+      it "displays the current branch tooltip", ->
+        atom.project.setPaths([atom.project.getDirectories()[0].resolve('git/master.git')])
+
+        waitsForPromise ->
+          atom.workspace.open('HEAD')
+
+        runs ->
+          currentBranch = atom.project.getRepositories()[0].getShortHead()
+          hover gitView.branchArea, ->
+            expect(document.body.querySelector(".tooltip").innerText)
+              .toBe("On branch #{currentBranch}")
+
+      xit "doesn't display the current branch for a file not in a repository", ->
+        atom.project.setPaths([os.tmpdir()])
+
+        waitsForPromise ->
+          atom.workspace.open(path.join(os.tmpdir(), 'temp.txt'))
+
+        runs ->
+          expect(gitView.branchArea).toBeHidden()
+
       it "doesn't display the current branch for a file outside the current project", ->
         waitsForPromise ->
           atom.workspace.open(path.join(os.tmpdir(), 'atom-specs', 'not-in-project.txt'))
@@ -341,7 +381,7 @@ describe "Built-in Status Bar Tiles", ->
         repo = atom.project.getRepositories()[0].async
         originalPathText = fs.readFileSync(filePath, 'utf8')
 
-        waitsFor -> not repo._isRefreshing()
+        waitsForPromise -> repo._refreshingPromise
 
       afterEach ->
         fs.writeFileSync(filePath, originalPathText)
@@ -360,6 +400,30 @@ describe "Built-in Status Bar Tiles", ->
         runs ->
           expect(gitView.gitStatusIcon).toHaveClass('icon-diff-modified')
 
+      it "displays the 1 line added and not committed tooltip", ->
+        fs.writeFileSync(filePath, "i've changed for the worse")
+        waitsForPromise ->
+          atom.workspace.open(filePath)
+            .then -> repo.refreshStatusForPath(filePath)
+            .then -> gitView.updateStatusPromise
+
+        runs ->
+          hover gitView.gitStatusIcon, ->
+            expect(document.body.querySelector(".tooltip").innerText)
+              .toBe("1 line added to this file not yet committed")
+
+      it "displays the x lines added and not committed tooltip", ->
+        fs.writeFileSync(filePath, "i've changed#{os.EOL}for the worse")
+        waitsForPromise ->
+          atom.workspace.open(filePath)
+            .then -> repo.refreshStatusForPath(filePath)
+            .then -> gitView.updateStatusPromise
+
+        runs ->
+          hover gitView.gitStatusIcon, ->
+            expect(document.body.querySelector(".tooltip").innerText)
+              .toBe("2 lines added to this file not yet committed")
+
       it "doesn't display the modified icon for an unchanged file", ->
         waitsForPromise ->
           atom.workspace.open(filePath)
@@ -375,6 +439,33 @@ describe "Built-in Status Bar Tiles", ->
 
         runs ->
           expect(gitView.gitStatusIcon).toHaveClass('icon-diff-added')
+          hover gitView.gitStatusIcon, ->
+            expect(document.body.querySelector(".tooltip").innerText)
+              .toBe("1 line in this new file not yet committed")
+
+      it "displays the 1 line added and not committed to new file tooltip", ->
+        waitsForPromise ->
+          atom.workspace.open(newPath)
+            .then -> repo.refreshStatusForPath(newPath)
+            .then -> gitView.updateStatusPromise
+
+        runs ->
+          hover gitView.gitStatusIcon, ->
+            expect(document.body.querySelector(".tooltip").innerText)
+              .toBe("1 line in this new file not yet committed")
+
+      it "displays the x lines added and not committed to new file tooltip", ->
+        fs.writeFileSync(newPath, "I'm new#{os.EOL}here")
+
+        waitsForPromise ->
+          atom.workspace.open(newPath)
+            .then -> repo.refreshStatusForPath(newPath)
+            .then -> gitView.updateStatusPromise
+
+        runs ->
+          hover gitView.gitStatusIcon, ->
+            expect(document.body.querySelector(".tooltip").innerText)
+              .toBe("2 lines in this new file not yet committed")
 
       it "displays the ignored icon for an ignored file", ->
         waitsForPromise ->
@@ -383,6 +474,9 @@ describe "Built-in Status Bar Tiles", ->
 
         runs ->
           expect(gitView.gitStatusIcon).toHaveClass('icon-diff-ignored')
+          hover gitView.gitStatusIcon, ->
+            expect(document.body.querySelector(".tooltip").innerText)
+              .toBe("File is ignored by git")
 
       it "updates when a status-changed event occurs", ->
         waitsForPromise ->
