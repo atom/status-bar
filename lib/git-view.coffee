@@ -9,6 +9,9 @@ class GitView extends HTMLElement
     @createCommitsArea()
     @createStatusArea()
 
+    @updateStatusPromise = Promise.resolve()
+    @updateBranchPromise = Promise.resolve()
+
     @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
       @subscribeToActiveItem()
     @projectPathSubscription = atom.project.onDidChangePaths =>
@@ -64,9 +67,9 @@ class GitView extends HTMLElement
     @repositorySubscriptions = new CompositeDisposable
 
     for repo in atom.project.getRepositories() when repo?
-      @repositorySubscriptions.add repo.onDidChangeStatus ({path, status}) =>
+      @repositorySubscriptions.add repo.async.onDidChangeStatus ({path, status}) =>
         @update() if path is @getActiveItemPath()
-      @repositorySubscriptions.add repo.onDidChangeStatuses =>
+      @repositorySubscriptions.add repo.async.onDidChangeStatuses =>
         @update()
 
   destroy: ->
@@ -86,10 +89,10 @@ class GitView extends HTMLElement
     [rootDir] = atom.project.relativizePath(@getActiveItemPath())
     rootDirIndex = atom.project.getPaths().indexOf(rootDir)
     if rootDirIndex >= 0
-      atom.project.getRepositories()[rootDirIndex]
+      atom.project.getRepositories()[rootDirIndex]?.async
     else
       for repo in atom.project.getRepositories() when repo
-        return repo
+        return repo.async
 
   getActiveItem: ->
     atom.workspace.getActivePaneItem()
@@ -101,15 +104,23 @@ class GitView extends HTMLElement
     @updateStatusText(repo)
 
   updateBranchText: (repo) ->
-    @branchArea.style.display = 'none'
-    if @showBranchInformation()
-      head = repo?.getShortHead(@getActiveItemPath()) or ''
-      @branchLabel.textContent = head
-      @branchArea.style.display = '' if head
-      @branchTooltipDisposable?.dispose()
-      @branchTooltipDisposable = atom.tooltips.add @branchArea, title: "On branch #{head}"
+    if @showBranchInformation(repo)
+      @updateBranchPromise = @updateBranchPromise.then =>
+        repo?.getShortHead(@getActiveItemPath())
+          .then (head) =>
+            @branchLabel.textContent = head
+            @branchArea.style.display = '' if head
+            @branchTooltipDisposable?.dispose()
+            @branchTooltipDisposable = atom.tooltips.add @branchArea, title: "On branch #{head}"
+          .catch (e) ->
+            console.error('Error getting short head:')
+            console.error(e)
+    else
+      @branchArea.style.display = 'none'
 
-  showBranchInformation: ->
+  showBranchInformation: (repo) ->
+    return false unless repo?
+
     if itemPath = @getActiveItemPath()
       atom.project.contains(itemPath)
     else
@@ -118,7 +129,7 @@ class GitView extends HTMLElement
   updateAheadBehindCount: (repo) ->
     itemPath = @getActiveItemPath()
 
-    if repo? and @showBranchInformation()
+    if @showBranchInformation(repo)
       {ahead, behind} = repo.getCachedUpstreamAheadBehindCount(itemPath) ? {}
 
       if ahead > 0
@@ -142,47 +153,85 @@ class GitView extends HTMLElement
     else
       @commitsArea.style.display = 'none'
 
-  updateStatusText: (repo) ->
-    itemPath = @getActiveItemPath()
-
-    status = repo?.getCachedPathStatus(itemPath) ? 0
+  clearStatus: ->
     @gitStatusIcon.classList.remove('icon-diff-modified', 'status-modified', 'icon-diff-added', 'status-added', 'icon-diff-ignored', 'status-ignored')
 
-    tooltipText = null
+  updateAsNewFile: ->
+    @clearStatus()
 
-    if repo?.isStatusModified(status)
-      @gitStatusIcon.classList.add('icon-diff-modified', 'status-modified')
-      stats = repo.getDiffStats(itemPath)
-      if stats.added and stats.deleted
-        @gitStatusIcon.textContent = "+#{stats.added}, -#{stats.deleted}"
-        tooltipText = "#{_.pluralize(stats.added, 'line')} added and #{_.pluralize(stats.deleted, 'line')} deleted in this file not yet committed"
-      else if stats.added
-        @gitStatusIcon.textContent = "+#{stats.added}"
-        tooltipText = "#{_.pluralize(stats.added, 'line')} added to this file not yet committed"
-      else if stats.deleted
-        @gitStatusIcon.textContent = "-#{stats.deleted}"
-        tooltipText = "#{_.pluralize(stats.deleted, 'line')} deleted from this file not yet committed"
-      else
-        @gitStatusIcon.textContent = ''
-      @gitStatus.style.display = ''
-    else if repo?.isStatusNew(status)
-      @gitStatusIcon.classList.add('icon-diff-added', 'status-added')
-      if textEditor = atom.workspace.getActiveTextEditor()
-        @gitStatusIcon.textContent = "+#{textEditor.getLineCount()}"
-        tooltipText = "#{_.pluralize(textEditor.getLineCount(), 'line')} in this new file not yet committed"
-      else
-        @gitStatusIcon.textContent = ''
-      @gitStatus.style.display = ''
-    else if repo?.isPathIgnored(itemPath)
-      @gitStatusIcon.classList.add('icon-diff-ignored',  'status-ignored')
-      tooltipText = "File is ignored by git"
-      @gitStatusIcon.textContent = ''
-      @gitStatus.style.display = ''
+    @gitStatusIcon.classList.add('icon-diff-added', 'status-added')
+    if textEditor = atom.workspace.getActiveTextEditor()
+      @gitStatusIcon.textContent = "+#{textEditor.getLineCount()}"
+      @updateTooltipText("#{_.pluralize(textEditor.getLineCount(), 'line')} in this new file not yet committed")
     else
-      @gitStatus.style.display = 'none'
+      @gitStatusIcon.textContent = ''
+      @updateTooltipText()
 
+    @gitStatus.style.display = ''
+
+    Promise.resolve()
+
+  updateAsModifiedFile: (repo, path) ->
+    repo.getDiffStats(path)
+      .then (stats) =>
+        @clearStatus()
+
+        @gitStatusIcon.classList.add('icon-diff-modified', 'status-modified')
+        if stats.added and stats.deleted
+          @gitStatusIcon.textContent = "+#{stats.added}, -#{stats.deleted}"
+          @updateTooltipText("#{_.pluralize(stats.added, 'line')} added and #{_.pluralize(stats.deleted, 'line')} deleted in this file not yet committed")
+        else if stats.added
+          @gitStatusIcon.textContent = "+#{stats.added}"
+          @updateTooltipText("#{_.pluralize(stats.added, 'line')} added to this file not yet committed")
+        else if stats.deleted
+          @gitStatusIcon.textContent = "-#{stats.deleted}"
+          @updateTooltipText("#{_.pluralize(stats.deleted, 'line')} deleted from this file not yet committed")
+        else
+          @gitStatusIcon.textContent = ''
+          @updateTooltipText()
+
+        @gitStatus.style.display = ''
+      .catch (e) ->
+        console.error('Error getting diff stats for ' + path + ':')
+        console.error(e)
+
+  updateAsIgnoredFile: ->
+    @clearStatus()
+
+    @gitStatusIcon.classList.add('icon-diff-ignored',  'status-ignored')
+    @gitStatusIcon.textContent = ''
+    @gitStatus.style.display = ''
+    @updateTooltipText("File is ignored by git")
+
+    Promise.resolve()
+
+  updateTooltipText: (text) ->
     @statusTooltipDisposable?.dispose()
-    if tooltipText
-      @statusTooltipDisposable = atom.tooltips.add @gitStatusIcon, title: tooltipText
+    if text
+      @statusTooltipDisposable = atom.tooltips.add @gitStatusIcon, title: text
+
+  updateStatusText: (repo) ->
+    itemPath = @getActiveItemPath()
+    return unless itemPath
+
+    @updateStatusPromise = @updateStatusPromise
+      .then -> repo?.getCachedPathStatus(itemPath)
+      .then (status = 0) =>
+        if repo?.isStatusNew(status)
+          return @updateAsNewFile()
+
+        if repo?.isStatusModified(status)
+          return @updateAsModifiedFile(repo, itemPath)
+
+        repo?.isPathIgnored(itemPath).then (ignored) =>
+          if ignored
+            @updateAsIgnoredFile()
+          else
+            @clearStatus()
+            @gitStatus.style.display = 'none'
+            Promise.resolve()
+      .catch (e) ->
+        console.error('Error getting status for ' + itemPath + ':')
+        console.error(e)
 
 module.exports = document.registerElement('status-bar-git', prototype: GitView.prototype, extends: 'div')
