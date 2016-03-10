@@ -211,27 +211,31 @@ class GitView extends HTMLElement
       @statusTooltipDisposable = atom.tooltips.add @gitStatusIcon, title: text
 
   updateStatusText: (repo) ->
-    itemPath = @getActiveItemPath()
-    return unless itemPath
+    hideStatus = =>
+      @clearStatus()
+      @gitStatus.style.display = 'none'
 
-    @updateStatusPromise = @updateStatusPromise
-      .then -> repo?.getCachedPathStatus(itemPath)
-      .then (status = 0) =>
-        if repo?.isStatusNew(status)
-          return @updateAsNewFile()
+    if @showGitInformation(repo)
+      itemPath = @getActiveItemPath()
+      @updateStatusPromise = @updateStatusPromise
+        .then -> repo?.getCachedPathStatus(itemPath)
+        .then (status = 0) =>
+          if repo?.isStatusNew(status)
+            return @updateAsNewFile()
 
-        if repo?.isStatusModified(status)
-          return @updateAsModifiedFile(repo, itemPath)
+          if repo?.isStatusModified(status)
+            return @updateAsModifiedFile(repo, itemPath)
 
-        repo?.isPathIgnored(itemPath).then (ignored) =>
-          if ignored
-            @updateAsIgnoredFile()
-          else
-            @clearStatus()
-            @gitStatus.style.display = 'none'
-            Promise.resolve()
-      .catch (e) ->
-        console.error('Error getting status for ' + itemPath + ':')
-        console.error(e)
+          repo?.isPathIgnored(itemPath).then (ignored) =>
+            if ignored
+              @updateAsIgnoredFile()
+            else
+              hideStatus()
+              Promise.resolve()
+        .catch (e) ->
+          console.error('Error getting status for ' + itemPath + ':')
+          console.error(e)
+    else
+      hideStatus()
 
 module.exports = document.registerElement('status-bar-git', prototype: GitView.prototype, extends: 'div')
