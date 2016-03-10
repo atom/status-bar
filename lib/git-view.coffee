@@ -104,7 +104,7 @@ class GitView extends HTMLElement
     @updateStatusText(repo)
 
   updateBranchText: (repo) ->
-    if @showBranchInformation(repo)
+    if @showGitInformation(repo)
       @updateBranchPromise = @updateBranchPromise.then =>
         repo?.getShortHead(@getActiveItemPath())
           .then (head) =>
@@ -118,7 +118,7 @@ class GitView extends HTMLElement
     else
       @branchArea.style.display = 'none'
 
-  showBranchInformation: (repo) ->
+  showGitInformation: (repo) ->
     return false unless repo?
 
     if itemPath = @getActiveItemPath()
@@ -129,7 +129,7 @@ class GitView extends HTMLElement
   updateAheadBehindCount: (repo) ->
     itemPath = @getActiveItemPath()
 
-    if @showBranchInformation(repo)
+    if @showGitInformation(repo)
       {ahead, behind} = repo.getCachedUpstreamAheadBehindCount(itemPath) ? {}
 
       if ahead > 0
