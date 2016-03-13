@@ -11,11 +11,17 @@ module.exports =
     @statusBar.initialize()
     @statusBarPanel = atom.workspace.addBottomPanel(item: @statusBar, priority: 0)
 
+    @updateStatusBarVisibility()
+
+    @statusBarVisibilitySubscription =
+      atom.config.observe 'status-bar.isVisible', =>
+        @updateStatusBarVisibility()
+
     atom.commands.add 'atom-workspace', 'status-bar:toggle', =>
       if @statusBarPanel.isVisible()
-        @statusBarPanel.hide()
+        atom.config.set 'status-bar.isVisible', false
       else
-        @statusBarPanel.show()
+        atom.config.set 'status-bar.isVisible', true
 
     {safeMode, devMode} = atom.getLoadSettings()
     if safeMode or devMode
@@ -41,6 +47,9 @@ module.exports =
     @statusBar.addRightTile(item: @git, priority: 0)
 
   deactivate: ->
+    @statusBarVisibilitySubscription?.dispose()
+    @statusBarVisibilitySubscription = null
+    
     @git?.destroy()
     @git = null
 
@@ -60,6 +69,12 @@ module.exports =
     @statusBar = null
 
     delete atom.__workspaceView.statusBar if atom.__workspaceView?
+
+  updateStatusBarVisibility: ->
+    if atom.config.get 'status-bar.isVisible'
+      @statusBarPanel.show()
+    else
+      @statusBarPanel.hide()
 
   provideStatusBar: ->
     addLeftTile: @statusBar.addLeftTile.bind(@statusBar)
