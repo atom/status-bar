@@ -20,15 +20,41 @@ describe "Status Bar package", ->
       atom.packages.deactivatePackage("status-bar")
       expect(workspaceElement.querySelector('status-bar')).toBeNull()
 
+  describe "isVisible option", ->
+    beforeEach ->
+      jasmine.attachToDOM(workspaceElement)
+
+    describe "when it is true", ->
+      beforeEach ->
+        atom.config.set 'status-bar.isVisible', true
+
+      it "shows status bar", ->
+        expect(workspaceElement.querySelector('status-bar').parentNode).toBeVisible()
+
+    describe "when it is false", ->
+      beforeEach ->
+        atom.config.set 'status-bar.isVisible', false
+
+      it "hides status bar", ->
+        expect(workspaceElement.querySelector('status-bar').parentNode).not.toBeVisible()
+
   describe "when status-bar:toggle is triggered", ->
     beforeEach ->
       jasmine.attachToDOM(workspaceElement)
+      atom.config.set 'status-bar.isVisible', true
 
     it "hides or shows the status bar", ->
       atom.commands.dispatch(workspaceElement, 'status-bar:toggle')
       expect(workspaceElement.querySelector('status-bar').parentNode).not.toBeVisible()
       atom.commands.dispatch(workspaceElement, 'status-bar:toggle')
       expect(workspaceElement.querySelector('status-bar').parentNode).toBeVisible()
+
+    it "toggles the value of isVisible in config file", ->
+      expect(atom.config.get 'status-bar.isVisible').toBe true
+      atom.commands.dispatch(workspaceElement, 'status-bar:toggle')
+      expect(atom.config.get 'status-bar.isVisible').toBe false
+      atom.commands.dispatch(workspaceElement, 'status-bar:toggle')
+      expect(atom.config.get 'status-bar.isVisible').toBe true
 
   describe "the 'status-bar' service", ->
     it "allows tiles to be added, removed, and retrieved", ->
