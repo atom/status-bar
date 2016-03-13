@@ -23,6 +23,11 @@
     }
   },
   "configSchema": {
+    "isVisible": {
+      "type": "boolean",
+      "default": true,
+      "description": "Show status bar at the bottom of the workspace"
+    },
     "cursorPositionFormat": {
       "type": "string",
       "default": "%L:%C",
