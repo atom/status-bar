@@ -215,8 +215,8 @@ class GitView extends HTMLElement
       @clearStatus()
       @gitStatus.style.display = 'none'
 
-    if @showGitInformation(repo)
-      itemPath = @getActiveItemPath()
+    itemPath = @getActiveItemPath()
+    if @showGitInformation(repo) and itemPath?
       @updateStatusPromise = @updateStatusPromise
         .then -> repo?.getCachedPathStatus(itemPath)
         .then (status = 0) =>
