@@ -9,7 +9,7 @@ module.exports =
   activate: ->
     @statusBar = new StatusBarView()
     @statusBar.initialize()
-    @statusBarPanel = atom.workspace.addBottomPanel(item: @statusBar, priority: 0)
+    @statusBarPanel = atom.workspace.addFooterPanel(item: @statusBar, priority: 0)
 
     atom.commands.add 'atom-workspace', 'status-bar:toggle', =>
       if @statusBarPanel.isVisible()
