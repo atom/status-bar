@@ -49,13 +49,14 @@ class CursorPositionView extends HTMLElement
     atom.workspace.getActiveTextEditor()
 
   updatePosition: ->
-    if position = @getActiveTextEditor()?.getCursorBufferPosition()
-      @row = position.row + 1
-      @column = position.column + 1
-      @goToLineLink.textContent = @formatString.replace('%L', @row).replace('%C', @column)
-      @classList.remove('hide')
-    else
-      @goToLineLink.textContent = ''
-      @classList.add('hide')
+    atom.views.updateDocument () =>
+      if position = @getActiveTextEditor()?.getCursorBufferPosition()
+        @row = position.row + 1
+        @column = position.column + 1
+        @goToLineLink.textContent = @formatString.replace('%L', @row).replace('%C', @column)
+        @classList.remove('hide')
+      else
+        @goToLineLink.textContent = ''
+        @classList.add('hide')
 
 module.exports = document.registerElement('status-bar-cursor', prototype: CursorPositionView.prototype, extends: 'div')
