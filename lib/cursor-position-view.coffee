@@ -54,7 +54,7 @@ class CursorPositionView extends HTMLElement
     return if @viewUpdatePending
 
     @viewUpdatePending = true
-    atom.views.updateDocument () =>
+    atom.views.updateDocument =>
       @viewUpdatePending = false
       if position = @getActiveTextEditor()?.getCursorBufferPosition()
         @row = position.row + 1
