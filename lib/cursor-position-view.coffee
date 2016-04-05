@@ -2,6 +2,8 @@
 
 class CursorPositionView extends HTMLElement
   initialize: ->
+    @viewUpdatePending = false
+
     @classList.add('cursor-position', 'inline-block')
     @goToLineLink = document.createElement('a')
     @goToLineLink.classList.add('inline-block')
@@ -49,7 +51,11 @@ class CursorPositionView extends HTMLElement
     atom.workspace.getActiveTextEditor()
 
   updatePosition: ->
+    return if @viewUpdatePending
+
+    @viewUpdatePending = true
     atom.views.updateDocument () =>
+      @viewUpdatePending = false
       if position = @getActiveTextEditor()?.getCursorBufferPosition()
         @row = position.row + 1
         @column = position.column + 1
