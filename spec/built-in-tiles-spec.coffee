@@ -36,6 +36,7 @@ describe "Built-in Status Bar Tiles", ->
           atom.workspace.open()
 
         runs ->
+          atom.views.performDocumentUpdate()
           expect(fileInfo.currentPath.textContent).toBe 'untitled'
           expect(cursorPosition.textContent).toBe '1:1'
           expect(selectionCount).toBeHidden()
@@ -205,6 +206,7 @@ describe "Built-in Status Bar Tiles", ->
       it "updates the cursor position in the status bar", ->
         jasmine.attachToDOM(workspaceElement)
         editor.setCursorScreenPosition([1, 2])
+        atom.views.performDocumentUpdate()
         expect(cursorPosition.textContent).toBe '2:3'
 
     describe "when the associated editor's selection changes", ->
@@ -261,14 +263,17 @@ describe "Built-in Status Bar Tiles", ->
       it 'respects a format string', ->
         jasmine.attachToDOM(workspaceElement)
         editor.setCursorScreenPosition([1, 2])
+        atom.views.performDocumentUpdate()
         expect(cursorPosition.textContent).toBe 'foo 2 bar 3'
 
       it 'updates when the configuration changes', ->
         jasmine.attachToDOM(workspaceElement)
         editor.setCursorScreenPosition([1, 2])
+        atom.views.performDocumentUpdate()
         expect(cursorPosition.textContent).toBe 'foo 2 bar 3'
 
         atom.config.set('status-bar.cursorPositionFormat', 'baz %C quux %L')
+        atom.views.performDocumentUpdate()
         expect(cursorPosition.textContent).toBe 'baz 3 quux 2'
 
       describe "when clicked", ->
