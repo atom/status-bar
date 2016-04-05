@@ -214,16 +214,22 @@ describe "Built-in Status Bar Tiles", ->
         jasmine.attachToDOM(workspaceElement)
 
         editor.setSelectedBufferRange([[0, 0], [0, 0]])
+        atom.views.performDocumentUpdate()
         expect(selectionCount.textContent).toBe ''
+
         editor.setSelectedBufferRange([[0, 0], [0, 2]])
+        atom.views.performDocumentUpdate()
         expect(selectionCount.textContent).toBe '(1, 2)'
+
         editor.setSelectedBufferRange([[0, 0], [1, 30]])
+        atom.views.performDocumentUpdate()
         expect(selectionCount.textContent).toBe '(2, 60)'
 
     describe "when the active pane item does not implement getCursorBufferPosition()", ->
       it "hides the cursor position view", ->
         jasmine.attachToDOM(workspaceElement)
         atom.workspace.getActivePane().activateItem(dummyView)
+        atom.views.performDocumentUpdate()
         expect(cursorPosition).toBeHidden()
 
     describe "when the active pane item implements getTitle() but not getPath()", ->
