@@ -1,5 +1,5 @@
 _ = require "underscore-plus"
-{CompositeDisposable} = require "atom"
+{CompositeDisposable, GitRepositoryAsync} = require "atom"
 
 class GitView extends HTMLElement
   initialize: ->
@@ -112,6 +112,14 @@ class GitView extends HTMLElement
             @branchArea.style.display = '' if head
             @branchTooltipDisposable?.dispose()
             @branchTooltipDisposable = atom.tooltips.add @branchArea, title: "On branch #{head}"
+          .catch (e) ->
+            # Since the update branch calls are effectively queued using the
+            # `updateBranchPromise`, we could end up trying to refresh after the
+            # repo's been destroyed.
+            if e.name is GitRepositoryAsync.DestroyedErrorName
+              return null
+            else
+              return Promise.reject(e)
           .catch (e) ->
             console.error('Error getting short head:')
             console.error(e)
@@ -232,6 +240,14 @@ class GitView extends HTMLElement
             else
               hideStatus()
               Promise.resolve()
+        .catch (e) ->
+          # Since the update status calls are effectively queued using the
+          # `updateStatusPromise`, we could end up trying to refresh after the
+          # repo's been destroyed.
+          if e.name is GitRepositoryAsync.DestroyedErrorName
+            return null
+          else
+            return Promise.reject(e)
         .catch (e) ->
           console.error('Error getting status for ' + itemPath + ':')
           console.error(e)
