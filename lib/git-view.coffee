@@ -124,7 +124,8 @@ class GitView extends HTMLElement
             console.error('Error getting short head:')
             console.error(e)
     else
-      @branchArea.style.display = 'none'
+      @updateBranchPromise = @updateBranchPromise.then =>
+        @branchArea.style.display = 'none'
 
   showGitInformation: (repo) ->
     return false unless repo?
