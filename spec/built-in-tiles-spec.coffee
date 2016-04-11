@@ -336,7 +336,8 @@ describe "Built-in Status Bar Tiles", ->
         atom.project.setPaths([projectPath])
 
         waitsForPromise ->
-          atom.workspace.open('a.txt').then -> gitView.updateBranchPromise
+          atom.workspace.open('a.txt')
+            .then -> gitView.updateBranchPromise
 
         runs ->
           currentBranch = atom.project.getRepositories()[0].getShortHead()
@@ -347,8 +348,10 @@ describe "Built-in Status Bar Tiles", ->
           expect(gitView.branchArea).toBeVisible()
           expect(gitView.branchLabel.textContent).toBe currentBranch
 
-        atom.workspace.getActivePane().activateItem(dummyView)
-        expect(gitView.branchArea).not.toBeVisible()
+          atom.workspace.getActivePane().activateItem(dummyView)
+
+        waitsForPromise -> gitView.updateBranchPromise
+        runs -> expect(gitView.branchArea).not.toBeVisible()
 
       it "displays the current branch tooltip", ->
         atom.project.setPaths([projectPath])
@@ -368,6 +371,7 @@ describe "Built-in Status Bar Tiles", ->
 
         waitsForPromise ->
           atom.workspace.open(path.join(os.tmpdir(), 'temp.txt'))
+            .then -> gitView.updateBranchPromise
 
         runs ->
           expect(gitView.branchArea).toBeHidden()
@@ -375,6 +379,7 @@ describe "Built-in Status Bar Tiles", ->
       it "doesn't display the current branch for a file outside the current project", ->
         waitsForPromise ->
           atom.workspace.open(path.join(os.tmpdir(), 'atom-specs', 'not-in-project.txt'))
+            .then -> gitView.updateBranchPromise
 
         runs ->
           expect(gitView.branchArea).toBeHidden()
