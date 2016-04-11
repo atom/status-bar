@@ -104,8 +104,8 @@ class GitView extends HTMLElement
     @updateStatusText(repo)
 
   updateBranchText: (repo) ->
-    if @showGitInformation(repo)
-      @updateBranchPromise = @updateBranchPromise.then =>
+    @updateBranchPromise = @updateBranchPromise.then =>
+      if @showGitInformation(repo)
         repo?.getShortHead(@getActiveItemPath())
           .then (head) =>
             @branchLabel.textContent = head
@@ -123,8 +123,8 @@ class GitView extends HTMLElement
           .catch (e) ->
             console.error('Error getting short head:')
             console.error(e)
-    else
-      @branchArea.style.display = 'none'
+      else
+        @branchArea.style.display = 'none'
 
   showGitInformation: (repo) ->
     return false unless repo?
@@ -224,34 +224,34 @@ class GitView extends HTMLElement
       @gitStatus.style.display = 'none'
 
     itemPath = @getActiveItemPath()
-    if @showGitInformation(repo) and itemPath?
-      @updateStatusPromise = @updateStatusPromise
-        .then -> repo?.getCachedPathStatus(itemPath)
-        .then (status = 0) =>
-          if repo?.isStatusNew(status)
-            return @updateAsNewFile()
+    @updateStatusPromise = @updateStatusPromise.then =>
+      if @showGitInformation(repo) and itemPath?
+        repo?.getCachedPathStatus(itemPath)
+          .then (status = 0) =>
+            if repo?.isStatusNew(status)
+              return @updateAsNewFile()
 
-          if repo?.isStatusModified(status)
-            return @updateAsModifiedFile(repo, itemPath)
+            if repo?.isStatusModified(status)
+              return @updateAsModifiedFile(repo, itemPath)
 
-          repo?.isPathIgnored(itemPath).then (ignored) =>
-            if ignored
-              @updateAsIgnoredFile()
+            repo?.isPathIgnored(itemPath).then (ignored) =>
+              if ignored
+                @updateAsIgnoredFile()
+              else
+                hideStatus()
+                Promise.resolve()
+          .catch (e) ->
+            # Since the update status calls are effectively queued using the
+            # `updateStatusPromise`, we could end up trying to refresh after the
+            # repo's been destroyed.
+            if e.name is GitRepositoryAsync.DestroyedErrorName
+              return null
             else
-              hideStatus()
-              Promise.resolve()
-        .catch (e) ->
-          # Since the update status calls are effectively queued using the
-          # `updateStatusPromise`, we could end up trying to refresh after the
-          # repo's been destroyed.
-          if e.name is GitRepositoryAsync.DestroyedErrorName
-            return null
-          else
-            return Promise.reject(e)
-        .catch (e) ->
-          console.error('Error getting status for ' + itemPath + ':')
-          console.error(e)
-    else
-      hideStatus()
+              return Promise.reject(e)
+          .catch (e) ->
+            console.error('Error getting status for ' + itemPath + ':')
+            console.error(e)
+      else
+        hideStatus()
 
 module.exports = document.registerElement('status-bar-git', prototype: GitView.prototype, extends: 'div')
