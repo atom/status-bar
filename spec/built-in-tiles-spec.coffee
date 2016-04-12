@@ -73,6 +73,14 @@ describe "Built-in Status Bar Tiles", ->
           fileInfo.currentPath.click()
           expect(atom.clipboard.read()).toBe fileInfo.getActiveItem().getPath()
 
+      it "does not leave out the path after hash", ->
+        waitsForPromise ->
+          atom.workspace.open('file_with_#_in_name.txt')
+
+        runs ->
+          fileInfo.currentPath.click()
+          expect(atom.clipboard.read()).toBe fileInfo.getActiveItem().getPath()
+
     describe "when buffer's path is shift-clicked", ->
       it "copies the relative path into the clipboard if available", ->
         waitsForPromise ->
