@@ -199,9 +199,6 @@ class GitView extends HTMLElement
           @updateTooltipText()
 
         @gitStatus.style.display = ''
-      .catch (e) ->
-        console.error('Error getting diff stats for ' + path + ':')
-        console.error(e)
 
   updateAsIgnoredFile: ->
     @clearStatus()
