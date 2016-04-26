@@ -481,10 +481,10 @@ describe "Built-in Status Bar Tiles", ->
               .toBe("1 line in this new file not yet committed")
 
       it "displays the x lines added and not committed to new file tooltip", ->
+        fs.writeFileSync(newPath, "I'm new#{os.EOL}here")
         waitsForPromise ->
           atom.workspace.open(newPath)
             .then ->
-              fs.writeFileSync(newPath, "I'm new#{os.EOL}here")
               repo.refreshStatusForPath(newPath)
             .then -> gitView.updateStatusPromise
 
