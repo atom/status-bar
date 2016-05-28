@@ -115,7 +115,7 @@ describe "Built-in Status Bar Tiles", ->
           expect(document.querySelector('.tooltip')).not.toExist()
 
     describe "when saved buffer's path is clicked", ->
-      it "displays a tooltip containing text 'Copied:' and an absolute path", ->
+      it "displays a tooltip containing text 'Copied:' and an absolute native path", ->
         jasmine.attachToDOM(workspaceElement)
         waitsForPromise ->
           atom.workspace.open('sample.txt')
@@ -123,6 +123,24 @@ describe "Built-in Status Bar Tiles", ->
         runs ->
           fileInfo.currentPath.click()
           expect(document.querySelector('.tooltip')).toHaveText "Copied: #{fileInfo.getActiveItem().getPath()}"
+
+      it "displays a tooltip containing text 'Copied:' for an absolute Unix path", ->
+        jasmine.attachToDOM(workspaceElement)
+        dummyView.getPath = -> '/user/path/for/my/file.txt'
+        atom.workspace.getActivePane().activateItem(dummyView)
+
+        runs ->
+          fileInfo.currentPath.click()
+          expect(document.querySelector('.tooltip')).toHaveText "Copied: #{dummyView.getPath()}"
+
+      it "displays a tooltip containing text 'Copied:' for an absolute Windows path", ->
+        jasmine.attachToDOM(workspaceElement)
+        dummyView.getPath = -> 'c:\\user\\path\\for\\my\\file.txt'
+        atom.workspace.getActivePane().activateItem(dummyView)
+
+        runs ->
+          fileInfo.currentPath.click()
+          expect(document.querySelector('.tooltip')).toHaveText "Copied: #{dummyView.getPath()}"
 
     describe "when unsaved buffer's path is clicked", ->
       it "displays a tooltip containing text 'Copied: untitled", ->
