@@ -347,10 +347,18 @@ describe "Built-in Status Bar Tiles", ->
       beforeEach ->
         jasmine.attachToDOM(workspaceElement)
 
+      afterEach ->
+        fs.removeSync(atom.project.getDirectories()[0].resolve('.git'))
+
       it "shows the number of commits that can be pushed/pulled", ->
-        projectPath = atom.project.getDirectories()[0].resolve('git/ahead-behind-repo')
+        fs.copySync(
+          atom.project.getDirectories()[0].resolve('git/ahead-behind-repo.git'),
+          atom.project.getDirectories()[0].resolve('git/working-dir/.git')
+        )
+
+        projectPath = atom.project.getDirectories()[0].resolve('git/working-dir')
         atom.project.setPaths([projectPath])
-        filePath = atom.project.getDirectories()[0].resolve('ahead')
+        filePath = atom.project.getDirectories()[0].resolve('a.txt')
         repo = atom.project.getRepositories()[0].async
 
         waitsForPromise ->
@@ -366,9 +374,14 @@ describe "Built-in Status Bar Tiles", ->
           expect(aheadElement.textContent).toContain '1'
 
       it "stays hidden when no commits can be pushed/pulled", ->
-        projectPath = atom.project.getDirectories()[0].resolve('git/no-ahead-behind-repo')
+        fs.copySync(
+          atom.project.getDirectories()[0].resolve('git/no-ahead-behind-repo.git'),
+          atom.project.getDirectories()[0].resolve('git/working-dir/.git')
+        )
+
+        projectPath = atom.project.getDirectories()[0].resolve('git/working-dir')
         atom.project.setPaths([projectPath])
-        filePath = atom.project.getDirectories()[0].resolve('foo')
+        filePath = atom.project.getDirectories()[0].resolve('a.txt')
         repo = atom.project.getRepositories()[0].async
 
         waitsForPromise ->
