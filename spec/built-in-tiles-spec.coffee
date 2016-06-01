@@ -343,6 +343,58 @@ describe "Built-in Status Bar Tiles", ->
     beforeEach ->
       [gitView] = statusBar.getRightTiles().map (tile) -> tile.getItem()
 
+    describe "the git ahead/behind count labels", ->
+      beforeEach ->
+        jasmine.attachToDOM(workspaceElement)
+
+      afterEach ->
+        fs.removeSync(atom.project.getDirectories()[0].resolve('.git'))
+
+      it "shows the number of commits that can be pushed/pulled", ->
+        fs.copySync(
+          atom.project.getDirectories()[0].resolve('git/ahead-behind-repo.git'),
+          atom.project.getDirectories()[0].resolve('git/working-dir/.git')
+        )
+
+        projectPath = atom.project.getDirectories()[0].resolve('git/working-dir')
+        atom.project.setPaths([projectPath])
+        filePath = atom.project.getDirectories()[0].resolve('a.txt')
+        repo = atom.project.getRepositories()[0].async
+
+        waitsForPromise ->
+          atom.workspace.open(filePath)
+            .then -> repo.refreshStatus()
+            .then -> gitView.updateStatusPromise
+
+        runs ->
+          behindElement = document.body.querySelector(".commits-behind-label")
+          aheadElement = document.body.querySelector(".commits-ahead-label")
+          expect(aheadElement).toBeVisible()
+          expect(behindElement).toBeVisible()
+          expect(aheadElement.textContent).toContain '1'
+
+      it "stays hidden when no commits can be pushed/pulled", ->
+        fs.copySync(
+          atom.project.getDirectories()[0].resolve('git/no-ahead-behind-repo.git'),
+          atom.project.getDirectories()[0].resolve('git/working-dir/.git')
+        )
+
+        projectPath = atom.project.getDirectories()[0].resolve('git/working-dir')
+        atom.project.setPaths([projectPath])
+        filePath = atom.project.getDirectories()[0].resolve('a.txt')
+        repo = atom.project.getRepositories()[0].async
+
+        waitsForPromise ->
+          atom.workspace.open(filePath)
+            .then -> repo.refreshStatus()
+            .then -> gitView.updateStatusPromise
+
+        runs ->
+          behindElement = document.body.querySelector(".commits-behind-label")
+          aheadElement = document.body.querySelector(".commits-ahead-label")
+          expect(aheadElement).not.toBeVisible()
+          expect(behindElement).not.toBeVisible()
+
     describe "the git branch label", ->
       projectPath = null
       beforeEach ->
