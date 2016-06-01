@@ -39,8 +39,12 @@ class FileInfoView extends HTMLElement
 
   getActiveItemCopyText: (copyRelativePath) ->
     activeItem = @getActiveItem()
-    # An item path could be a url, but we only want to copy the `path` part of it.
-    path = url.parse(activeItem?.getPath?() or '').path or activeItem?.getTitle?() or ''
+    path = activeItem?.getPath?()
+    # An item path could be a url, we only want to copy the `path` part
+    if path?.indexOf('://') > 0
+      path = url.parse(path).path
+
+    return activeItem?.getTitle?() or '' if not path?
 
     if copyRelativePath
       atom.project.relativize(path)
