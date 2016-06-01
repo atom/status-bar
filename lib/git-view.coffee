@@ -135,11 +135,12 @@ class GitView extends HTMLElement
       not @getActiveItem()?
 
   updateAheadBehindCount: (repo) ->
+    unless @showGitInformation(repo)
+      @commitsArea.style.display = 'none'
+      return
+
     itemPath = @getActiveItemPath()
-
-    if @showGitInformation(repo)
-      {ahead, behind} = repo.getCachedUpstreamAheadBehindCount(itemPath) ? {}
-
+    repo.getCachedUpstreamAheadBehindCount(itemPath).then ({ahead, behind}) =>
       if ahead > 0
         @commitsAhead.textContent = ahead
         @commitsAhead.style.display = ''
@@ -156,10 +157,10 @@ class GitView extends HTMLElement
       else
         @commitsBehind.style.display = 'none'
 
-    if ahead > 0 or behind > 0
-      @commitsArea.style.display = ''
-    else
-      @commitsArea.style.display = 'none'
+      if ahead > 0 or behind > 0
+        @commitsArea.style.display = ''
+      else
+        @commitsArea.style.display = 'none'
 
   clearStatus: ->
     @gitStatusIcon.classList.remove('icon-diff-modified', 'status-modified', 'icon-diff-added', 'status-added', 'icon-diff-ignored', 'status-ignored')
