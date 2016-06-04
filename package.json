@@ -32,6 +32,11 @@
       "type": "string",
       "default": "(%L, %C)",
       "description": "Format for the selection count status bar element, where %L is the line count and %C is the character count"
+    },
+    "zeroIndexedColumns": {
+      "type": "boolean",
+      "default": false,
+      "description": "Horizontal cursor position starts at 0 if checked, 1 otherwise"
     }
   },
   "devDependencies": {

@@ -11,6 +11,7 @@ class CursorPositionView extends HTMLElement
     @appendChild(@goToLineLink)
 
     @formatString = atom.config.get('status-bar.cursorPositionFormat') ? '%L:%C'
+    @columnIndex = if atom.config.get("status-bar.zeroIndexedColumns") then 0 else 1
     @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem (activeItem) =>
       @subscribeToActiveTextEditor()
 
@@ -42,6 +43,9 @@ class CursorPositionView extends HTMLElement
     @configSubscription = atom.config.observe 'status-bar.cursorPositionFormat', (value) =>
       @formatString = value ? '%L:%C'
       @updatePosition()
+    @configSubscription = atom.config.observe 'status-bar.zeroIndexedColumns', (value) =>
+      @columnIndex = if value then 0 else 1
+      @updatePosition()
 
   handleClick: ->
     clickHandler = => atom.commands.dispatch(atom.views.getView(@getActiveTextEditor()), 'go-to-line:toggle')
@@ -59,7 +63,7 @@ class CursorPositionView extends HTMLElement
       @viewUpdatePending = false
       if position = @getActiveTextEditor()?.getCursorBufferPosition()
         @row = position.row + 1
-        @column = position.column + 1
+        @column = position.column + @columnIndex
         @goToLineLink.textContent = @formatString.replace('%L', @row).replace('%C', @column)
         @classList.remove('hide')
       else
