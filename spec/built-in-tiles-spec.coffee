@@ -284,6 +284,7 @@ describe "Built-in Status Bar Tiles", ->
     describe 'the cursor position tile', ->
       beforeEach ->
         atom.config.set('status-bar.cursorPositionFormat', 'foo %L bar %C')
+        atom.config.set('status-bar.zeroIndexedColumns', false)
 
       it 'respects a format string', ->
         jasmine.attachToDOM(workspaceElement)
@@ -300,6 +301,16 @@ describe "Built-in Status Bar Tiles", ->
         atom.config.set('status-bar.cursorPositionFormat', 'baz %C quux %L')
         atom.views.performDocumentUpdate()
         expect(cursorPosition.textContent).toBe 'baz 3 quux 2'
+
+      it 'starts with column 0 or 1 according to the configuration', ->
+        jasmine.attachToDOM(workspaceElement)
+        editor.setCursorScreenPosition([1, 2])
+        atom.views.performDocumentUpdate()
+        expect(cursorPosition.textContent).toBe 'foo 2 bar 3'
+
+        atom.config.set('status-bar.zeroIndexedColumns', true)
+        atom.views.performDocumentUpdate()
+        expect(cursorPosition.textContent).toBe 'foo 2 bar 2'
 
       describe "when clicked", ->
         it "triggers the go-to-line toggle event", ->
