@@ -242,7 +242,7 @@ describe "Built-in Status Bar Tiles", ->
 
         editor.setSelectedBufferRange([[0, 0], [1, 30]])
         atom.views.performDocumentUpdate()
-        expect(selectionCount.textContent).toBe "(2, #{if process.platform is 'win32' then 61 else 60})"
+        expect(selectionCount.textContent).toBe "(2, 60)"
 
     describe "when the active pane item does not implement getCursorBufferPosition()", ->
       it "hides the cursor position view", ->
@@ -309,23 +309,21 @@ describe "Built-in Status Bar Tiles", ->
           expect(eventHandler).toHaveBeenCalled()
 
     describe 'the selection count tile', ->
-      expectedCharacters = if process.platform is 'win32' then 61 else 60
-
       beforeEach ->
         atom.config.set('status-bar.selectionCountFormat', '%L foo %C bar selected')
 
       it 'respects a format string', ->
         jasmine.attachToDOM(workspaceElement)
         editor.setSelectedBufferRange([[0, 0], [1, 30]])
-        expect(selectionCount.textContent).toBe "2 foo #{expectedCharacters} bar selected"
+        expect(selectionCount.textContent).toBe "2 foo 60 bar selected"
 
       it 'updates when the configuration changes', ->
         jasmine.attachToDOM(workspaceElement)
         editor.setSelectedBufferRange([[0, 0], [1, 30]])
-        expect(selectionCount.textContent).toBe "2 foo #{expectedCharacters} bar selected"
+        expect(selectionCount.textContent).toBe "2 foo 60 bar selected"
 
         atom.config.set('status-bar.selectionCountFormat', 'Selection: baz %C quux %L')
-        expect(selectionCount.textContent).toBe "Selection: baz #{expectedCharacters} quux 2"
+        expect(selectionCount.textContent).toBe "Selection: baz 60 quux 2"
 
 
   describe "the git tile", ->
