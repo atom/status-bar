@@ -339,13 +339,13 @@ describe "Built-in Status Bar Tiles", ->
       advanceClock(atom.tooltips.defaults.delay.show)
 
     setupWorkingDir = (name) ->
-        dir = atom.project.getDirectories()[0]
-        target = "#{os.tmpdir()}/#{name}"
-        targetGit = target + '/.git'
-        fs.copySync(dir.resolve('git/working-dir'), path.resolve(target))
-        fs.removeSync(path.resolve(targetGit))
-        fs.copySync(dir.resolve("git/#{name}.git"), path.resolve(targetGit))
-        target
+      dir = atom.project.getDirectories()[0]
+      target = "#{os.tmpdir()}/#{name}"
+      targetGit = target + '/.git'
+      fs.copySync(dir.resolve('git/working-dir'), path.resolve(target))
+      fs.removeSync(path.resolve(targetGit))
+      fs.copySync(dir.resolve("git/#{name}.git"), path.resolve(targetGit))
+      target
 
     beforeEach ->
       [gitView] = statusBar.getRightTiles().map (tile) -> tile.getItem()
