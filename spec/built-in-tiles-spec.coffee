@@ -338,6 +338,15 @@ describe "Built-in Status Bar Tiles", ->
       element.dispatchEvent(new CustomEvent('mouseout', bubbles: true))
       advanceClock(atom.tooltips.defaults.delay.show)
 
+    setupWorkingDir = (name) ->
+        dir = atom.project.getDirectories()[0]
+        target = "#{os.tmpdir()}/#{name}"
+        targetGit = target + '/.git'
+        fs.copySync(dir.resolve('git/working-dir'), path.resolve(target))
+        fs.removeSync(path.resolve(targetGit))
+        fs.copySync(dir.resolve("git/#{name}.git"), path.resolve(targetGit))
+        target
+
     beforeEach ->
       [gitView] = statusBar.getRightTiles().map (tile) -> tile.getItem()
 
@@ -345,17 +354,9 @@ describe "Built-in Status Bar Tiles", ->
       beforeEach ->
         jasmine.attachToDOM(workspaceElement)
 
-      afterEach ->
-        fs.removeSync(atom.project.getDirectories()[0].resolve('.git'))
-
       it "shows the number of commits that can be pushed/pulled", ->
-        fs.copySync(
-          atom.project.getDirectories()[0].resolve('git/ahead-behind-repo.git'),
-          atom.project.getDirectories()[0].resolve('git/working-dir/.git')
-        )
-
-        projectPath = atom.project.getDirectories()[0].resolve('git/working-dir')
-        atom.project.setPaths([projectPath])
+        workingDir = setupWorkingDir('ahead-behind-repo')
+        atom.project.setPaths([workingDir])
         filePath = atom.project.getDirectories()[0].resolve('a.txt')
         repo = atom.project.getRepositories()[0].async
 
@@ -372,13 +373,8 @@ describe "Built-in Status Bar Tiles", ->
           expect(aheadElement.textContent).toContain '1'
 
       it "stays hidden when no commits can be pushed/pulled", ->
-        fs.copySync(
-          atom.project.getDirectories()[0].resolve('git/no-ahead-behind-repo.git'),
-          atom.project.getDirectories()[0].resolve('git/working-dir/.git')
-        )
-
-        projectPath = atom.project.getDirectories()[0].resolve('git/working-dir')
-        atom.project.setPaths([projectPath])
+        workingDir = setupWorkingDir('no-ahead-behind-repo')
+        atom.project.setPaths([workingDir])
         filePath = atom.project.getDirectories()[0].resolve('a.txt')
         repo = atom.project.getRepositories()[0].async
 
