@@ -26,12 +26,22 @@
     "cursorPositionFormat": {
       "type": "string",
       "default": "%L:%C",
-      "description": "Format for the cursor position status bar element, where %L is the line number and %C is the column number"
+      "description": "Format for the cursor position status bar element, where `%L` is the line number and `%C` is the column number."
     },
     "selectionCountFormat": {
       "type": "string",
       "default": "(%L, %C)",
-      "description": "Format for the selection count status bar element, where %L is the line count and %C is the character count"
+      "description": "Format for the selection count status bar element, where `%L` is the line count and `%C` is the character count."
+    },
+    "clickAction": {
+      "type": "string",
+      "enum": [
+        "Copy path",
+        "Reveal in folder"
+      ],
+      "default": "Copy path",
+      "title": "File Path Click Behavior",
+      "description": "Reveal the current file on your system, or copy the **absolute** path. Shift <kbd>⇧</kbd> or _alt_ <kbd>⌥</kbd> click to copy the **relative** path."
     }
   },
   "devDependencies": {
