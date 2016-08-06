@@ -25,8 +25,9 @@ class SelectionCountView extends HTMLElement
 
   subscribeToActiveTextEditor: ->
     @selectionSubscription?.dispose()
-    @selectionSubscription = @getActiveTextEditor()?.onDidChangeSelectionRange ({selection}) =>
-      return unless selection is @getActiveTextEditor().getLastSelection()
+    activeEditor = @getActiveTextEditor()
+    @selectionSubscription = activeEditor?.onDidChangeSelectionRange ({selection}) =>
+      return unless selection is activeEditor.getLastSelection()
       @updateCount()
     @updateCount()
 
