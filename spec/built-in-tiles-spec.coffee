@@ -228,6 +228,15 @@ describe "Built-in Status Bar Tiles", ->
         atom.views.performDocumentUpdate()
         expect(cursorPosition.textContent).toBe '2:3'
 
+      it "does not throw an exception if the cursor is moved as the result of the active pane item changing to a non-editor (regression)", ->
+        # FIXME: Restructure this spec to build a new workspace for each test so we can subscribe to this event before
+        # activating this package. Then we won't need to use these internals. I don't have time right now.
+        atom.workspace.paneContainer.emitter.preempt('did-change-active-pane-item', -> editor.setCursorScreenPosition([1, 2]))
+        atom.workspace.getActivePane().activateItem(document.createElement('div'))
+        expect(editor.getCursorScreenPosition()).toEqual([1, 2])
+        atom.views.performDocumentUpdate()
+        expect(cursorPosition).toBeHidden()
+
     describe "when the associated editor's selection changes", ->
       it "updates the selection count in the status bar", ->
         jasmine.attachToDOM(workspaceElement)
@@ -243,6 +252,15 @@ describe "Built-in Status Bar Tiles", ->
         editor.setSelectedBufferRange([[0, 0], [1, 30]])
         atom.views.performDocumentUpdate()
         expect(selectionCount.textContent).toBe "(2, 60)"
+
+      it "does not throw an exception if the cursor is moved as the result of the active pane item changing to a non-editor (regression)", ->
+        # FIXME: Restructure this spec to build a new workspace for each test so we can subscribe to this event before
+        # activating this package. Then we won't need to use these internals. I don't have time right now.
+        atom.workspace.paneContainer.emitter.preempt('did-change-active-pane-item', -> editor.setSelectedBufferRange([[1, 2], [1, 3]]))
+        atom.workspace.getActivePane().activateItem(document.createElement('div'))
+        expect(editor.getSelectedBufferRange()).toEqual([[1, 2], [1, 3]])
+        atom.views.performDocumentUpdate()
+        expect(selectionCount).toBeHidden()
 
     describe "when the active pane item does not implement getCursorBufferPosition()", ->
       it "hides the cursor position view", ->
