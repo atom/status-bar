@@ -32,8 +32,9 @@ class CursorPositionView extends HTMLElement
 
   subscribeToActiveTextEditor: ->
     @cursorSubscription?.dispose()
-    @cursorSubscription = @getActiveTextEditor()?.onDidChangeCursorPosition ({cursor}) =>
-      return unless cursor is @getActiveTextEditor().getLastCursor()
+    activeEditor = @getActiveTextEditor()
+    @cursorSubscription = activeEditor?.onDidChangeCursorPosition ({cursor}) =>
+      return unless cursor is activeEditor.getLastCursor()
       @updatePosition()
     @updatePosition()
 

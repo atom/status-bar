@@ -9,9 +9,6 @@ class GitView extends HTMLElement
     @createCommitsArea()
     @createStatusArea()
 
-    @updateStatusPromise = Promise.resolve()
-    @updateBranchPromise = Promise.resolve()
-
     @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
       @subscribeToActiveItem()
     @projectPathSubscription = atom.project.onDidChangePaths =>
@@ -67,9 +64,9 @@ class GitView extends HTMLElement
     @repositorySubscriptions = new CompositeDisposable
 
     for repo in atom.project.getRepositories() when repo?
-      @repositorySubscriptions.add repo.async.onDidChangeStatus ({path, status}) =>
+      @repositorySubscriptions.add repo.onDidChangeStatus ({path, status}) =>
         @update() if path is @getActiveItemPath()
-      @repositorySubscriptions.add repo.async.onDidChangeStatuses =>
+      @repositorySubscriptions.add repo.onDidChangeStatuses =>
         @update()
 
   destroy: ->
@@ -89,10 +86,10 @@ class GitView extends HTMLElement
     [rootDir] = atom.project.relativizePath(@getActiveItemPath())
     rootDirIndex = atom.project.getPaths().indexOf(rootDir)
     if rootDirIndex >= 0
-      atom.project.getRepositories()[rootDirIndex]?.async
+      atom.project.getRepositories()[rootDirIndex]
     else
       for repo in atom.project.getRepositories() when repo
-        return repo.async
+        return repo
 
   getActiveItem: ->
     atom.workspace.getActivePaneItem()
@@ -104,27 +101,14 @@ class GitView extends HTMLElement
     @updateStatusText(repo)
 
   updateBranchText: (repo) ->
-    @updateBranchPromise = @updateBranchPromise.then =>
-      if @showGitInformation(repo)
-        repo?.getShortHead(@getActiveItemPath())
-          .then (head) =>
-            @branchLabel.textContent = head
-            @branchArea.style.display = '' if head
-            @branchTooltipDisposable?.dispose()
-            @branchTooltipDisposable = atom.tooltips.add @branchArea, title: "On branch #{head}"
-          .catch (e) ->
-            # Since the update branch calls are effectively queued using the
-            # `updateBranchPromise`, we could end up trying to refresh after the
-            # repo's been destroyed.
-            if e.name is GitRepositoryAsync.DestroyedErrorName
-              return null
-            else
-              return Promise.reject(e)
-          .catch (e) ->
-            console.error('Error getting short head:')
-            console.error(e)
-      else
-        @branchArea.style.display = 'none'
+    if @showGitInformation(repo)
+      head = repo.getShortHead(@getActiveItemPath())
+      @branchLabel.textContent = head
+      @branchArea.style.display = '' if head
+      @branchTooltipDisposable?.dispose()
+      @branchTooltipDisposable = atom.tooltips.add @branchArea, title: "On branch #{head}"
+    else
+      @branchArea.style.display = 'none'
 
   showGitInformation: (repo) ->
     return false unless repo?
@@ -140,27 +124,27 @@ class GitView extends HTMLElement
       return
 
     itemPath = @getActiveItemPath()
-    repo.getCachedUpstreamAheadBehindCount(itemPath).then ({ahead, behind}) =>
-      if ahead > 0
-        @commitsAhead.textContent = ahead
-        @commitsAhead.style.display = ''
-        @commitsAheadTooltipDisposable?.dispose()
-        @commitsAheadTooltipDisposable = atom.tooltips.add @commitsAhead, title: "#{_.pluralize(ahead, 'commit')} ahead of upstream"
-      else
-        @commitsAhead.style.display = 'none'
+    {ahead, behind} = repo.getCachedUpstreamAheadBehindCount(itemPath)
+    if ahead > 0
+      @commitsAhead.textContent = ahead
+      @commitsAhead.style.display = ''
+      @commitsAheadTooltipDisposable?.dispose()
+      @commitsAheadTooltipDisposable = atom.tooltips.add @commitsAhead, title: "#{_.pluralize(ahead, 'commit')} ahead of upstream"
+    else
+      @commitsAhead.style.display = 'none'
 
-      if behind > 0
-        @commitsBehind.textContent = behind
-        @commitsBehind.style.display = ''
-        @commitsBehindTooltipDisposable?.dispose()
-        @commitsBehindTooltipDisposable = atom.tooltips.add @commitsBehind, title: "#{_.pluralize(behind, 'commit')} behind upstream"
-      else
-        @commitsBehind.style.display = 'none'
+    if behind > 0
+      @commitsBehind.textContent = behind
+      @commitsBehind.style.display = ''
+      @commitsBehindTooltipDisposable?.dispose()
+      @commitsBehindTooltipDisposable = atom.tooltips.add @commitsBehind, title: "#{_.pluralize(behind, 'commit')} behind upstream"
+    else
+      @commitsBehind.style.display = 'none'
 
-      if ahead > 0 or behind > 0
-        @commitsArea.style.display = ''
-      else
-        @commitsArea.style.display = 'none'
+    if ahead > 0 or behind > 0
+      @commitsArea.style.display = ''
+    else
+      @commitsArea.style.display = 'none'
 
   clearStatus: ->
     @gitStatusIcon.classList.remove('icon-diff-modified', 'status-modified', 'icon-diff-added', 'status-added', 'icon-diff-ignored', 'status-ignored')
@@ -178,28 +162,25 @@ class GitView extends HTMLElement
 
     @gitStatus.style.display = ''
 
-    Promise.resolve()
-
   updateAsModifiedFile: (repo, path) ->
-    repo.getDiffStats(path)
-      .then (stats) =>
-        @clearStatus()
+    stats = repo.getDiffStats(path)
+    @clearStatus()
 
-        @gitStatusIcon.classList.add('icon-diff-modified', 'status-modified')
-        if stats.added and stats.deleted
-          @gitStatusIcon.textContent = "+#{stats.added}, -#{stats.deleted}"
-          @updateTooltipText("#{_.pluralize(stats.added, 'line')} added and #{_.pluralize(stats.deleted, 'line')} deleted in this file not yet committed")
-        else if stats.added
-          @gitStatusIcon.textContent = "+#{stats.added}"
-          @updateTooltipText("#{_.pluralize(stats.added, 'line')} added to this file not yet committed")
-        else if stats.deleted
-          @gitStatusIcon.textContent = "-#{stats.deleted}"
-          @updateTooltipText("#{_.pluralize(stats.deleted, 'line')} deleted from this file not yet committed")
-        else
-          @gitStatusIcon.textContent = ''
-          @updateTooltipText()
+    @gitStatusIcon.classList.add('icon-diff-modified', 'status-modified')
+    if stats.added and stats.deleted
+      @gitStatusIcon.textContent = "+#{stats.added}, -#{stats.deleted}"
+      @updateTooltipText("#{_.pluralize(stats.added, 'line')} added and #{_.pluralize(stats.deleted, 'line')} deleted in this file not yet committed")
+    else if stats.added
+      @gitStatusIcon.textContent = "+#{stats.added}"
+      @updateTooltipText("#{_.pluralize(stats.added, 'line')} added to this file not yet committed")
+    else if stats.deleted
+      @gitStatusIcon.textContent = "-#{stats.deleted}"
+      @updateTooltipText("#{_.pluralize(stats.deleted, 'line')} deleted from this file not yet committed")
+    else
+      @gitStatusIcon.textContent = ''
+      @updateTooltipText()
 
-        @gitStatus.style.display = ''
+    @gitStatus.style.display = ''
 
   updateAsIgnoredFile: ->
     @clearStatus()
@@ -208,8 +189,6 @@ class GitView extends HTMLElement
     @gitStatusIcon.textContent = ''
     @gitStatus.style.display = ''
     @updateTooltipText("File is ignored by git")
-
-    Promise.resolve()
 
   updateTooltipText: (text) ->
     @statusTooltipDisposable?.dispose()
@@ -222,34 +201,19 @@ class GitView extends HTMLElement
       @gitStatus.style.display = 'none'
 
     itemPath = @getActiveItemPath()
-    @updateStatusPromise = @updateStatusPromise.then =>
-      if @showGitInformation(repo) and itemPath?
-        repo?.getCachedPathStatus(itemPath)
-          .then (status = 0) =>
-            if repo?.isStatusNew(status)
-              return @updateAsNewFile()
+    if @showGitInformation(repo) and itemPath?
+      status = repo.getCachedPathStatus(itemPath) ? 0
+      if repo.isStatusNew(status)
+        return @updateAsNewFile()
 
-            if repo?.isStatusModified(status)
-              return @updateAsModifiedFile(repo, itemPath)
+      if repo.isStatusModified(status)
+        return @updateAsModifiedFile(repo, itemPath)
 
-            repo?.isPathIgnored(itemPath).then (ignored) =>
-              if ignored
-                @updateAsIgnoredFile()
-              else
-                hideStatus()
-                Promise.resolve()
-          .catch (e) ->
-            # Since the update status calls are effectively queued using the
-            # `updateStatusPromise`, we could end up trying to refresh after the
-            # repo's been destroyed.
-            if e.name is GitRepositoryAsync.DestroyedErrorName
-              return null
-            else
-              return Promise.reject(e)
-          .catch (e) ->
-            console.error('Error getting status for ' + itemPath + ':')
-            console.error(e)
+      if repo.isPathIgnored(itemPath)
+        @updateAsIgnoredFile()
       else
         hideStatus()
+    else
+      hideStatus()
 
 module.exports = document.registerElement('status-bar-git', prototype: GitView.prototype, extends: 'div')
