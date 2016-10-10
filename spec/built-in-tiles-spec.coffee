@@ -348,13 +348,15 @@ describe "Built-in Status Bar Tiles", ->
     gitView = null
 
     hover = (element, fn) ->
+      # FIXME: Only use hoverDefaults once Atom 1.13 is on stable
+      hoverDelay = atom.tooltips.defaults.delay?.show ? atom.tooltips.hoverDefaults.delay.show
       element.dispatchEvent(new CustomEvent('mouseenter', bubbles: false))
       element.dispatchEvent(new CustomEvent('mouseover', bubbles: true))
-      advanceClock(atom.tooltips.defaults.delay.show)
+      advanceClock(hoverDelay)
       fn()
       element.dispatchEvent(new CustomEvent('mouseleave', bubbles: false))
       element.dispatchEvent(new CustomEvent('mouseout', bubbles: true))
-      advanceClock(atom.tooltips.defaults.delay.show)
+      advanceClock(hoverDelay)
 
     setupWorkingDir = (name) ->
       dir = atom.project.getDirectories()[0]
