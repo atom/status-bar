@@ -17,7 +17,7 @@
     "status-bar": {
       "description": "A container for indicators at the bottom of the workspace",
       "versions": {
-        "1.0.0": "provideStatusBar",
+        "1.1.0": "provideStatusBar",
         "0.58.0": "legacyProvideStatusBar"
       }
     }

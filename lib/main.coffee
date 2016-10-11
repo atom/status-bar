@@ -66,12 +66,9 @@ module.exports =
     addRightTile: @statusBar.addRightTile.bind(@statusBar)
     getLeftTiles: @statusBar.getLeftTiles.bind(@statusBar)
     getRightTiles: @statusBar.getRightTiles.bind(@statusBar)
-    disableGitInfoTile: @disableGitInfoTile.bind(this)
+    disableGitInfoTile: @gitInfoTile.destroy.bind(@gitInfoTile)
 
-  disableGitInfoTile: ->
-    @gitInfoTile.destroy()
-
-  # Depreciated
+  # Deprecated
   #
   # Wrap deprecation calls on the methods returned rather than
   # Services API method which would be registered and trigger
