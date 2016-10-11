@@ -36,13 +36,13 @@ module.exports =
     @selectionCount.initialize()
     @statusBar.addLeftTile(item: @selectionCount, priority: 2)
 
-    @git = new GitView()
-    @git.initialize()
-    @statusBar.addRightTile(item: @git, priority: 0)
+    @gitInfo = new GitView()
+    @gitInfo.initialize()
+    @gitInfoTile = @statusBar.addRightTile(item: @gitInfo, priority: 0)
 
   deactivate: ->
-    @git?.destroy()
-    @git = null
+    @gitInfo?.destroy()
+    @gitInfo = null
 
     @fileInfo?.destroy()
     @fileInfo = null
@@ -66,6 +66,10 @@ module.exports =
     addRightTile: @statusBar.addRightTile.bind(@statusBar)
     getLeftTiles: @statusBar.getLeftTiles.bind(@statusBar)
     getRightTiles: @statusBar.getRightTiles.bind(@statusBar)
+    disableGitInfoTile: @disableGitInfoTile.bind(this)
+
+  disableGitInfoTile: ->
+    @gitInfoTile.destroy()
 
   # Depreciated
   #

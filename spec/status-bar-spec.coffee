@@ -47,3 +47,11 @@ describe "Status Bar package", ->
       tile.destroy()
       expect(statusBar).not.toContain(dummyView)
       expect(statusBarService.getRightTiles()).not.toContain(tile)
+
+    it "allows the git info tile to be disabled", ->
+      getGitInfoTile = ->
+        statusBar.getRightTiles().find((tile) -> tile.item.matches('.git-view'))
+
+      expect(getGitInfoTile()).not.toBeUndefined()
+      statusBarService.disableGitInfoTile()
+      expect(getGitInfoTile()).toBeUndefined()
