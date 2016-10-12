@@ -1,5 +1,6 @@
 {Disposable} = require 'atom'
 url = require 'url'
+fs = require 'fs-plus'
 
 class FileInfoView extends HTMLElement
   initialize: ->
@@ -94,7 +95,7 @@ class FileInfoView extends HTMLElement
 
   updatePathText: ->
     if path = @getActiveItem()?.getPath?()
-      @currentPath.textContent = atom.project.relativize(path)
+      @currentPath.textContent = fs.tildify(atom.project.relativize(path))
     else if title = @getActiveItem()?.getTitle?()
       @currentPath.textContent = title
     else
