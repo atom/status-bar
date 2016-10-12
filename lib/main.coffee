@@ -1,3 +1,4 @@
+{CompositeDisposable, Emitter} = require 'atom'
 Grim = require 'grim'
 StatusBarView = require './status-bar-view'
 FileInfoView = require './file-info-view'
@@ -7,9 +8,15 @@ GitView = require './git-view'
 
 module.exports =
   activate: ->
+    @emitters = new Emitter()
+    @subscriptions = new CompositeDisposable()
+
     @statusBar = new StatusBarView()
     @statusBar.initialize()
-    @statusBarPanel = atom.workspace.addFooterPanel(item: @statusBar, priority: 0)
+    @attachStatusBar()
+
+    @subscriptions.add atom.config.onDidChange 'status-bar.fullWidth', =>
+      @attachStatusBar()
 
     atom.commands.add 'atom-workspace', 'status-bar:toggle', =>
       if @statusBarPanel.isVisible()
@@ -59,6 +66,12 @@ module.exports =
     @statusBar?.destroy()
     @statusBar = null
 
+    @subscriptions?.dispose()
+    @subscriptions = null
+
+    @emitters?.dispose()
+    @emitters = null
+
     delete atom.__workspaceView.statusBar if atom.__workspaceView?
 
   provideStatusBar: ->
@@ -67,6 +80,15 @@ module.exports =
     getLeftTiles: @statusBar.getLeftTiles.bind(@statusBar)
     getRightTiles: @statusBar.getRightTiles.bind(@statusBar)
     disableGitInfoTile: @gitInfoTile.destroy.bind(@gitInfoTile)
+
+  attachStatusBar: ->
+    @statusBarPanel.destroy() if @statusBarPanel?
+
+    panelArgs = item: @statusBar, priority: 0
+    if atom.config.get('status-bar.fullWidth')
+      @statusBarPanel = atom.workspace.addFooterPanel panelArgs
+    else
+      @statusBarPanel = atom.workspace.addBottomPanel panelArgs
 
   # Deprecated
   #

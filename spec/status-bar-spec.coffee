@@ -1,5 +1,5 @@
 describe "Status Bar package", ->
-  [editor, statusBar, statusBarService, workspaceElement] = []
+  [editor, statusBar, statusBarService, workspaceElement, mainModule] = []
 
   beforeEach ->
     workspaceElement = atom.views.getView(atom.workspace)
@@ -8,6 +8,7 @@ describe "Status Bar package", ->
       atom.packages.activatePackage('status-bar').then (pack) ->
         statusBar = workspaceElement.querySelector("status-bar")
         statusBarService = pack.mainModule.provideStatusBar()
+        {mainModule} = pack
 
   describe "@activate()", ->
     it "appends only one status bar", ->
@@ -29,6 +30,31 @@ describe "Status Bar package", ->
       expect(workspaceElement.querySelector('status-bar').parentNode).not.toBeVisible()
       atom.commands.dispatch(workspaceElement, 'status-bar:toggle')
       expect(workspaceElement.querySelector('status-bar').parentNode).toBeVisible()
+
+  describe "full-width setting", ->
+    [containers] = []
+
+    beforeEach ->
+      containers = atom.workspace.panelContainers
+      jasmine.attachToDOM(workspaceElement)
+
+      waitsForPromise ->
+        atom.workspace.open('sample.js')
+
+    it "expects the setting to be enabled by default", ->
+      expect(atom.config.get('status-bar.fullWidth')).toBeTruthy()
+      expect(containers.footer.panels).toContain(mainModule.statusBarPanel)
+
+    describe "when setting is changed", ->
+      it "fits status bar to editor's width", ->
+        atom.config.set('status-bar.fullWidth', false)
+        expect(containers.bottom.panels).toContain(mainModule.statusBarPanel)
+        expect(containers.footer.panels).not.toContain(mainModule.statusBarPanel)
+
+      it "restores the status-bar location when re-enabling setting", ->
+        atom.config.set('status-bar.fullWidth', true)
+        expect(containers.footer.panels).toContain(mainModule.statusBarPanel)
+        expect(containers.bottom.panels).not.toContain(mainModule.statusBarPanel)
 
   describe "the 'status-bar' service", ->
     it "allows tiles to be added, removed, and retrieved", ->
