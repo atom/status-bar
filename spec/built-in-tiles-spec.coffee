@@ -84,6 +84,16 @@ describe "Built-in Status Bar Tiles", ->
           fileInfo.currentPath.dispatchEvent(event)
           expect(atom.clipboard.read()).toBe 'sample.txt'
 
+    describe "when buffer's path is alt-clicked", ->
+      it "copies the relative path into the clipboard if available", ->
+        waitsForPromise ->
+          atom.workspace.open('sample.txt')
+
+        runs ->
+          event = new MouseEvent('click', altKey: true)
+          fileInfo.currentPath.dispatchEvent(event)
+          expect(atom.clipboard.read()).toBe 'sample.txt'
+
     describe "when path of an unsaved buffer is clicked", ->
       it "copies the 'untitled' into clipboard", ->
         waitsForPromise ->

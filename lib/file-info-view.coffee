@@ -1,4 +1,5 @@
 {Disposable} = require 'atom'
+{showItemInFolder} = require 'shell'
 url = require 'url'
 fs = require 'fs-plus'
 
@@ -14,14 +15,19 @@ class FileInfoView extends HTMLElement
       @subscribeToActiveItem()
     @subscribeToActiveItem()
 
-    clickHandler = (event) =>
-      isShiftClick = event.shiftKey
-      @showCopiedTooltip(isShiftClick)
-      text = @getActiveItemCopyText(isShiftClick)
-      atom.clipboard.write(text)
-      setTimeout =>
-        @clearCopiedTooltip()
-      , 2000
+    clickHandler = ({shiftKey, altKey}) =>
+      clickAction = atom.config.get('status-bar.clickAction')
+      if clickAction is 'Copy path'
+        useRelativePath = true if shiftKey or altKey
+        @showCopiedTooltip(useRelativePath)
+        text = @getActiveItemCopyText(useRelativePath)
+        atom.clipboard.write(text)
+        setTimeout =>
+          @clearCopiedTooltip()
+        , 2000
+      else #if clickAction is 'Reveal in folder'
+        path = @getActiveItem()?.getPath()
+        showItemInFolder(path) if path?
 
     @currentPath.addEventListener('click', clickHandler)
     @clickSubscription = new Disposable => @removeEventListener('click', clickHandler)
@@ -43,7 +49,7 @@ class FileInfoView extends HTMLElement
     path = activeItem?.getPath?()
     # An item path could be a url, we only want to copy the `path` part
     if path?.indexOf('://') > 0
-      path = url.parse(path).path
+      path = decodeURI(url.parse(path).path)
 
     return activeItem?.getTitle?() or '' if not path?
 

@@ -13,6 +13,8 @@ The status bar package accepts the following configuration values:
 
 * `status-bar.selectionCountFormat` &mdash; A string that describes the format to use for the selection count status bar tile. It defaults to `(%L, %C)`. In the format string, `%L` represents the 1-based line count and `%C` represents the 1-based character count.
 
+* `status-bar.clickAction` &mdash; Choose between `Copy path` and `Reveal in folder` to reveal the current file on your system, or copy the **absolute** path. Shift <kbd>⇧</kbd> or _alt_ <kbd>⌥</kbd> click to copy the **relative** path.
+
 ## API
 
 This package provides a service that you can use in other Atom packages. To use it, include `status-bar` in the `consumedServices` section of your `package.json`:
