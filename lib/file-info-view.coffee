@@ -14,6 +14,7 @@ class FileInfoView extends HTMLElement
       @subscribeToActiveItem()
     @subscribeToActiveItem()
 
+    @registerTooltip()
     clickHandler = (event) =>
       isShiftClick = event.shiftKey
       @showCopiedTooltip(isShiftClick)
@@ -26,10 +27,16 @@ class FileInfoView extends HTMLElement
     @currentPath.addEventListener('click', clickHandler)
     @clickSubscription = new Disposable => @removeEventListener('click', clickHandler)
 
+  registerTooltip: ->
+    @tooltip = atom.tooltips.add(this, title: ->
+      "Click to copy file path")
+
   clearCopiedTooltip: ->
     @copiedTooltip?.dispose()
+    @registerTooltip()
 
   showCopiedTooltip: (copyRelativePath) ->
+    @tooltip?.dispose()
     @copiedTooltip?.dispose()
     text = @getActiveItemCopyText(copyRelativePath)
     @copiedTooltip = atom.tooltips.add this,
@@ -77,6 +84,7 @@ class FileInfoView extends HTMLElement
     @modifiedSubscription?.dispose()
     @clickSubscription?.dispose()
     @copiedTooltip?.dispose()
+    @tooltip?.dispose()
 
   getActiveItem: ->
     atom.workspace.getActivePaneItem()
