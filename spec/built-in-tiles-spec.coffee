@@ -343,6 +343,11 @@ describe "Built-in Status Bar Tiles", ->
         atom.config.set('status-bar.selectionCountFormat', 'Selection: baz %C quux %L')
         expect(selectionCount.textContent).toBe "Selection: baz 60 quux 2"
 
+      it 'does not include the next line if the last selected character is a newline', ->
+        expectedCharactersFirstLine = if process.platform is 'win32' then 31 else 30
+        jasmine.attachToDOM(workspaceElement)
+        editor.setSelectedBufferRange([[0, 0], [1, 0]])
+        expect(selectionCount.textContent).toBe "1 foo #{expectedCharactersFirstLine} bar selected"
 
   describe "the git tile", ->
     gitView = null
