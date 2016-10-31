@@ -2,6 +2,8 @@
 
 class CursorPositionView extends HTMLElement
   initialize: ->
+    @viewUpdatePending = false
+
     @classList.add('cursor-position', 'inline-block')
     @goToLineLink = document.createElement('a')
     @goToLineLink.classList.add('inline-block')
@@ -26,11 +28,13 @@ class CursorPositionView extends HTMLElement
     @tooltip.dispose()
     @configSubscription?.dispose()
     @clickSubscription.dispose()
+    @updateSubscription?.dispose()
 
   subscribeToActiveTextEditor: ->
     @cursorSubscription?.dispose()
-    @cursorSubscription = @getActiveTextEditor()?.onDidChangeCursorPosition ({cursor}) =>
-      return unless cursor is @getActiveTextEditor().getLastCursor()
+    activeEditor = @getActiveTextEditor()
+    @cursorSubscription = activeEditor?.onDidChangeCursorPosition ({cursor}) =>
+      return unless cursor is activeEditor.getLastCursor()
       @updatePosition()
     @updatePosition()
 
@@ -49,13 +53,18 @@ class CursorPositionView extends HTMLElement
     atom.workspace.getActiveTextEditor()
 
   updatePosition: ->
-    if position = @getActiveTextEditor()?.getCursorBufferPosition()
-      @row = position.row + 1
-      @column = position.column + 1
-      @goToLineLink.textContent = @formatString.replace('%L', @row).replace('%C', @column)
-      @classList.remove('hide')
-    else
-      @goToLineLink.textContent = ''
-      @classList.add('hide')
+    return if @viewUpdatePending
+
+    @viewUpdatePending = true
+    @updateSubscription = atom.views.updateDocument =>
+      @viewUpdatePending = false
+      if position = @getActiveTextEditor()?.getCursorBufferPosition()
+        @row = position.row + 1
+        @column = position.column + 1
+        @goToLineLink.textContent = @formatString.replace('%L', @row).replace('%C', @column)
+        @classList.remove('hide')
+      else
+        @goToLineLink.textContent = ''
+        @classList.add('hide')
 
 module.exports = document.registerElement('status-bar-cursor', prototype: CursorPositionView.prototype, extends: 'div')

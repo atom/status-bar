@@ -1,5 +1,6 @@
 {Disposable} = require 'atom'
 url = require 'url'
+fs = require 'fs-plus'
 
 class FileInfoView extends HTMLElement
   initialize: ->
@@ -13,6 +14,7 @@ class FileInfoView extends HTMLElement
       @subscribeToActiveItem()
     @subscribeToActiveItem()
 
+    @registerTooltip()
     clickHandler = (event) =>
       isShiftClick = event.shiftKey
       @showCopiedTooltip(isShiftClick)
@@ -25,10 +27,16 @@ class FileInfoView extends HTMLElement
     @currentPath.addEventListener('click', clickHandler)
     @clickSubscription = new Disposable => @removeEventListener('click', clickHandler)
 
+  registerTooltip: ->
+    @tooltip = atom.tooltips.add(this, title: ->
+      "Click to copy file path")
+
   clearCopiedTooltip: ->
     @copiedTooltip?.dispose()
+    @registerTooltip()
 
   showCopiedTooltip: (copyRelativePath) ->
+    @tooltip?.dispose()
     @copiedTooltip?.dispose()
     text = @getActiveItemCopyText(copyRelativePath)
     @copiedTooltip = atom.tooltips.add this,
@@ -39,8 +47,12 @@ class FileInfoView extends HTMLElement
 
   getActiveItemCopyText: (copyRelativePath) ->
     activeItem = @getActiveItem()
-    # An item path could be a url, but we only want to copy the `path` part of it.
-    path = url.parse(activeItem?.getPath?() or '').path or activeItem?.getTitle?() or ''
+    path = activeItem?.getPath?()
+    # An item path could be a url, we only want to copy the `path` part
+    if path?.indexOf('://') > 0
+      path = url.parse(path).path
+
+    return activeItem?.getTitle?() or '' if not path?
 
     if copyRelativePath
       atom.project.relativize(path)
@@ -72,6 +84,7 @@ class FileInfoView extends HTMLElement
     @modifiedSubscription?.dispose()
     @clickSubscription?.dispose()
     @copiedTooltip?.dispose()
+    @tooltip?.dispose()
 
   getActiveItem: ->
     atom.workspace.getActivePaneItem()
@@ -90,7 +103,7 @@ class FileInfoView extends HTMLElement
 
   updatePathText: ->
     if path = @getActiveItem()?.getPath?()
-      @currentPath.textContent = atom.project.relativize(path)
+      @currentPath.textContent = fs.tildify(atom.project.relativize(path))
     else if title = @getActiveItem()?.getTitle?()
       @currentPath.textContent = title
     else

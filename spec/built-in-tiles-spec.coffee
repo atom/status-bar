@@ -1,6 +1,7 @@
 fs = require 'fs-plus'
 path = require 'path'
 os = require 'os'
+process = require 'process'
 {$} = require 'atom-space-pen-views'
 
 describe "Built-in Status Bar Tiles", ->
@@ -36,6 +37,7 @@ describe "Built-in Status Bar Tiles", ->
           atom.workspace.open()
 
         runs ->
+          atom.views.performDocumentUpdate()
           expect(fileInfo.currentPath.textContent).toBe 'untitled'
           expect(cursorPosition.textContent).toBe '1:1'
           expect(selectionCount).toBeHidden()
@@ -114,7 +116,7 @@ describe "Built-in Status Bar Tiles", ->
           expect(document.querySelector('.tooltip')).not.toExist()
 
     describe "when saved buffer's path is clicked", ->
-      it "displays a tooltip containing text 'Copied:' and an absolute path", ->
+      it "displays a tooltip containing text 'Copied:' and an absolute native path", ->
         jasmine.attachToDOM(workspaceElement)
         waitsForPromise ->
           atom.workspace.open('sample.txt')
@@ -122,6 +124,24 @@ describe "Built-in Status Bar Tiles", ->
         runs ->
           fileInfo.currentPath.click()
           expect(document.querySelector('.tooltip')).toHaveText "Copied: #{fileInfo.getActiveItem().getPath()}"
+
+      it "displays a tooltip containing text 'Copied:' for an absolute Unix path", ->
+        jasmine.attachToDOM(workspaceElement)
+        dummyView.getPath = -> '/user/path/for/my/file.txt'
+        atom.workspace.getActivePane().activateItem(dummyView)
+
+        runs ->
+          fileInfo.currentPath.click()
+          expect(document.querySelector('.tooltip')).toHaveText "Copied: #{dummyView.getPath()}"
+
+      it "displays a tooltip containing text 'Copied:' for an absolute Windows path", ->
+        jasmine.attachToDOM(workspaceElement)
+        dummyView.getPath = -> 'c:\\user\\path\\for\\my\\file.txt'
+        atom.workspace.getActivePane().activateItem(dummyView)
+
+        runs ->
+          fileInfo.currentPath.click()
+          expect(document.querySelector('.tooltip')).toHaveText "Copied: #{dummyView.getPath()}"
 
     describe "when unsaved buffer's path is clicked", ->
       it "displays a tooltip containing text 'Copied: untitled", ->
@@ -205,23 +225,48 @@ describe "Built-in Status Bar Tiles", ->
       it "updates the cursor position in the status bar", ->
         jasmine.attachToDOM(workspaceElement)
         editor.setCursorScreenPosition([1, 2])
+        atom.views.performDocumentUpdate()
         expect(cursorPosition.textContent).toBe '2:3'
+
+      it "does not throw an exception if the cursor is moved as the result of the active pane item changing to a non-editor (regression)", ->
+        # FIXME: Restructure this spec to build a new workspace for each test so we can subscribe to this event before
+        # activating this package. Then we won't need to use these internals. I don't have time right now.
+        atom.workspace.paneContainer.emitter.preempt('did-change-active-pane-item', -> editor.setCursorScreenPosition([1, 2]))
+        atom.workspace.getActivePane().activateItem(document.createElement('div'))
+        expect(editor.getCursorScreenPosition()).toEqual([1, 2])
+        atom.views.performDocumentUpdate()
+        expect(cursorPosition).toBeHidden()
 
     describe "when the associated editor's selection changes", ->
       it "updates the selection count in the status bar", ->
         jasmine.attachToDOM(workspaceElement)
 
         editor.setSelectedBufferRange([[0, 0], [0, 0]])
+        atom.views.performDocumentUpdate()
         expect(selectionCount.textContent).toBe ''
+
         editor.setSelectedBufferRange([[0, 0], [0, 2]])
+        atom.views.performDocumentUpdate()
         expect(selectionCount.textContent).toBe '(1, 2)'
+
         editor.setSelectedBufferRange([[0, 0], [1, 30]])
-        expect(selectionCount.textContent).toBe '(2, 60)'
+        atom.views.performDocumentUpdate()
+        expect(selectionCount.textContent).toBe "(2, 60)"
+
+      it "does not throw an exception if the cursor is moved as the result of the active pane item changing to a non-editor (regression)", ->
+        # FIXME: Restructure this spec to build a new workspace for each test so we can subscribe to this event before
+        # activating this package. Then we won't need to use these internals. I don't have time right now.
+        atom.workspace.paneContainer.emitter.preempt('did-change-active-pane-item', -> editor.setSelectedBufferRange([[1, 2], [1, 3]]))
+        atom.workspace.getActivePane().activateItem(document.createElement('div'))
+        expect(editor.getSelectedBufferRange()).toEqual([[1, 2], [1, 3]])
+        atom.views.performDocumentUpdate()
+        expect(selectionCount).toBeHidden()
 
     describe "when the active pane item does not implement getCursorBufferPosition()", ->
       it "hides the cursor position view", ->
         jasmine.attachToDOM(workspaceElement)
         atom.workspace.getActivePane().activateItem(dummyView)
+        atom.views.performDocumentUpdate()
         expect(cursorPosition).toBeHidden()
 
     describe "when the active pane item implements getTitle() but not getPath()", ->
@@ -261,14 +306,17 @@ describe "Built-in Status Bar Tiles", ->
       it 'respects a format string', ->
         jasmine.attachToDOM(workspaceElement)
         editor.setCursorScreenPosition([1, 2])
+        atom.views.performDocumentUpdate()
         expect(cursorPosition.textContent).toBe 'foo 2 bar 3'
 
       it 'updates when the configuration changes', ->
         jasmine.attachToDOM(workspaceElement)
         editor.setCursorScreenPosition([1, 2])
+        atom.views.performDocumentUpdate()
         expect(cursorPosition.textContent).toBe 'foo 2 bar 3'
 
         atom.config.set('status-bar.cursorPositionFormat', 'baz %C quux %L')
+        atom.views.performDocumentUpdate()
         expect(cursorPosition.textContent).toBe 'baz 3 quux 2'
 
       describe "when clicked", ->
@@ -285,31 +333,79 @@ describe "Built-in Status Bar Tiles", ->
       it 'respects a format string', ->
         jasmine.attachToDOM(workspaceElement)
         editor.setSelectedBufferRange([[0, 0], [1, 30]])
-        expect(selectionCount.textContent).toBe '2 foo 60 bar selected'
+        expect(selectionCount.textContent).toBe "2 foo 60 bar selected"
 
       it 'updates when the configuration changes', ->
         jasmine.attachToDOM(workspaceElement)
         editor.setSelectedBufferRange([[0, 0], [1, 30]])
-        expect(selectionCount.textContent).toBe '2 foo 60 bar selected'
+        expect(selectionCount.textContent).toBe "2 foo 60 bar selected"
 
         atom.config.set('status-bar.selectionCountFormat', 'Selection: baz %C quux %L')
-        expect(selectionCount.textContent).toBe 'Selection: baz 60 quux 2'
+        expect(selectionCount.textContent).toBe "Selection: baz 60 quux 2"
 
 
   describe "the git tile", ->
     gitView = null
 
     hover = (element, fn) ->
+      # FIXME: Only use hoverDefaults once Atom 1.13 is on stable
+      hoverDelay = atom.tooltips.defaults.delay?.show ? atom.tooltips.hoverDefaults.delay.show
       element.dispatchEvent(new CustomEvent('mouseenter', bubbles: false))
       element.dispatchEvent(new CustomEvent('mouseover', bubbles: true))
-      advanceClock(atom.tooltips.defaults.delay.show)
+      advanceClock(hoverDelay)
       fn()
       element.dispatchEvent(new CustomEvent('mouseleave', bubbles: false))
       element.dispatchEvent(new CustomEvent('mouseout', bubbles: true))
-      advanceClock(atom.tooltips.defaults.delay.show)
+      advanceClock(hoverDelay)
+
+    setupWorkingDir = (name) ->
+      dir = atom.project.getDirectories()[0]
+      target = "#{os.tmpdir()}/#{name}"
+      targetGit = target + '/.git'
+      fs.copySync(dir.resolve('git/working-dir'), path.resolve(target))
+      fs.removeSync(path.resolve(targetGit))
+      fs.copySync(dir.resolve("git/#{name}.git"), path.resolve(targetGit))
+      target
 
     beforeEach ->
       [gitView] = statusBar.getRightTiles().map (tile) -> tile.getItem()
+
+    describe "the git ahead/behind count labels", ->
+      beforeEach ->
+        jasmine.attachToDOM(workspaceElement)
+
+      it "shows the number of commits that can be pushed/pulled", ->
+        workingDir = setupWorkingDir('ahead-behind-repo')
+        atom.project.setPaths([workingDir])
+        filePath = atom.project.getDirectories()[0].resolve('a.txt')
+        repo = atom.project.getRepositories()[0]
+
+        waitsForPromise ->
+          atom.workspace.open(filePath)
+            .then -> repo.refreshStatus()
+
+        runs ->
+          behindElement = document.body.querySelector(".commits-behind-label")
+          aheadElement = document.body.querySelector(".commits-ahead-label")
+          expect(aheadElement).toBeVisible()
+          expect(behindElement).toBeVisible()
+          expect(aheadElement.textContent).toContain '1'
+
+      it "stays hidden when no commits can be pushed/pulled", ->
+        workingDir = setupWorkingDir('no-ahead-behind-repo')
+        atom.project.setPaths([workingDir])
+        filePath = atom.project.getDirectories()[0].resolve('a.txt')
+        repo = atom.project.getRepositories()[0]
+
+        waitsForPromise ->
+          atom.workspace.open(filePath)
+            .then -> repo.refreshStatus()
+
+        runs ->
+          behindElement = document.body.querySelector(".commits-behind-label")
+          aheadElement = document.body.querySelector(".commits-ahead-label")
+          expect(aheadElement).not.toBeVisible()
+          expect(behindElement).not.toBeVisible()
 
     describe "the git branch label", ->
       projectPath = null
@@ -325,7 +421,7 @@ describe "Built-in Status Bar Tiles", ->
         atom.project.setPaths([projectPath])
 
         waitsForPromise ->
-          atom.workspace.open('a.txt').then -> gitView.updateBranchPromise
+          atom.workspace.open('a.txt')
 
         runs ->
           currentBranch = atom.project.getRepositories()[0].getShortHead()
@@ -336,15 +432,15 @@ describe "Built-in Status Bar Tiles", ->
           expect(gitView.branchArea).toBeVisible()
           expect(gitView.branchLabel.textContent).toBe currentBranch
 
-        atom.workspace.getActivePane().activateItem(dummyView)
-        expect(gitView.branchArea).not.toBeVisible()
+          atom.workspace.getActivePane().activateItem(dummyView)
+
+        runs -> expect(gitView.branchArea).not.toBeVisible()
 
       it "displays the current branch tooltip", ->
         atom.project.setPaths([projectPath])
 
         waitsForPromise ->
           atom.workspace.open('a.txt')
-            .then -> gitView.updateBranchPromise
 
         runs ->
           currentBranch = atom.project.getRepositories()[0].getShortHead()
@@ -384,10 +480,9 @@ describe "Built-in Status Bar Tiles", ->
         fs.writeFileSync(ignoredPath, '')
         jasmine.attachToDOM(workspaceElement)
 
-        repo = atom.project.getRepositories()[0].async
+        repo = atom.project.getRepositories()[0]
         originalPathText = fs.readFileSync(filePath, 'utf8')
-
-        waitsForPromise -> repo._refreshingPromise
+        waitsForPromise -> repo.refreshStatus()
 
       afterEach ->
         fs.writeFileSync(filePath, originalPathText)
@@ -401,17 +496,16 @@ describe "Built-in Status Bar Tiles", ->
           atom.workspace.open(filePath)
             .then ->
               fs.writeFileSync(filePath, "i've changed for the worse")
-              repo.refreshStatusForPath(filePath)
-            .then -> gitView.updateStatusPromise
+              repo.refreshStatus()
         runs ->
           expect(gitView.gitStatusIcon).toHaveClass('icon-diff-modified')
 
       it "displays the 1 line added and not committed tooltip", ->
-        fs.writeFileSync(filePath, "i've changed for the worse")
         waitsForPromise ->
           atom.workspace.open(filePath)
-            .then -> repo.refreshStatusForPath(filePath)
-            .then -> gitView.updateStatusPromise
+            .then ->
+              fs.writeFileSync(filePath, "i've changed for the worse")
+              repo.refreshStatus()
 
         runs ->
           hover gitView.gitStatusIcon, ->
@@ -419,11 +513,11 @@ describe "Built-in Status Bar Tiles", ->
               .toBe("1 line added to this file not yet committed")
 
       it "displays the x lines added and not committed tooltip", ->
-        fs.writeFileSync(filePath, "i've changed#{os.EOL}for the worse")
         waitsForPromise ->
           atom.workspace.open(filePath)
-            .then -> repo.refreshStatusForPath(filePath)
-            .then -> gitView.updateStatusPromise
+            .then ->
+              fs.writeFileSync(filePath, "i've changed#{os.EOL}for the worse")
+              repo.refreshStatus()
 
         runs ->
           hover gitView.gitStatusIcon, ->
@@ -433,8 +527,7 @@ describe "Built-in Status Bar Tiles", ->
       it "doesn't display the modified icon for an unchanged file", ->
         waitsForPromise ->
           atom.workspace.open(filePath)
-            .then -> repo.refreshStatusForPath(filePath)
-            .then -> gitView.updateStatusPromise
+            .then -> repo.refreshStatus()
 
         runs ->
           expect(gitView.gitStatusIcon).toHaveText('')
@@ -442,8 +535,7 @@ describe "Built-in Status Bar Tiles", ->
       it "displays the new icon for a new file", ->
         waitsForPromise ->
           atom.workspace.open(newPath)
-            .then -> repo.refreshStatusForPath(newPath)
-            .then -> gitView.updateStatusPromise
+            .then -> repo.refreshStatus()
 
         runs ->
           expect(gitView.gitStatusIcon).toHaveClass('icon-diff-added')
@@ -454,8 +546,7 @@ describe "Built-in Status Bar Tiles", ->
       it "displays the 1 line added and not committed to new file tooltip", ->
         waitsForPromise ->
           atom.workspace.open(newPath)
-            .then -> repo.refreshStatusForPath(newPath)
-            .then -> gitView.updateStatusPromise
+            .then -> repo.refreshStatus()
 
         runs ->
           hover gitView.gitStatusIcon, ->
@@ -464,11 +555,9 @@ describe "Built-in Status Bar Tiles", ->
 
       it "displays the x lines added and not committed to new file tooltip", ->
         fs.writeFileSync(newPath, "I'm new#{os.EOL}here")
-
         waitsForPromise ->
           atom.workspace.open(newPath)
-            .then -> repo.refreshStatusForPath(newPath)
-            .then -> gitView.updateStatusPromise
+            .then -> repo.refreshStatus()
 
         runs ->
           hover gitView.gitStatusIcon, ->
@@ -478,7 +567,6 @@ describe "Built-in Status Bar Tiles", ->
       it "displays the ignored icon for an ignored file", ->
         waitsForPromise ->
           atom.workspace.open(ignoredPath)
-            .then -> gitView.updateStatusPromise
 
         runs ->
           expect(gitView.gitStatusIcon).toHaveClass('icon-diff-ignored')
@@ -491,15 +579,13 @@ describe "Built-in Status Bar Tiles", ->
           atom.workspace.open(filePath)
             .then ->
               fs.writeFileSync(filePath, "i've changed for the worse")
-              repo.refreshStatusForPath(filePath)
-            .then -> gitView.updateStatusPromise
+              repo.refreshStatus()
         runs ->
           expect(gitView.gitStatusIcon).toHaveClass('icon-diff-modified')
 
           waitsForPromise ->
             fs.writeFileSync(filePath, originalPathText)
-            repo.refreshStatusForPath(filePath)
-              .then -> gitView.updateStatusPromise
+            repo.refreshStatus()
           runs ->
             expect(gitView.gitStatusIcon).not.toHaveClass('icon-diff-modified')
 
@@ -508,16 +594,14 @@ describe "Built-in Status Bar Tiles", ->
           atom.workspace.open(filePath)
             .then ->
               fs.writeFileSync(filePath, "i've changed for the worse")
-              repo.refreshStatusForPath(filePath)
-            .then -> gitView.updateStatusPromise
+              repo.refreshStatus()
         runs ->
           expect(gitView.gitStatusIcon).toHaveText('+1')
 
       it "displays the diff stat for new files", ->
         waitsForPromise ->
           atom.workspace.open(newPath)
-            .then -> repo.refreshStatusForPath(newPath)
-            .then -> gitView.updateStatusPromise
+            .then -> repo.refreshStatus()
 
         runs ->
           expect(gitView.gitStatusIcon).toHaveText('+1')
@@ -525,7 +609,6 @@ describe "Built-in Status Bar Tiles", ->
       it "does not display for files not in the current project", ->
         waitsForPromise ->
           atom.workspace.open('/tmp/atom-specs/not-in-project.txt')
-            .then -> gitView.updateStatusPromise
 
         runs ->
           expect(gitView.gitStatusIcon).toBeHidden()
