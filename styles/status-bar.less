@@ -71,12 +71,25 @@ status-bar {
     content: '*';
   }
 
-  // All icons are smaller than normal (normal is 16px)
-  .icon:before {
-    .icon-size(14px);
-    position: relative;
-    top: 1px;
-    margin-right: 0px;
+  .icon {
+    
+    // All icons are smaller than normal (normal is 16px)
+    &:before {
+      .icon-size(14px);
+      position: relative;
+      top: 1px;
+      margin-right: 0px;
+    }
+    
+    // Make microscope's details a little more obvious
+    &.icon-microscope:before {
+      .icon-size(15px);
+    }
+    
+    // Prevent jersey being clipped
+    &.icon-jersey:before {
+      left: 3px;
+    }
   }
 
   .icon-diff-ignored:before,
