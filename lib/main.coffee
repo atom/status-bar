@@ -5,6 +5,7 @@ FileInfoView = require './file-info-view'
 CursorPositionView = require './cursor-position-view'
 SelectionCountView = require './selection-count-view'
 GitView = require './git-view'
+LaunchModeView = require './launch-mode-view'
 
 module.exports =
   activate: ->
@@ -32,10 +33,8 @@ module.exports =
 
     {safeMode, devMode} = atom.getLoadSettings()
     if safeMode or devMode
-      LaunchModeView = require './launch-mode-view'
-      launchModeView = new LaunchModeView()
-      launchModeView.initialize({safeMode, devMode})
-      @statusBar.addLeftTile(item: launchModeView, priority: -1)
+      launchModeView = new LaunchModeView({safeMode, devMode})
+      @statusBar.addLeftTile(item: launchModeView.element, priority: -1)
 
     @fileInfo = new FileInfoView()
     @statusBar.addLeftTile(item: @fileInfo.element, priority: 0)
