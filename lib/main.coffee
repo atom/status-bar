@@ -46,8 +46,7 @@ module.exports =
     @statusBar.addLeftTile(item: @selectionCount.element, priority: 2)
 
     @gitInfo = new GitView()
-    @gitInfo.initialize()
-    @gitInfoTile = @statusBar.addRightTile(item: @gitInfo, priority: 0)
+    @gitInfoTile = @statusBar.addRightTile(item: @gitInfo.element, priority: 0)
 
   deactivate: ->
     @statusBarVisibilitySubscription?.dispose()
