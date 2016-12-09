@@ -38,8 +38,7 @@ module.exports =
       @statusBar.addLeftTile(item: launchModeView, priority: -1)
 
     @fileInfo = new FileInfoView()
-    @fileInfo.initialize()
-    @statusBar.addLeftTile(item: @fileInfo, priority: 0)
+    @statusBar.addLeftTile(item: @fileInfo.element, priority: 0)
 
     @cursorPosition = new CursorPositionView()
     @statusBar.addLeftTile(item: @cursorPosition.element, priority: 1)
