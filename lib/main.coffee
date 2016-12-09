@@ -13,7 +13,6 @@ module.exports =
     @subscriptions = new CompositeDisposable()
 
     @statusBar = new StatusBarView()
-    @statusBar.initialize()
     @attachStatusBar()
 
     @subscriptions.add atom.config.onDidChange 'status-bar.fullWidth', =>
@@ -94,7 +93,7 @@ module.exports =
   attachStatusBar: ->
     @statusBarPanel.destroy() if @statusBarPanel?
 
-    panelArgs = item: @statusBar, priority: 0
+    panelArgs = {item: @statusBar, priority: 0}
     if atom.config.get('status-bar.fullWidth')
       @statusBarPanel = atom.workspace.addFooterPanel panelArgs
     else
