@@ -44,8 +44,7 @@ module.exports =
     @statusBar.addLeftTile(item: @cursorPosition.element, priority: 1)
 
     @selectionCount = new SelectionCountView()
-    @selectionCount.initialize()
-    @statusBar.addLeftTile(item: @selectionCount, priority: 2)
+    @statusBar.addLeftTile(item: @selectionCount.element, priority: 2)
 
     @gitInfo = new GitView()
     @gitInfo.initialize()
