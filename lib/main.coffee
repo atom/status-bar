@@ -42,8 +42,7 @@ module.exports =
     @statusBar.addLeftTile(item: @fileInfo, priority: 0)
 
     @cursorPosition = new CursorPositionView()
-    @cursorPosition.initialize()
-    @statusBar.addLeftTile(item: @cursorPosition, priority: 1)
+    @statusBar.addLeftTile(item: @cursorPosition.element, priority: 1)
 
     @selectionCount = new SelectionCountView()
     @selectionCount.initialize()
@@ -56,7 +55,7 @@ module.exports =
   deactivate: ->
     @statusBarVisibilitySubscription?.dispose()
     @statusBarVisibilitySubscription = null
-    
+
     @gitInfo?.destroy()
     @gitInfo = null
 

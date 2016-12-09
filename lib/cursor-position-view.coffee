@@ -1,14 +1,16 @@
 {Disposable} = require 'atom'
 
-class CursorPositionView extends HTMLElement
-  initialize: ->
+module.exports =
+class CursorPositionView
+  constructor: ->
     @viewUpdatePending = false
 
-    @classList.add('cursor-position', 'inline-block')
+    @element = document.createElement('status-bar-cursor')
+    @element.classList.add('cursor-position', 'inline-block')
     @goToLineLink = document.createElement('a')
     @goToLineLink.classList.add('inline-block')
     @goToLineLink.href = '#'
-    @appendChild(@goToLineLink)
+    @element.appendChild(@goToLineLink)
 
     @formatString = atom.config.get('status-bar.cursorPositionFormat') ? '%L:%C'
     @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem (activeItem) =>
@@ -17,8 +19,7 @@ class CursorPositionView extends HTMLElement
     @subscribeToConfig()
     @subscribeToActiveTextEditor()
 
-    @tooltip = atom.tooltips.add(this, title: ->
-      "Line #{@row}, Column #{@column}")
+    @tooltip = atom.tooltips.add(@element, title: => "Line #{@row}, Column #{@column}")
 
     @handleClick()
 
@@ -46,8 +47,8 @@ class CursorPositionView extends HTMLElement
 
   handleClick: ->
     clickHandler = => atom.commands.dispatch(atom.views.getView(@getActiveTextEditor()), 'go-to-line:toggle')
-    @addEventListener('click', clickHandler)
-    @clickSubscription = new Disposable => @removeEventListener('click', clickHandler)
+    @element.addEventListener('click', clickHandler)
+    @clickSubscription = new Disposable => @element.removeEventListener('click', clickHandler)
 
   getActiveTextEditor: ->
     atom.workspace.getActiveTextEditor()
@@ -62,9 +63,7 @@ class CursorPositionView extends HTMLElement
         @row = position.row + 1
         @column = position.column + 1
         @goToLineLink.textContent = @formatString.replace('%L', @row).replace('%C', @column)
-        @classList.remove('hide')
+        @element.classList.remove('hide')
       else
         @goToLineLink.textContent = ''
-        @classList.add('hide')
-
-module.exports = document.registerElement('status-bar-cursor', prototype: CursorPositionView.prototype, extends: 'div')
+        @element.classList.add('hide')
