@@ -2,13 +2,18 @@
 url = require 'url'
 fs = require 'fs-plus'
 
-class FileInfoView extends HTMLElement
-  initialize: ->
-    @classList.add('file-info', 'inline-block')
+module.exports =
+class FileInfoView
+  constructor: ->
+    @element = document.createElement('status-bar-file')
+    @element.classList.add('file-info', 'inline-block')
 
     @currentPath = document.createElement('a')
     @currentPath.classList.add('current-path')
-    @appendChild(@currentPath)
+    @element.appendChild(@currentPath)
+    @element.currentPath = @currentPath
+
+    @element.getActiveItem = @getActiveItem.bind(this)
 
     @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
       @subscribeToActiveItem()
@@ -25,10 +30,10 @@ class FileInfoView extends HTMLElement
       , 2000
 
     @currentPath.addEventListener('click', clickHandler)
-    @clickSubscription = new Disposable => @removeEventListener('click', clickHandler)
+    @clickSubscription = new Disposable => @currentPath.removeEventListener('click', clickHandler)
 
   registerTooltip: ->
-    @tooltip = atom.tooltips.add(this, title: ->
+    @tooltip = atom.tooltips.add(@element, title: ->
       "Click to copy file path")
 
   clearCopiedTooltip: ->
@@ -39,7 +44,7 @@ class FileInfoView extends HTMLElement
     @tooltip?.dispose()
     @copiedTooltip?.dispose()
     text = @getActiveItemCopyText(copyRelativePath)
-    @copiedTooltip = atom.tooltips.add this,
+    @copiedTooltip = atom.tooltips.add @element,
       title: "Copied: #{text}"
       trigger: 'click'
       delay:
@@ -95,10 +100,10 @@ class FileInfoView extends HTMLElement
 
   updateBufferHasModifiedText: (isModified) ->
     if isModified
-      @classList.add('buffer-modified')
+      @element.classList.add('buffer-modified')
       @isModified = true
     else
-      @classList.remove('buffer-modified')
+      @element.classList.remove('buffer-modified')
       @isModified = false
 
   updatePathText: ->
@@ -108,5 +113,3 @@ class FileInfoView extends HTMLElement
       @currentPath.textContent = title
     else
       @currentPath.textContent = ''
-
-module.exports = document.registerElement('status-bar-file', prototype: FileInfoView.prototype, extends: 'div')

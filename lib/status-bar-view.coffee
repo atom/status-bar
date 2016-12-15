@@ -1,13 +1,15 @@
 {Disposable} = require 'atom'
 Tile = require './tile'
 
-class StatusBarView extends HTMLElement
-  createdCallback: ->
-    @classList.add('status-bar')
+module.exports =
+class StatusBarView
+  constructor: ->
+    @element = document.createElement('status-bar')
+    @element.classList.add('status-bar')
 
     flexboxHackElement = document.createElement('div')
     flexboxHackElement.classList.add('flexbox-repaint-hack')
-    @appendChild(flexboxHackElement)
+    @element.appendChild(flexboxHackElement)
 
     @leftPanel = document.createElement('div')
     @leftPanel.classList.add('status-bar-left')
@@ -20,7 +22,11 @@ class StatusBarView extends HTMLElement
     @leftTiles = []
     @rightTiles = []
 
-  initialize: ->
+    @element.getLeftTiles = @getLeftTiles.bind(this)
+    @element.getRightTiles = @getRightTiles.bind(this)
+    @element.addLeftTile = @addLeftTile.bind(this)
+    @element.addRightTile = @addRightTile.bind(this)
+
     @bufferSubscriptions = []
 
     @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
@@ -28,15 +34,14 @@ class StatusBarView extends HTMLElement
       @storeActiveBuffer()
       @subscribeAllToBuffer()
 
-      @dispatchEvent(new CustomEvent('active-buffer-changed', bubbles: true))
+      @element.dispatchEvent(new CustomEvent('active-buffer-changed', bubbles: true))
 
     @storeActiveBuffer()
-    this
 
   destroy: ->
     @activeItemSubscription.dispose()
     @unsubscribeAllFromBuffer()
-    @remove()
+    @element.remove()
 
   addLeftTile: (options) ->
     newItem = options.item
@@ -98,5 +103,3 @@ class StatusBarView extends HTMLElement
     return unless @buffer
     for [event, callback] in @bufferSubscriptions
       @buffer.off(event, callback)
-
-module.exports = document.registerElement('status-bar', prototype: StatusBarView.prototype)

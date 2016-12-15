@@ -1,14 +1,14 @@
-class LaunchModeView extends HTMLElement
-  initialize: ({safeMode, devMode}={}) ->
-    @classList.add('inline-block', 'icon', 'icon-color-mode')
+module.exports =
+class LaunchModeView
+  constructor: ({safeMode, devMode}={}) ->
+    @element = document.createElement('status-bar-launch-mode')
+    @element.classList.add('inline-block', 'icon', 'icon-color-mode')
     if devMode
-      @classList.add('text-error')
-      @tooltipDisposable = atom.tooltips.add(this, title: 'This window is in dev mode')
+      @element.classList.add('text-error')
+      @tooltipDisposable = atom.tooltips.add(@element, title: 'This window is in dev mode')
     else if safeMode
-      @classList.add('text-success')
-      @tooltipDisposable = atom.tooltips.add(this, title: 'This window is in safe mode')
+      @element.classList.add('text-success')
+      @tooltipDisposable = atom.tooltips.add(@element, title: 'This window is in safe mode')
 
   detachedCallback: ->
     @tooltipDisposable?.dispose()
-
-module.exports = document.registerElement('status-bar-launch-mode', prototype: LaunchModeView.prototype, extends: 'span')

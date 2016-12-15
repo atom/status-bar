@@ -1,9 +1,10 @@
 _ = require 'underscore-plus'
 
-class SelectionCountView extends HTMLElement
-
-  initialize: ->
-    @classList.add('selection-count', 'inline-block')
+module.exports =
+class SelectionCountView
+  constructor: ->
+    @element = document.createElement('status-bar-selection')
+    @element.classList.add('selection-count', 'inline-block')
 
     @formatString = atom.config.get('status-bar.selectionCountFormat') ? '(%L, %C)'
     @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
@@ -40,11 +41,9 @@ class SelectionCountView extends HTMLElement
     lineCount = range?.getRowCount()
     lineCount -= 1 if range?.end.column is 0
     if count > 0
-      @textContent = @formatString.replace('%L', lineCount).replace('%C', count)
+      @element.textContent = @formatString.replace('%L', lineCount).replace('%C', count)
       title = "#{_.pluralize(lineCount, 'line')}, #{_.pluralize(count, 'character')} selected"
       @toolTipDisposable?.dispose()
-      @toolTipDisposable = atom.tooltips.add this, title: title
+      @toolTipDisposable = atom.tooltips.add @element, title: title
     else
-      @textContent = ''
-
-module.exports = document.registerElement('status-bar-selection', prototype: SelectionCountView.prototype, extends: 'div')
+      @element.textContent = ''

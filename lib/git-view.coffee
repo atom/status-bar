@@ -1,9 +1,11 @@
 _ = require "underscore-plus"
 {CompositeDisposable, GitRepositoryAsync} = require "atom"
 
-class GitView extends HTMLElement
-  initialize: ->
-    @classList.add('git-view')
+module.exports =
+class GitView
+  constructor: ->
+    @element = document.createElement('status-bar-git')
+    @element.classList.add('git-view')
 
     @createBranchArea()
     @createCommitsArea()
@@ -19,7 +21,8 @@ class GitView extends HTMLElement
   createBranchArea: ->
     @branchArea = document.createElement('div')
     @branchArea.classList.add('git-branch', 'inline-block')
-    @appendChild(@branchArea)
+    @element.appendChild(@branchArea)
+    @element.branchArea = @branchArea
 
     branchIcon = document.createElement('span')
     branchIcon.classList.add('icon', 'icon-git-branch')
@@ -28,11 +31,12 @@ class GitView extends HTMLElement
     @branchLabel = document.createElement('span')
     @branchLabel.classList.add('branch-label')
     @branchArea.appendChild(@branchLabel)
+    @element.branchLabel = @branchLabel
 
   createCommitsArea: ->
     @commitsArea = document.createElement('div')
     @commitsArea.classList.add('git-commits', 'inline-block')
-    @appendChild(@commitsArea)
+    @element.appendChild(@commitsArea)
 
     @commitsAhead = document.createElement('span')
     @commitsAhead.classList.add('icon', 'icon-arrow-up', 'commits-ahead-label')
@@ -45,11 +49,12 @@ class GitView extends HTMLElement
   createStatusArea: ->
     @gitStatus = document.createElement('div')
     @gitStatus.classList.add('git-status', 'inline-block')
-    @appendChild(@gitStatus)
+    @element.appendChild(@gitStatus)
 
     @gitStatusIcon = document.createElement('span')
     @gitStatusIcon.classList.add('icon')
     @gitStatus.appendChild(@gitStatusIcon)
+    @element.gitStatusIcon = @gitStatusIcon
 
   subscribeToActiveItem: ->
     activeItem = @getActiveItem()
@@ -215,5 +220,3 @@ class GitView extends HTMLElement
         hideStatus()
     else
       hideStatus()
-
-module.exports = document.registerElement('status-bar-git', prototype: GitView.prototype, extends: 'div')
