@@ -14,10 +14,12 @@ class StatusBarView
     @leftPanel = document.createElement('div')
     @leftPanel.classList.add('status-bar-left')
     flexboxHackElement.appendChild(@leftPanel)
+    @element.leftPanel = @leftPanel
 
     @rightPanel = document.createElement('div')
     @rightPanel.classList.add('status-bar-right')
     flexboxHackElement.appendChild(@rightPanel)
+    @element.rightPanel = @rightPanel
 
     @leftTiles = []
     @rightTiles = []
