@@ -108,7 +108,8 @@ class FileInfoView
 
   updatePathText: ->
     if path = @getActiveItem()?.getPath?()
-      @currentPath.textContent = fs.tildify(atom.project.relativize(path))
+      relativized = atom.project.relativize(path)
+      @currentPath.textContent = if relativized? then fs.tildify(relativized) else path
     else if title = @getActiveItem()?.getTitle?()
       @currentPath.textContent = title
     else
