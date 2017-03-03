@@ -9,7 +9,7 @@
     "atom": "*"
   },
   "dependencies": {
-    "fs-plus": "^2.9.3",
+    "fs-plus": "^2.10.0",
     "grim": "^2.0.1",
     "underscore-plus": "^1.0.0"
   },
