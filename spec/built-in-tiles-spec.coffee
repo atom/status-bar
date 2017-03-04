@@ -2,7 +2,6 @@ fs = require 'fs-plus'
 path = require 'path'
 os = require 'os'
 process = require 'process'
-{$} = require 'atom-space-pen-views'
 
 describe "Built-in Status Bar Tiles", ->
   [statusBar, workspaceElement, dummyView] = []
