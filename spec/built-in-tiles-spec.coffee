@@ -230,7 +230,7 @@ describe "Built-in Status Bar Tiles", ->
       it "does not throw an exception if the cursor is moved as the result of the active pane item changing to a non-editor (regression)", ->
         # FIXME: Restructure this spec to build a new workspace for each test so we can subscribe to this event before
         # activating this package. Then we won't need to use these internals. I don't have time right now.
-        atom.workspace.paneContainer.emitter.preempt('did-change-active-pane-item', -> editor.setCursorScreenPosition([1, 2]))
+        atom.workspace.emitter.preempt('did-change-active-pane-item', -> editor.setCursorScreenPosition([1, 2]))
         atom.workspace.getActivePane().activateItem(document.createElement('div'))
         expect(editor.getCursorScreenPosition()).toEqual([1, 2])
         atom.views.performDocumentUpdate()
@@ -255,7 +255,7 @@ describe "Built-in Status Bar Tiles", ->
       it "does not throw an exception if the cursor is moved as the result of the active pane item changing to a non-editor (regression)", ->
         # FIXME: Restructure this spec to build a new workspace for each test so we can subscribe to this event before
         # activating this package. Then we won't need to use these internals. I don't have time right now.
-        atom.workspace.paneContainer.emitter.preempt('did-change-active-pane-item', -> editor.setSelectedBufferRange([[1, 2], [1, 3]]))
+        atom.workspace.emitter.preempt('did-change-active-pane-item', -> editor.setSelectedBufferRange([[1, 2], [1, 3]]))
         atom.workspace.getActivePane().activateItem(document.createElement('div'))
         expect(editor.getSelectedBufferRange()).toEqual([[1, 2], [1, 3]])
         atom.views.performDocumentUpdate()
