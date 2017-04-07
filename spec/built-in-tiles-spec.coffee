@@ -228,13 +228,17 @@ describe "Built-in Status Bar Tiles", ->
         expect(cursorPosition.textContent).toBe '2:3'
 
       it "does not throw an exception if the cursor is moved as the result of the active pane item changing to a non-editor (regression)", ->
-        # FIXME: Restructure this spec to build a new workspace for each test so we can subscribe to this event before
-        # activating this package. Then we won't need to use these internals. I don't have time right now.
-        atom.workspace.emitter.preempt('did-change-active-pane-item', -> editor.setCursorScreenPosition([1, 2]))
-        atom.workspace.getActivePane().activateItem(document.createElement('div'))
-        expect(editor.getCursorScreenPosition()).toEqual([1, 2])
-        atom.views.performDocumentUpdate()
-        expect(cursorPosition).toBeHidden()
+        atom.packages.deactivatePackage('status-bar')
+        atom.workspace.onDidChangeActivePaneItem(-> editor.setCursorScreenPosition([1, 2]))
+        waitsForPromise -> atom.packages.activatePackage('status-bar')
+        runs ->
+          statusBar = workspaceElement.querySelector("status-bar")
+          cursorPosition = statusBar.getLeftTiles()[2].getItem()
+
+          atom.workspace.getActivePane().activateItem(document.createElement('div'))
+          expect(editor.getCursorScreenPosition()).toEqual([1, 2])
+          atom.views.performDocumentUpdate()
+          expect(cursorPosition).toBeHidden()
 
     describe "when the associated editor's selection changes", ->
       it "updates the selection count in the status bar", ->
@@ -253,13 +257,17 @@ describe "Built-in Status Bar Tiles", ->
         expect(selectionCount.textContent).toBe "(2, 60)"
 
       it "does not throw an exception if the cursor is moved as the result of the active pane item changing to a non-editor (regression)", ->
-        # FIXME: Restructure this spec to build a new workspace for each test so we can subscribe to this event before
-        # activating this package. Then we won't need to use these internals. I don't have time right now.
-        atom.workspace.emitter.preempt('did-change-active-pane-item', -> editor.setSelectedBufferRange([[1, 2], [1, 3]]))
-        atom.workspace.getActivePane().activateItem(document.createElement('div'))
-        expect(editor.getSelectedBufferRange()).toEqual([[1, 2], [1, 3]])
-        atom.views.performDocumentUpdate()
-        expect(selectionCount).toBeHidden()
+        atom.packages.deactivatePackage('status-bar')
+        atom.workspace.onDidChangeActivePaneItem(-> editor.setSelectedBufferRange([[1, 2], [1, 3]]))
+        waitsForPromise -> atom.packages.activatePackage('status-bar')
+        runs ->
+          statusBar = workspaceElement.querySelector("status-bar")
+          selectionCount = statusBar.getLeftTiles()[3].getItem()
+
+          atom.workspace.getActivePane().activateItem(document.createElement('div'))
+          expect(editor.getSelectedBufferRange()).toEqual([[1, 2], [1, 3]])
+          atom.views.performDocumentUpdate()
+          expect(selectionCount).toBeHidden()
 
     describe "when the active pane item does not implement getCursorBufferPosition()", ->
       it "hides the cursor position view", ->
