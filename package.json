@@ -32,7 +32,7 @@
       "type": "string",
       "default": "Bottom",
       "enum": ["Top", "Bottom"],
-      "description": "Shold the status-bar be shown at the top or bottom of the workspace"
+      "description": "Should the status-bar be shown at the top or bottom of the workspace"
     },
     "fullWidth": {
       "order": 1,
