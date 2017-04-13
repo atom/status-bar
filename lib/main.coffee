@@ -18,6 +18,9 @@ module.exports =
     @subscriptions.add atom.config.onDidChange 'status-bar.fullWidth', =>
       @attachStatusBar()
 
+    @subscriptions.add atom.config.onDidChange 'status-bar.position', =>
+      @attachStatusBar()
+
     @updateStatusBarVisibility()
 
     @statusBarVisibilitySubscription =
@@ -95,9 +98,15 @@ module.exports =
 
     panelArgs = {item: @statusBar, priority: 0}
     if atom.config.get('status-bar.fullWidth')
-      @statusBarPanel = atom.workspace.addFooterPanel panelArgs
+      if (atom.config.get('status-bar.position') is 'Bottom')
+        @statusBarPanel = atom.workspace.addFooterPanel panelArgs
+      else
+        @statusBarPanel = atom.workspace.addHeaderPanel panelArgs
     else
-      @statusBarPanel = atom.workspace.addBottomPanel panelArgs
+      if (atom.config.get('status-bar.position') is 'Bottom')
+        @statusBarPanel = atom.workspace.addBottomPanel panelArgs
+      else
+        @statusBarPanel = atom.workspace.addTopPanel panelArgs
 
   # Deprecated
   #

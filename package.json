@@ -28,6 +28,11 @@
       "default": true,
       "description": "Show status bar at the bottom of the workspace"
     },
+    "position": {
+      "type": "string",
+      "default": "Bottom",
+      "enum": ["Top", "Bottom"]
+    },
     "fullWidth": {
       "order": 1,
       "type": "boolean",
