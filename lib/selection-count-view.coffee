@@ -6,6 +6,9 @@ class SelectionCountView
     @element = document.createElement('status-bar-selection')
     @element.classList.add('selection-count', 'inline-block')
 
+    @tooltipElement = document.createElement('div')
+    @tooltipDisposable = atom.tooltips.add @element, item: @tooltipElement
+
     @formatString = atom.config.get('status-bar.selectionCountFormat') ? '(%L, %C)'
     @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
       @subscribeToActiveTextEditor()
@@ -17,23 +20,30 @@ class SelectionCountView
     @activeItemSubscription.dispose()
     @selectionSubscription?.dispose()
     @configSubscription?.dispose()
+    @tooltipDisposable.dispose()
 
   subscribeToConfig: ->
     @configSubscription?.dispose()
     @configSubscription = atom.config.observe 'status-bar.selectionCountFormat', (value) =>
       @formatString = value ? '(%L, %C)'
-      @updateCount()
+      @scheduleUpdateCount()
 
   subscribeToActiveTextEditor: ->
     @selectionSubscription?.dispose()
     activeEditor = @getActiveTextEditor()
-    @selectionSubscription = activeEditor?.onDidChangeSelectionRange ({selection}) =>
-      return unless selection is activeEditor.getLastSelection()
-      @updateCount()
-    @updateCount()
+    selectionsMarkerLayer = activeEditor?.selectionsMarkerLayer
+    @selectionSubscription = selectionsMarkerLayer?.onDidUpdate(@scheduleUpdateCount.bind(this))
+    @scheduleUpdateCount()
 
   getActiveTextEditor: ->
     atom.workspace.getActiveTextEditor()
+
+  scheduleUpdateCount: ->
+    unless @scheduledUpdate
+      @scheduledUpdate = true
+      atom.views.updateDocument =>
+        @updateCount()
+        @scheduledUpdate = false
 
   updateCount: ->
     count = @getActiveTextEditor()?.getSelectedText().length
@@ -42,8 +52,7 @@ class SelectionCountView
     lineCount -= 1 if range?.end.column is 0
     if count > 0
       @element.textContent = @formatString.replace('%L', lineCount).replace('%C', count)
-      title = "#{_.pluralize(lineCount, 'line')}, #{_.pluralize(count, 'character')} selected"
-      @toolTipDisposable?.dispose()
-      @toolTipDisposable = atom.tooltips.add @element, title: title
+      @tooltipElement.textContent = "#{_.pluralize(lineCount, 'line')}, #{_.pluralize(count, 'character')} selected"
     else
       @element.textContent = ''
+      @tooltipElement.textContent = ''
