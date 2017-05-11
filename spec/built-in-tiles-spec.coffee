@@ -340,14 +340,17 @@ describe "Built-in Status Bar Tiles", ->
       it 'respects a format string', ->
         jasmine.attachToDOM(workspaceElement)
         editor.setSelectedBufferRange([[0, 0], [1, 30]])
+        atom.views.performDocumentUpdate()
         expect(selectionCount.textContent).toBe "2 foo 60 bar selected"
 
       it 'updates when the configuration changes', ->
         jasmine.attachToDOM(workspaceElement)
         editor.setSelectedBufferRange([[0, 0], [1, 30]])
+        atom.views.performDocumentUpdate()
         expect(selectionCount.textContent).toBe "2 foo 60 bar selected"
 
         atom.config.set('status-bar.selectionCountFormat', 'Selection: baz %C quux %L')
+        atom.views.performDocumentUpdate()
         expect(selectionCount.textContent).toBe "Selection: baz 60 quux 2"
 
       it 'does not include the next line if the last selected character is a LF', ->
@@ -356,6 +359,7 @@ describe "Built-in Status Bar Tiles", ->
         buffer.setText(buffer.getText().replace(lineEndingRegExp, '\n'))
         jasmine.attachToDOM(workspaceElement)
         editor.setSelectedBufferRange([[0, 0], [1, 0]])
+        atom.views.performDocumentUpdate()
         expect(selectionCount.textContent).toBe "1 foo 30 bar selected"
 
       it 'does not include the next line if the last selected character is CRLF', ->
@@ -364,6 +368,7 @@ describe "Built-in Status Bar Tiles", ->
         buffer.setText(buffer.getText().replace(lineEndingRegExp, '\r\n'))
         jasmine.attachToDOM(workspaceElement)
         editor.setSelectedBufferRange([[0, 0], [1, 0]])
+        atom.views.performDocumentUpdate()
         expect(selectionCount.textContent).toBe "1 foo 31 bar selected"
 
   describe "the git tile", ->
