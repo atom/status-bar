@@ -34,16 +34,15 @@ class CursorPositionView
   subscribeToActiveTextEditor: ->
     @cursorSubscription?.dispose()
     activeEditor = @getActiveTextEditor()
-    @cursorSubscription = activeEditor?.onDidChangeCursorPosition ({cursor}) =>
-      return unless cursor is activeEditor.getLastCursor()
-      @updatePosition()
-    @updatePosition()
+    selectionsMarkerLayer = activeEditor?.selectionsMarkerLayer
+    @cursorSubscription = selectionsMarkerLayer?.onDidUpdate(@scheduleUpdate.bind(this))
+    @scheduleUpdate()
 
   subscribeToConfig: ->
     @configSubscription?.dispose()
     @configSubscription = atom.config.observe 'status-bar.cursorPositionFormat', (value) =>
       @formatString = value ? '%L:%C'
-      @updatePosition()
+      @scheduleUpdate()
 
   handleClick: ->
     clickHandler = => atom.commands.dispatch(atom.views.getView(@getActiveTextEditor()), 'go-to-line:toggle')
@@ -53,7 +52,7 @@ class CursorPositionView
   getActiveTextEditor: ->
     atom.workspace.getActiveTextEditor()
 
-  updatePosition: ->
+  scheduleUpdate: ->
     return if @viewUpdatePending
 
     @viewUpdatePending = true
