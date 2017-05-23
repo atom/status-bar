@@ -174,7 +174,12 @@ describe "Built-in Status Bar Tiles", ->
           editor.insertText("\n")
           advanceClock(buffer.stoppedChangingDelay)
           expect(fileInfo.classList.contains('buffer-modified')).toBe(true)
-          editor.getBuffer().save()
+
+        waitsForPromise ->
+          # TODO - remove this Promise.resolve once atom/atom#14435 lands.
+          Promise.resolve(editor.getBuffer().save())
+
+        runs ->
           expect(fileInfo.classList.contains('buffer-modified')).toBe(false)
 
       it "disables the buffer modified indicator if the content matches again", ->
