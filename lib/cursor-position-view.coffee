@@ -13,8 +13,12 @@ class CursorPositionView
     @element.appendChild(@goToLineLink)
 
     @formatString = atom.config.get('status-bar.cursorPositionFormat') ? '%L:%C'
-    @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem (activeItem) =>
-      @subscribeToActiveTextEditor()
+
+    # TODO[v1.19]: Remove conditional once atom.workspace.onDidChangeActiveTextEditor ships in Atom v1.19
+    if (atom.workspace.onDidChangeActiveTextEditor)
+      @activeItemSubscription = atom.workspace.onDidChangeActiveTextEditor (activeEditor) => @subscribeToActiveTextEditor()
+    else
+      @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem (activeItem) => @subscribeToActiveTextEditor()
 
     @subscribeToConfig()
     @subscribeToActiveTextEditor()
