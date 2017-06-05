@@ -11,7 +11,7 @@ class GitView
     @createCommitsArea()
     @createStatusArea()
 
-    @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
+    @activeItemSubscription = atom.workspace.getCenter().onDidChangeActivePaneItem =>
       @subscribeToActiveItem()
     @projectPathSubscription = atom.project.onDidChangePaths =>
       @subscribeToRepositories()
@@ -97,7 +97,7 @@ class GitView
         return repo
 
   getActiveItem: ->
-    atom.workspace.getActivePaneItem()
+    atom.workspace.getCenter().getActivePaneItem()
 
   update: ->
     repo = @getRepositoryForActiveItem()
