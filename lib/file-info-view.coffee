@@ -15,7 +15,7 @@ class FileInfoView
 
     @element.getActiveItem = @getActiveItem.bind(this)
 
-    @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
+    @activeItemSubscription = atom.workspace.getCenter().onDidChangeActivePaneItem =>
       @subscribeToActiveItem()
     @subscribeToActiveItem()
 
@@ -92,7 +92,7 @@ class FileInfoView
     @tooltip?.dispose()
 
   getActiveItem: ->
-    atom.workspace.getActivePaneItem()
+    atom.workspace.getCenter().getActivePaneItem()
 
   update: ->
     @updatePathText()

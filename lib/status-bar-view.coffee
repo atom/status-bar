@@ -31,7 +31,7 @@ class StatusBarView
 
     @bufferSubscriptions = []
 
-    @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem =>
+    @activeItemSubscription = atom.workspace.getCenter().onDidChangeActivePaneItem =>
       @unsubscribeAllFromBuffer()
       @storeActiveBuffer()
       @subscribeAllToBuffer()
@@ -87,7 +87,7 @@ class StatusBarView
     @buffer
 
   getActiveItem: ->
-    atom.workspace.getActivePaneItem()
+    atom.workspace.getCenter().getActivePaneItem()
 
   storeActiveBuffer: ->
     @buffer = @getActiveItem()?.getBuffer?()
