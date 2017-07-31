@@ -34,7 +34,7 @@ class FileInfoView
 
   registerTooltip: ->
     @tooltip = atom.tooltips.add(@element, title: ->
-      "Click to copy file path")
+      "Click to copy absolute file path (Shift + Click to copy relative path)")
 
   clearCopiedTooltip: ->
     @copiedTooltip?.dispose()
