@@ -82,6 +82,31 @@ describe "Status Bar package", ->
         expect(containers.footer.panels).toContain(mainModule.statusBarPanel)
         expect(containers.bottom.panels).not.toContain(mainModule.statusBarPanel)
 
+  describe "position setting", ->
+    [containers] = []
+
+    beforeEach ->
+      containers = atom.workspace.panelContainers
+      jasmine.attachToDOM(workspaceElement)
+
+      waitsForPromise ->
+        atom.workspace.open('sample.js')
+
+    it "expects the setting to be 'Bottom' by default", ->
+      expect(atom.config.get('status-bar.position')).toBe('Bottom')
+      expect(containers.footer.panels).toContain(mainModule.statusBarPanel)
+
+    describe "when setting is changed", ->
+      it "moves the status bar to the top", ->
+        atom.config.set('status-bar.position', 'Top')
+        expect(containers.footer.panels).not.toContain(mainModule.statusBarPanel)
+        expect(containers.header.panels).toContain(mainModule.statusBarPanel)
+
+      it "restores the status-bar location when re-enabling setting", ->
+        atom.config.set('status-bar.position', 'Bottom')
+        expect(containers.header.panels).not.toContain(mainModule.statusBarPanel)
+        expect(containers.footer.panels).toContain(mainModule.statusBarPanel)
+
   describe "the 'status-bar' service", ->
     it "allows tiles to be added, removed, and retrieved", ->
       dummyView = document.createElement("div")
