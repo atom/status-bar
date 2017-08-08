@@ -11,11 +11,7 @@ class SelectionCountView
 
     @formatString = atom.config.get('status-bar.selectionCountFormat') ? '(%L, %C)'
 
-    # TODO[v1.19]: Remove conditional once atom.workspace.onDidChangeActiveTextEditor ships in Atom v1.19
-    if (atom.workspace.onDidChangeActiveTextEditor)
-      @activeItemSubscription = atom.workspace.onDidChangeActiveTextEditor => @subscribeToActiveTextEditor()
-    else
-      @activeItemSubscription = atom.workspace.onDidChangeActivePaneItem => @subscribeToActiveTextEditor()
+    @activeItemSubscription = atom.workspace.onDidChangeActiveTextEditor => @subscribeToActiveTextEditor()
 
     @subscribeToConfig()
     @subscribeToActiveTextEditor()
