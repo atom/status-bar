@@ -1,6 +1,6 @@
 {
   "name": "status-bar",
-  "version": "1.8.11",
+  "version": "1.8.12",
   "main": "./lib/main",
   "description": "Display information about the current editor such as cursor position, file path, grammar, current branch, ahead/behind commits counts, and line diff count.",
   "repository": "https://github.com/atom/status-bar",
