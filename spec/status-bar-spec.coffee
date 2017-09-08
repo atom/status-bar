@@ -18,8 +18,10 @@ describe "Status Bar package", ->
 
   describe "@deactivate()", ->
     it "removes the status bar view", ->
-      atom.packages.deactivatePackage("status-bar")
-      expect(workspaceElement.querySelector('status-bar')).toBeNull()
+      waitsForPromise ->
+        Promise.resolve(atom.packages.deactivatePackage('status-bar')) # Wrapped so works with Promise & non-Promise deactivate
+      runs ->
+        expect(workspaceElement.querySelector('status-bar')).toBeNull()
 
   describe "isVisible option", ->
     beforeEach ->
