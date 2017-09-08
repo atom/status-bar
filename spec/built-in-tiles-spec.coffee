@@ -233,9 +233,12 @@ describe "Built-in Status Bar Tiles", ->
         expect(cursorPosition.textContent).toBe '2:3'
 
       it "does not throw an exception if the cursor is moved as the result of the active pane item changing to a non-editor (regression)", ->
-        atom.packages.deactivatePackage('status-bar')
-        atom.workspace.onDidChangeActivePaneItem(-> editor.setCursorScreenPosition([1, 2]))
-        waitsForPromise -> atom.packages.activatePackage('status-bar')
+        waitsForPromise ->
+          Promise.resolve(atom.packages.deactivatePackage('status-bar')) # Wrapped so works with Promise & non-Promise deactivate
+        runs ->
+          atom.workspace.onDidChangeActivePaneItem(-> editor.setCursorScreenPosition([1, 2]))
+        waitsForPromise ->
+          atom.packages.activatePackage('status-bar')
         runs ->
           statusBar = workspaceElement.querySelector("status-bar")
           cursorPosition = statusBar.getLeftTiles()[2].getItem()
@@ -262,9 +265,12 @@ describe "Built-in Status Bar Tiles", ->
         expect(selectionCount.textContent).toBe "(2, 60)"
 
       it "does not throw an exception if the cursor is moved as the result of the active pane item changing to a non-editor (regression)", ->
-        atom.packages.deactivatePackage('status-bar')
-        atom.workspace.onDidChangeActivePaneItem(-> editor.setSelectedBufferRange([[1, 2], [1, 3]]))
-        waitsForPromise -> atom.packages.activatePackage('status-bar')
+        waitsForPromise ->
+          Promise.resolve(atom.packages.deactivatePackage('status-bar')) # Wrapped so works with Promise & non-Promise deactivate
+        runs ->
+          atom.workspace.onDidChangeActivePaneItem(-> editor.setSelectedBufferRange([[1, 2], [1, 3]]))
+        waitsForPromise ->
+          atom.packages.activatePackage('status-bar')
         runs ->
           statusBar = workspaceElement.querySelector("status-bar")
           selectionCount = statusBar.getLeftTiles()[3].getItem()
