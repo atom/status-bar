@@ -49,6 +49,10 @@ status-bar {
   .status-bar-left,
   .status-bar-right {
     overflow-x: auto;
+    // prevent badly behaved status bar items from causing vertical scrolling
+    // in the status bar. They can always implement overflow: auto to scroll
+    // within themselves.
+    overflow-y: hidden;
     &::-webkit-scrollbar {
       display: none;
     }
