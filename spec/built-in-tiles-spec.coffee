@@ -64,6 +64,13 @@ describe "Built-in Status Bar Tiles", ->
         fileInfo.currentPath.click()
         expect(atom.clipboard.read()).toBe '/folder/remote_file.txt'
 
+      it "calls relativize with the remote URL on shift-click", ->
+        spy = spyOn(atom.project, 'relativize').andReturn 'remote_file.txt'
+        event = new MouseEvent('click', shiftKey: true)
+        fileInfo.currentPath.dispatchEvent(event)
+        expect(atom.clipboard.read()).toBe 'remote_file.txt'
+        expect(spy).toHaveBeenCalledWith 'remote://server:123/folder/remote_file.txt'
+
     describe "when buffer's path is clicked", ->
       it "copies the absolute path into the clipboard if available", ->
         waitsForPromise ->

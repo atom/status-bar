@@ -53,16 +53,18 @@ class FileInfoView
   getActiveItemCopyText: (copyRelativePath) ->
     activeItem = @getActiveItem()
     path = activeItem?.getPath?()
+    return activeItem?.getTitle?() or '' if not path?
+
+    # Make sure we try to relativize before parsing URLs.
+    if copyRelativePath
+      relativized = atom.project.relativize(path)
+      if relativized isnt path
+        return relativized
+
     # An item path could be a url, we only want to copy the `path` part
     if path?.indexOf('://') > 0
       path = url.parse(path).path
-
-    return activeItem?.getTitle?() or '' if not path?
-
-    if copyRelativePath
-      atom.project.relativize(path)
-    else
-      path
+    path
 
   subscribeToActiveItem: ->
     @modifiedSubscription?.dispose()
