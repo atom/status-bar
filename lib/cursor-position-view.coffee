@@ -9,7 +9,6 @@ class CursorPositionView
     @element.classList.add('cursor-position', 'inline-block')
     @goToLineLink = document.createElement('a')
     @goToLineLink.classList.add('inline-block')
-    @goToLineLink.href = '#'
     @element.appendChild(@goToLineLink)
 
     @formatString = atom.config.get('status-bar.cursorPositionFormat') ? '%L:%C'
@@ -33,8 +32,7 @@ class CursorPositionView
 
   subscribeToActiveTextEditor: ->
     @cursorSubscription?.dispose()
-    activeEditor = @getActiveTextEditor()
-    selectionsMarkerLayer = activeEditor?.selectionsMarkerLayer
+    selectionsMarkerLayer = atom.workspace.getActiveTextEditor()?.selectionsMarkerLayer
     @cursorSubscription = selectionsMarkerLayer?.onDidUpdate(@scheduleUpdate.bind(this))
     @scheduleUpdate()
 
@@ -45,12 +43,9 @@ class CursorPositionView
       @scheduleUpdate()
 
   handleClick: ->
-    clickHandler = => atom.commands.dispatch(atom.views.getView(@getActiveTextEditor()), 'go-to-line:toggle')
+    clickHandler = -> atom.commands.dispatch(atom.views.getView(atom.workspace.getActiveTextEditor()), 'go-to-line:toggle')
     @element.addEventListener('click', clickHandler)
     @clickSubscription = new Disposable => @element.removeEventListener('click', clickHandler)
-
-  getActiveTextEditor: ->
-    atom.workspace.getActiveTextEditor()
 
   scheduleUpdate: ->
     return if @viewUpdatePending
@@ -58,7 +53,7 @@ class CursorPositionView
     @viewUpdatePending = true
     @updateSubscription = atom.views.updateDocument =>
       @viewUpdatePending = false
-      if position = @getActiveTextEditor()?.getCursorBufferPosition()
+      if position = atom.workspace.getActiveTextEditor()?.getCursorBufferPosition()
         @row = position.row + 1
         @column = position.column + 1
         @goToLineLink.textContent = @formatString.replace('%L', @row).replace('%C', @column)
