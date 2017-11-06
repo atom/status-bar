@@ -60,6 +60,9 @@
     },
     "globals": [
       "atom"
+    ],
+    "ignore": [
+      "spec/fixtures/"
     ]
   }
 }
