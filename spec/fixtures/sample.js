@@ -11,3 +11,8 @@ var quicksort = function () {
 
   return sort(Array.apply(this, arguments));
 };
+
+// This function uses hard-tab indentation to test the cursor position view
+function testTabs() {
+	return true;
+}

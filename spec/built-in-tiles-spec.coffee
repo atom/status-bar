@@ -255,6 +255,13 @@ describe "Built-in Status Bar Tiles", ->
           atom.views.performDocumentUpdate()
           expect(cursorPosition).toBeHidden()
 
+      it "counts hard tabs using the editor's tab-length setting", ->
+        jasmine.attachToDOM(workspaceElement)
+        editor.setCursorBufferPosition([16, 1])
+        atom.views.performDocumentUpdate()
+        tabLength = editor.getTabLength()
+        expect(cursorPosition.textContent).toBe "17:#{tabLength + 1}"
+
     describe "when the associated editor's selection changes", ->
       it "updates the selection count in the status bar", ->
         jasmine.attachToDOM(workspaceElement)

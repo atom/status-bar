@@ -53,11 +53,19 @@ class CursorPositionView
     @viewUpdatePending = true
     @updateSubscription = atom.views.updateDocument =>
       @viewUpdatePending = false
-      if position = atom.workspace.getActiveTextEditor()?.getCursorBufferPosition()
+      activeEditor = atom.workspace.getActiveTextEditor()
+      if position = activeEditor?.getCursorBufferPosition()
+        columnNumber = @calculateColumnNumber(activeEditor, position)
         @row = position.row + 1
-        @column = position.column + 1
+        @column = columnNumber + 1
         @goToLineLink.textContent = @formatString.replace('%L', @row).replace('%C', @column)
         @element.classList.remove('hide')
       else
         @goToLineLink.textContent = ''
         @element.classList.add('hide')
+
+  calculateColumnNumber: (editor, bufferPosition) ->
+    text = editor.lineTextForBufferRow(bufferPosition.row)
+    prefixChars = text.slice(0, bufferPosition.column).split('')
+    numTabs = prefixChars.filter((c) -> c == '\t').length
+    return bufferPosition.column + numTabs * (editor.getTabLength() - 1)
