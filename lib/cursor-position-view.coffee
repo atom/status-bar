@@ -67,5 +67,5 @@ class CursorPositionView
   calculateColumnNumber: (editor, bufferPosition) ->
     text = editor.lineTextForBufferRow(bufferPosition.row)
     prefixChars = text.slice(0, bufferPosition.column).split('')
-    numTabs = prefixChars.filter((c) -> c == '\t').length
+    numTabs = prefixChars.filter((c) -> c is '\t').length
     return bufferPosition.column + numTabs * (editor.getTabLength() - 1)
