@@ -46,7 +46,7 @@ class FileInfoView
     text = @getActiveItemCopyText(copyRelativePath)
     @copiedTooltip = atom.tooltips.add @element,
       title: "Copied: #{text}"
-      trigger: 'click'
+      trigger: 'manual'
       delay:
         show: 0
 
