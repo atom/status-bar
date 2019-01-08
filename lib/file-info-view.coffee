@@ -29,8 +29,8 @@ class FileInfoView
         @clearCopiedTooltip()
       , 2000
 
-    @currentPath.addEventListener('click', clickHandler)
-    @clickSubscription = new Disposable => @currentPath.removeEventListener('click', clickHandler)
+    @element.addEventListener('click', clickHandler)
+    @clickSubscription = new Disposable => @element.removeEventListener('click', clickHandler)
 
   registerTooltip: ->
     @tooltip = atom.tooltips.add(@element, title: ->
