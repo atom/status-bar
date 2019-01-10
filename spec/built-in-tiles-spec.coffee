@@ -80,15 +80,6 @@ describe "Built-in Status Bar Tiles", ->
           fileInfo.click()
           expect(atom.clipboard.read()).toBe fileInfo.getActiveItem().getPath()
 
-    describe "when buffer's path is clicked", ->
-      it "copies the absolute path into the clipboard if available", ->
-        waitsForPromise ->
-          atom.workspace.open('sample.txt')
-
-        runs ->
-          fileInfo.currentPath.click()
-          expect(atom.clipboard.read()).toBe fileInfo.getActiveItem().getPath()
-
     describe "when the file info tile is shift-clicked", ->
       it "copies the relative path into the clipboard if available", ->
         waitsForPromise ->
