@@ -29,8 +29,8 @@ class FileInfoView
         @clearCopiedTooltip()
       , 2000
 
-    @currentPath.addEventListener('click', clickHandler)
-    @clickSubscription = new Disposable => @currentPath.removeEventListener('click', clickHandler)
+    @element.addEventListener('click', clickHandler)
+    @clickSubscription = new Disposable => @element.removeEventListener('click', clickHandler)
 
   registerTooltip: ->
     @tooltip = atom.tooltips.add(@element, title: ->
@@ -46,7 +46,7 @@ class FileInfoView
     text = @getActiveItemCopyText(copyRelativePath)
     @copiedTooltip = atom.tooltips.add @element,
       title: "Copied: #{text}"
-      trigger: 'click'
+      trigger: 'manual'
       delay:
         show: 0
 
