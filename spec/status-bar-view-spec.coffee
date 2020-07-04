@@ -1,4 +1,4 @@
-StatusBarView = require '../lib/status-bar-view'
+{StatusBarView} = require '../dist/main'
 
 describe "StatusBarView", ->
   statusBarView = null
