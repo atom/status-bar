@@ -1,17 +1,25 @@
 {
   "name": "status-bar",
   "version": "1.8.17",
-  "main": "./lib/main",
+  "main": "./dist/main",
   "description": "Display information about the current editor such as cursor position, file path, grammar, current branch, ahead/behind commits counts, and line diff count.",
   "repository": "https://github.com/atom/status-bar",
   "license": "MIT",
   "engines": {
     "atom": "*"
   },
+  "scripts": {
+    "test": "atom --test spec",
+    "clean": "shx rm -rf dist",
+    "babel": "npm run clean && shx cp -r lib dist && cross-env NODE_ENV=development cross-env BABEL_KEEP_MODULES=false babel dist --out-dir dist",
+    "build": "npm run babel",
+    "build-commit": "build-commit -o dist",
+    "prepare": "npm run build"
+  },
   "dependencies": {
-    "fs-plus": "^3.0.1",
-    "grim": "^2.0.1",
-    "underscore-plus": "^1.0.0"
+    "fs-plus": "^3.1.1",
+    "grim": "^2.0.2",
+    "underscore-plus": "^1.7.0"
   },
   "providedServices": {
     "status-bar": {
@@ -49,6 +57,13 @@
     }
   },
   "devDependencies": {
-    "coffeelint": "^1.9.7"
+    "coffeelint": "^1.9.7",
+    "coffeescript": "^1.12.7",
+    "shx": "latest",
+    "cross-env": "^7.0.2",
+    "@babel/cli": "7.10.5",
+    "@babel/core": "7.10.5",
+    "babel-preset-atomic": "^1.0.7",
+    "build-commit": "latest"
   }
 }
